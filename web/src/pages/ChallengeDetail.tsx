@@ -82,8 +82,7 @@ export function ChallengeDetail() {
         const projects = await apiClient.getProjects(id);
 
         if (projects.length > 0) {
-          // User has existing projects, but always start at language selection
-          // so they can choose to continue or create a new attempt
+          // Get the most recent project (or filter by selected language if available)
           const project = projects[0];
           
           // Store the existing project info but don't auto-navigate
@@ -333,6 +332,14 @@ export function ChallengeDetail() {
     try {
       setCreatingProject(true);
       setProjectError(null);
+      
+      // Clear old project info if switching languages
+      if (existingProject && existingProject.language.toLowerCase() !== language.toLowerCase()) {
+        setExistingProject(null);
+        setSavedRepoUrl(undefined);
+        setCurrentStepIndex(0);
+        setCompletedSteps([]);
+      }
 
       // Call API to create project
       const response = await apiClient.createProject({
