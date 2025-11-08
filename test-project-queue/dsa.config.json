@@ -1,0 +1,10 @@
+{
+  "projectId": "test-queue-uuid",
+  "projectToken": "test-token-queue",
+  "moduleId": "queue",
+  "language": "TypeScript",
+  "apiUrl": "http://localhost:3000",
+  "testCommand": "echo 'Queue tests passed'",
+  "reportFile": ".dsa-report.json"
+}
+

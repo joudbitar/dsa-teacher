@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Landing } from './pages/Landing'
 import { Challenges } from './pages/Challenges'
+import { Docs } from './pages/Docs'
 
 function App() {
   return (
@@ -9,6 +10,7 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/challenges" element={<Challenges />} />
         <Route path="/challenges/:id" element={<Challenges />} />
+        <Route path="/docs" element={<Docs />} />
       </Routes>
     </BrowserRouter>
   )

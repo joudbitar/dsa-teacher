@@ -10,7 +10,7 @@ export function Navbar({ className }: { className?: string }) {
       }}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
+        <div className="relative flex h-16 items-center justify-between">
           {/* Left: Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <div 
@@ -34,7 +34,7 @@ export function Navbar({ className }: { className?: string }) {
           </Link>
           
           {/* Center: Navigation Links */}
-          <div className="flex items-center space-x-6">
+          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-6">
             <Link
               to="/about"
               className="text-sm font-medium transition-colors hover:opacity-70"
@@ -54,6 +54,16 @@ export function Navbar({ className }: { className?: string }) {
               }}
             >
               Challenges
+            </Link>
+            <Link
+              to="/docs"
+              className="text-sm font-medium transition-colors hover:opacity-70"
+              style={{ 
+                color: '#171512',
+                fontFamily: 'JetBrains Mono, monospace'
+              }}
+            >
+              Docs
             </Link>
           </div>
           
