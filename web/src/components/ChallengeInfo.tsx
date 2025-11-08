@@ -155,53 +155,68 @@ export function ChallengeInfo({
           {/* Start Button or Existing Repo Info */}
           <div className="py-4">
             {githubRepoUrl ? (
-              /* User already has a repo - show clone command */
-              <div className="bg-muted rounded-lg p-4 font-mono text-sm">
-                <div className="flex items-center justify-between">
-                  <code className="flex-1 text-foreground">git clone {githubRepoUrl}</code>
-                  <button
-                    onClick={handleCopy}
-                    className="ml-4 px-3 py-1 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors flex items-center gap-2"
-                  >
-                    {copied ? (
-                      <>
-                        <Check className="h-4 w-4" />
-                        Copied!
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="h-4 w-4" />
-                        Copy
-                      </>
-                    )}
-                  </button>
+              /* User already has a repo - show clone instructions */
+              <div className="rounded-xl border border-border bg-card p-6 space-y-4 text-center">
+                <h2 className="text-2xl font-bold">🎉 Repository Created!</h2>
+                <p className="text-muted-foreground">
+                  Your project repository has been created. Clone it to get started:
+                </p>
+
+                <div className="bg-muted rounded-lg p-4 font-mono text-sm">
+                  <div className="flex items-center justify-between">
+                    <code className="flex-1 text-foreground">git clone {githubRepoUrl}</code>
+                    <button
+                      onClick={handleCopy}
+                      className="ml-4 px-3 py-1 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors flex items-center gap-2"
+                    >
+                      {copied ? (
+                        <>
+                          <Check className="h-4 w-4" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-4 w-4" />
+                          Copy
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
+
+                <p className="text-sm text-muted-foreground">
+                  After cloning, run{" "}
+                  <code className="px-2 py-1 rounded bg-muted text-accent">
+                    dsa test
+                  </code>{" "}
+                  to check your progress.
+                </p>
               </div>
             ) : (
               /* No repo yet - show start button */
               <>
-                {!selectedLanguage ? (
-                  <button
-                    disabled
-                    className="px-6 py-3 rounded-lg bg-muted text-muted-foreground cursor-not-allowed font-medium"
-                  >
-                    Select a language to continue
-                  </button>
+            {!selectedLanguage ? (
+              <button
+                disabled
+                className="px-6 py-3 rounded-lg bg-muted text-muted-foreground cursor-not-allowed font-medium"
+              >
+                Select a language to continue
+              </button>
+            ) : (
+              <button
+                onClick={() => onStartChallenge?.(selectedLanguage)}
+                disabled={isCreatingProject}
+                className="px-6 py-3 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 font-medium transition-colors font-mono disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isCreatingProject ? (
+                  <span className="flex items-center gap-2">
+                    <span className="animate-spin">⏳</span>
+                    Creating repository...
+                  </span>
                 ) : (
-                  <button
-                    onClick={() => onStartChallenge?.(selectedLanguage)}
-                    disabled={isCreatingProject}
-                    className="px-6 py-3 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 font-medium transition-colors font-mono disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isCreatingProject ? (
-                      <span className="flex items-center gap-2">
-                        <span className="animate-spin">⏳</span>
-                        Creating repository...
-                      </span>
-                    ) : (
-                      `Start with ${getLanguageDisplayName(selectedLanguage)}`
-                    )}
-                  </button>
+                  `Start with ${getLanguageDisplayName(selectedLanguage)}`
+                )}
+              </button>
                 )}
               </>
             )}
