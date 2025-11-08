@@ -1,75 +1,51 @@
-# DSA Lab Edge Functions
+# DSA Lab API
 
-## Local Development
+Supabase Edge Functions (Deno runtime) for DSA Lab backend.
 
-1. Start Supabase functions:
-   ```bash
-   cd supabase
-   cp .env.example .env
-   # Edit .env with your credentials
-   supabase functions serve --env-file .env
-   ```
+## Base URL
 
-2. Test endpoints:
-   ```bash
-   # Modules
-   curl http://localhost:54321/functions/v1/modules
-   
-   # Projects
-   curl -H "x-user-id: test-123" http://localhost:54321/functions/v1/projects
-   
-   # Create project
-   curl -X POST http://localhost:54321/functions/v1/projects \
-     -H "x-user-id: test-123" \
-     -H "Content-Type: application/json" \
-     -d '{"moduleId":"stack","language":"TypeScript"}'
-   ```
-
-## Deployment
-
-```bash
-supabase functions deploy modules
-supabase functions deploy projects
-supabase functions deploy submissions
-```
+**Production**: `https://mwlhxwbkuumjxpnvldli.supabase.co/functions/v1`  
+**Local**: `http://localhost:54321/functions/v1`
 
 ## Endpoints
 
 ### GET /modules
-Returns all available DSA modules from `infra/modules.json`.
+Returns all available challenge modules.
 
-**Response:**
+**Headers**: None required  
+**Response**:
 ```json
 {
   "modules": [
     {
       "id": "stack",
-      "name": "Stack",
-      "description": "..."
+      "title": "Build a Stack",
+      "level": "beginner",
+      "subchallenges": ["Create class", "push()", "pop()", "peek()", "size()"]
     }
   ]
 }
 ```
 
 ### GET /projects
-Fetch user's projects.
+Lists user's projects (optionally filtered by module).
 
-**Headers:**
-- `x-user-id`: User identifier (required)
+**Headers**: 
+- `x-user-id` (required)
 
-**Query Parameters:**
-- `moduleId`: Filter by module (optional)
+**Query Params**:
+- `moduleId` (optional)
 
-**Response:**
+**Response**:
 ```json
 [
   {
     "id": "uuid",
-    "userId": "test-123",
+    "userId": "user-uuid",
     "moduleId": "stack",
     "language": "TypeScript",
     "status": "in_progress",
-    "progress": 50,
+    "progress": 60,
     "githubRepoUrl": "https://github.com/...",
     "createdAt": "2025-11-08T..."
   }
@@ -77,12 +53,13 @@ Fetch user's projects.
 ```
 
 ### POST /projects
-Create a new project with GitHub repository.
+Creates a new project with GitHub repository.
 
-**Headers:**
-- `x-user-id`: User identifier (required)
+**Headers**:
+- `x-user-id` (required)
+- `Content-Type: application/json`
 
-**Body:**
+**Body**:
 ```json
 {
   "moduleId": "stack",
@@ -90,33 +67,46 @@ Create a new project with GitHub repository.
 }
 ```
 
-**Response:**
+**Response** (201):
 ```json
 {
   "id": "uuid",
-  "githubRepoUrl": "https://github.com/...",
+  "githubRepoUrl": "https://github.com/org/user-stack-ts",
   "status": "in_progress",
   "progress": 0
 }
 ```
 
+**What it does**:
+1. Generates project token
+2. Creates database record
+3. Creates GitHub repo from template
+4. Commits `dsa.config.json` with credentials
+5. Updates database with GitHub URL
+
 ### POST /submissions
-Submit test results.
+Submits test results and updates progress.
 
-**Headers:**
-- `Authorization`: Bearer token (project token)
+**Headers**:
+- `Authorization: Bearer <projectToken>` (required)
+- `Content-Type: application/json`
 
-**Body:**
+**Body**:
 ```json
 {
   "projectId": "uuid",
-  "result": "pass",
-  "summary": "10/10 tests passed",
+  "result": "fail",
+  "summary": "3/5 tests passed",
   "details": {
     "cases": [
       {
         "id": "push",
         "passed": true
+      },
+      {
+        "id": "pop",
+        "passed": false,
+        "message": "Expected 5, got undefined"
       }
     ]
   },
@@ -124,14 +114,101 @@ Submit test results.
 }
 ```
 
-**Response:**
+**Response** (201):
 ```json
 {
-  "id": "uuid",
+  "id": "submission-uuid",
   "createdAt": "2025-11-08T...",
   "projectUpdated": true,
-  "progress": 100,
-  "status": "passed"
+  "progress": 60,
+  "status": "in_progress"
 }
 ```
 
+**What it does**:
+1. Validates project token
+2. Stores submission
+3. Calculates progress: `(passedCount / totalCount) * 100`
+4. Updates project status: `passed` if 100%, else `in_progress`
+
+## Local Development
+
+```bash
+cd supabase
+
+# Copy environment variables
+cp ../.env.local .env
+
+# Start functions
+supabase functions serve --env-file .env
+
+# Test
+curl http://localhost:54321/functions/v1/modules
+```
+
+## Deployment
+
+```bash
+# Deploy all functions
+supabase functions deploy
+
+# Or individually
+supabase functions deploy modules
+supabase functions deploy projects
+supabase functions deploy submissions
+
+# Set secrets
+supabase secrets set SUPABASE_URL="..."
+supabase secrets set SUPABASE_SERVICE_ROLE_KEY="..."
+supabase secrets set GITHUB_ORG="..."
+supabase secrets set GITHUB_APP_ID="..."
+supabase secrets set GITHUB_APP_INSTALLATION_ID="..."
+supabase secrets set GITHUB_APP_PRIVATE_KEY="..."
+```
+
+## Environment Variables
+
+```bash
+SUPABASE_URL                      # Supabase project URL
+SUPABASE_SERVICE_ROLE_KEY        # Service role key
+GITHUB_ORG                        # GitHub org name
+GITHUB_APP_ID                     # GitHub App ID
+GITHUB_APP_INSTALLATION_ID       # Installation ID
+GITHUB_APP_PRIVATE_KEY           # Private key (PEM format)
+```
+
+## Error Responses
+
+All errors return JSON:
+
+```json
+{
+  "error": "Error message",
+  "details": "Optional additional info"
+}
+```
+
+**Status Codes**:
+- `400` - Bad Request (missing/invalid parameters)
+- `401` - Unauthorized (invalid token)
+- `403` - Forbidden (project ID mismatch)
+- `404` - Not Found
+- `500` - Internal Server Error
+
+## Architecture
+
+```
+functions/
+├── _shared/
+│   ├── cors.ts              # CORS utilities
+│   └── supabase.ts          # Supabase client
+├── modules/
+│   └── index.ts             # GET /modules
+├── projects/
+│   ├── index.ts             # Router
+│   ├── get.ts               # GET handler
+│   ├── post.ts              # POST handler (GitHub integration)
+│   └── utils.ts             # Helper functions
+└── submissions/
+    └── index.ts             # POST /submissions
+```

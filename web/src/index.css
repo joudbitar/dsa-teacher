@@ -4,61 +4,66 @@
 
 @layer base {
   :root {
-    /* Dark, classy theme */
-    /* Sophisticated dark gray with elegant accents */
+    /* 
+     * Color Theme - Managed in src/theme/colors.ts
+     * DO NOT modify these values directly - update colors.ts instead
+     * 
+     * See: web/src/theme/README.md for usage guidelines
+     */
     
-    /* Background: Dark charcoal gray */
-    --background: 220 13% 9%;
-    /* Text: Light for contrast */
-    --foreground: 0 0% 98%;
+    /* Background (Base): #F0ECDA - Warm neutral */
+    --background: 49 42% 90%;
+    /* Primary Text: #171512 - Espresso black */
+    --foreground: 36 12% 8%;
     
-    /* Cards: Slightly lighter dark gray */
-    --card: 220 13% 12%;
-    --card-foreground: 0 0% 98%;
+    /* Cards: #F0ECDA - Warm neutral (same as background) */
+    --card: 49 42% 90%;
+    --card-foreground: 36 12% 8%;
     
     /* Popover */
-    --popover: 220 13% 12%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 49 42% 90%;
+    --popover-foreground: 36 12% 8%;
     
-    /* Primary: Electric Cyan (#22D3EE) - Highlights, borders, cursor */
-    --primary: 188 94% 57%;
-    --primary-foreground: 220 13% 9%;
+    /* Primary Accent: #7F5539 - Coffee bean (Primary buttons, key highlights) */
+    --primary: 24 38% 36%;
+    --primary-foreground: 0 0% 100%;
     
-    /* Secondary: Deep blue-gray */
-    --secondary: 217 33% 25%;
-    --secondary-foreground: 0 0% 98%;
+    /* Secondary Accent: #B08968 - Latte (Secondary buttons, chips, hovers) */
+    --secondary: 28 31% 55%;
+    --secondary-foreground: 0 0% 100%;
     
-    /* Muted: Dark gray for subtle backgrounds */
-    --muted: 220 13% 18%;
-    --muted-foreground: 215 20% 65%;
+    /* Surface Shadow / Depth: #E5E0CC - Slightly darker beige (Card surfaces) */
+    --muted: 48 32% 85%;
+    /* Secondary Text: #4B463F - Muted mocha (Subheadings, metadata) */
+    --muted-foreground: 35 9% 27%;
     
-    /* Accent: Warm Amber (#F59E0B) - CTA, stands out */
-    --accent: 38 92% 50%;
-    --accent-foreground: 220 13% 9%;
+    /* Accent: Latte for highlights and hovers */
+    --accent: 28 31% 55%;
+    --accent-foreground: 0 0% 100%;
     
-    /* Success: Vivid Green (#22C55E) - Progress, mastery */
-    --success: 142 76% 36%;
-    --success-foreground: 0 0% 98%;
+    /* Success / Positive: #2E7D32 - Deep green (Passed tests, progress bars) */
+    --success: 123 46% 34%;
+    --success-foreground: 0 0% 100%;
     
-    /* Warning: Amber for attention */
-    --warning: 38 92% 50%;
-    --warning-foreground: 220 13% 9%;
+    /* Warning / Attention: #F4A300 - Golden orange (Alerts, hints) */
+    --warning: 40 100% 48%;
+    --warning-foreground: 36 12% 8%;
     
-    /* Destructive: Red for errors */
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
+    /* Error / Fail: #B91C1C - Warm red (Test failures, error badges) */
+    --destructive: 0 74% 42%;
+    --destructive-foreground: 0 0% 100%;
     
-    /* Borders: Subtle dark gray */
-    --border: 220 13% 20%;
-    --input: 220 13% 20%;
+    /* Neutral Divider / Border: #D3CDBB - Light taupe (Card borders, subtle dividers) */
+    --border: 45 21% 78%;
+    --input: 45 21% 78%;
     
-    /* Ring: Electric cyan for focus */
-    --ring: 188 94% 57%;
+    /* Ring: Coffee bean for focus */
+    --ring: 24 38% 36%;
     
     --radius: 0.75rem;
   }
 
-  /* Dark, classy theme */
+  /* Dark theme (for future use) */
   .dark {
     --background: 220 13% 9%;
     --foreground: 0 0% 98%;
@@ -94,6 +99,7 @@
     @apply bg-background text-foreground;
     background: #F0ECDA;
     min-height: 100vh;
+    position: relative;
   }
 }
 
@@ -111,37 +117,8 @@
   }
   
   .bg-gradient-dev-lab {
-    background: 
-      linear-gradient(135deg, 
-        hsl(220, 13%, 9%) 0%, 
-        hsl(220, 13%, 11%) 50%, 
-        hsl(220, 15%, 9%) 100%);
+    background: #F0ECDA;
     position: relative;
-  }
-  
-  .bg-gradient-dev-lab::before,
-  .bg-gradient-dev-lab::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    width: 300px;
-    height: 100%;
-    pointer-events: none;
-    z-index: 0;
-  }
-  
-  .bg-gradient-dev-lab::before {
-    left: 0;
-    background: linear-gradient(to right, 
-      rgba(0, 0, 0, 0.3) 0%, 
-      transparent 100%);
-  }
-  
-  .bg-gradient-dev-lab::after {
-    right: 0;
-    background: linear-gradient(to left, 
-      rgba(0, 0, 0, 0.3) 0%, 
-      transparent 100%);
   }
   
   .scrollbar-hide {

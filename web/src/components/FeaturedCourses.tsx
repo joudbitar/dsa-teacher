@@ -72,8 +72,8 @@ export function FeaturedCourses() {
                 )}
               >
                 <div className="flex items-start justify-between mb-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary/10 text-secondary">
-                    <Icon className="h-6 w-6" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
+                    <Icon className="h-6 w-6 text-primary" />
                   </div>
                   <span className={cn(
                     "rounded-full px-2.5 py-1 text-xs font-medium",
@@ -107,8 +107,8 @@ export function FeaturedCourses() {
           <Link
             to="/challenges"
             className={cn(
-              "inline-flex items-center justify-center rounded-lg border border-border bg-background px-6 py-3",
-              "text-base font-semibold transition-colors hover:bg-accent"
+              "inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground px-6 py-3",
+              "text-base font-semibold transition-colors hover:opacity-90"
             )}
           >
             View All Challenges
