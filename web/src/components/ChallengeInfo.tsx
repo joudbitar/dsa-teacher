@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Code2,
   Lightbulb,
@@ -5,6 +6,7 @@ import {
   CheckCircle2,
   AlertCircle,
   Check,
+  Copy,
 } from "lucide-react";
 import { ChallengeSteps } from "./ChallengeSteps";
 import { ChallengeData } from "@/data/challenges/types";
@@ -53,6 +55,7 @@ export function ChallengeInfo({
   onNewAttempt,
   subchallengeName,
 }: ChallengeInfoProps) {
+  const [copied, setCopied] = React.useState(false);
   // Step 0 = Choose Language
   // Step 1+ = Challenge steps
   const isLanguageStep = currentStepIndex === 0;
@@ -77,6 +80,15 @@ export function ChallengeInfo({
       "c++": "C++",
     };
     return displayNames[lang.toLowerCase()] || lang;
+  };
+
+  // Copy to clipboard handler
+  const handleCopy = async () => {
+    if (githubRepoUrl) {
+      await navigator.clipboard.writeText(`git clone ${githubRepoUrl}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   return (
@@ -141,20 +153,51 @@ export function ChallengeInfo({
           )}
 
           {/* Start Button or Existing Repo Info */}
-          <div className="text-center py-4">
+          <div className="py-4">
             {githubRepoUrl ? (
-              /* User already has a repo - show existing repo info */
+              /* User already has a repo - show clone instructions */
               <div className="rounded-xl border border-border bg-card p-6 space-y-4">
                 <div className="flex items-center justify-center gap-2 text-success">
                   <Check className="h-5 w-5" />
-                  <h3 className="text-lg font-semibold">Repository Already Created</h3>
+                  <h3 className="text-lg font-semibold">🎉 Repository Created!</h3>
                 </div>
-                <p className="text-muted-foreground text-sm">
-                  You're working on this challenge with <span className="font-semibold text-foreground">{getLanguageDisplayName(selectedLanguage || '')}</span>. 
-                  Clone your repository and run <code className="px-2 py-1 rounded bg-muted text-accent">dsa test</code> to continue.
+                <p className="text-muted-foreground text-sm text-center">
+                  Your project repository has been created. Clone it to get started:
                 </p>
-                <div className="pt-2 text-xs text-muted-foreground">
-                  <p>Want to start over? Visit the Challenges page and click "Restart" on this module.</p>
+
+                <div className="bg-muted rounded-lg p-4 font-mono text-sm">
+                  <div className="flex items-center justify-between">
+                    <code className="flex-1 text-foreground">git clone {githubRepoUrl}</code>
+                    <button
+                      onClick={handleCopy}
+                      className="ml-4 px-3 py-1 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors flex items-center gap-2"
+                    >
+                      {copied ? (
+                        <>
+                          <Check className="h-4 w-4" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-4 w-4" />
+                          Copy
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground text-center">
+                    After cloning, run{" "}
+                    <code className="px-2 py-1 rounded bg-muted text-accent">
+                      dsa test
+                    </code>{" "}
+                    to check your progress.
+                  </p>
+                  <p className="text-xs text-muted-foreground text-center pt-2">
+                    Want to start over? Visit the Challenges page and click "Restart" on this module.
+                  </p>
                 </div>
               </div>
             ) : (

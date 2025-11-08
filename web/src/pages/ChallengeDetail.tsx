@@ -94,15 +94,16 @@ export function ChallengeDetail() {
           // Otherwise, show the current challenge step
           const stepIndex =
             project.currentChallengeIndex === 0
-              ? 0 // Stay on setup/language selection
+              ? 0 // Stay on setup/language selection - repo created but not working on challenges yet
               : project.currentChallengeIndex + 1; // +1 for "Choose Language" step
           setCurrentStepIndex(stepIndex);
 
           // Mark completed steps based on currentChallengeIndex
-          const completed = Array.from(
-            { length: project.currentChallengeIndex + 1 },
-            (_, i) => i
-          );
+          // Step 0 is only complete when user moves to first challenge (currentChallengeIndex >= 1)
+          const completed =
+            project.currentChallengeIndex === 0
+              ? [] // No steps completed - still on setup
+              : Array.from({ length: project.currentChallengeIndex + 1 }, (_, i) => i);
           setCompletedSteps(completed);
 
           // Set saved repo URL
@@ -301,14 +302,11 @@ export function ChallengeDetail() {
     completedSteps.length > 0 ? Math.max(...completedSteps) : -1;
 
   // Max accessible step is based on backend's currentChallengeIndex
-  // currentChallengeIndex = 0 means working on first challenge (step 1)
+  // currentChallengeIndex = 0 means working on first challenge (step 1) - user can access it
   // currentChallengeIndex = 1 means working on second challenge (step 2), etc.
-  // HOWEVER: When project is first created (currentChallengeIndex = 0 and still on step 0),
-  // keep user on setup screen until they explicitly continue
+  // Once a project exists, user can always access the current challenge they're working on
   const maxAccessibleStep = existingProject
-    ? existingProject.currentChallengeIndex === 0 && currentStepIndex === 0
-      ? 0 // Just setup step - user hasn't cloned repo yet
-      : existingProject.currentChallengeIndex + 1 // Normal progression
+    ? existingProject.currentChallengeIndex + 1 // Can access current challenge
     : isLanguageStepCompleted
     ? 1
     : 0;
@@ -346,23 +344,21 @@ export function ChallengeDetail() {
       setSavedRepoUrl(response.githubRepoUrl);
       setShowRepoCommand(true);
 
-      // Mark language step as completed
-      if (!completedSteps.includes(0)) {
-        markStepCompleted(id, 0);
-        setCompletedSteps((prev) => [...prev, 0]);
-      }
+      // Don't mark step 0 as completed yet - user needs to actually start working on challenges
+      // Step 0 represents the setup phase and should only complete when they move to challenge 1
 
       // Save to localStorage
       saveChallengeProgress(id, {
-        completedSteps: [0],
+        completedSteps: [], // No steps completed yet - just created repo
         currentStepIndex: 0,
         selectedLanguage: language,
         lastUpdated: Date.now(),
       });
 
-      // Stay on language step - user will move to first challenge
-      // after viewing the repo modal and clicking "Continue"
+      // Stay on language step - user will see repo instructions
+      // They stay here until they complete the first challenge (currentChallengeIndex becomes 1)
       setCurrentStepIndex(0);
+      setCompletedSteps([]); // Keep step 0 uncompleted
     } catch (error) {
       console.error("Failed to create project:", error);
       console.error("Error details:", {
