@@ -72,6 +72,75 @@ export async function handlePost(req: Request): Promise<Response> {
     }, 400);
   }
 
+  // Check if project already exists
+  const { data: existingProjects } = await supabase
+    .from('projects')
+    .select('*')
+    .eq('userId', userId)
+    .eq('moduleId', moduleId);
+
+  if (existingProjects && existingProjects.length > 0) {
+    const existingProject = existingProjects[0];
+    
+    // If GitHub repo URL exists, verify it's accessible before returning
+    if (existingProject.githubRepoUrl) {
+      console.log('Found existing project with GitHub repo:', existingProject.githubRepoUrl);
+      
+      // Try to verify the repo exists and is accessible (at least publicly visible)
+      // Extract owner and repo name from URL
+      const urlMatch = existingProject.githubRepoUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
+      if (urlMatch) {
+        const [, owner, repoName] = urlMatch;
+        
+        try {
+          // Quick check if repo is accessible via GitHub API (public repos don't need auth)
+          const checkResponse = await fetch(`https://api.github.com/repos/${owner}/${repoName}`, {
+            headers: { 'User-Agent': 'DSA-Lab' }
+          });
+          
+          if (checkResponse.ok) {
+            console.log('✓ Existing repo is accessible, returning existing project');
+            return jsonResponse({
+              id: existingProject.id,
+              githubRepoUrl: existingProject.githubRepoUrl,
+              status: existingProject.status,
+              progress: existingProject.progress,
+            }, 200);
+          } else if (checkResponse.status === 404 || checkResponse.status === 403) {
+            console.log('✗ Existing repo is not accessible (404/403), will delete and recreate');
+            await supabase
+              .from('projects')
+              .delete()
+              .eq('id', existingProject.id);
+          }
+        } catch (error) {
+          console.log('Failed to verify repo accessibility:', error);
+          // If verification fails, assume repo is fine and return it
+          return jsonResponse({
+            id: existingProject.id,
+            githubRepoUrl: existingProject.githubRepoUrl,
+            status: existingProject.status,
+            progress: existingProject.progress,
+          }, 200);
+        }
+      } else {
+        // If URL doesn't match expected format, delete and recreate
+        console.log('Invalid GitHub URL format, deleting and retrying...');
+        await supabase
+          .from('projects')
+          .delete()
+          .eq('id', existingProject.id);
+      }
+    } else {
+      // If GitHub repo failed previously, delete the broken record and continue
+      console.log('Found broken project record (no GitHub URL), deleting and retrying...');
+      await supabase
+        .from('projects')
+        .delete()
+        .eq('id', existingProject.id);
+    }
+  }
+
   const projectToken = generateToken();
 
   // Insert project into database
@@ -206,7 +275,7 @@ export async function handlePost(req: Request): Promise<Response> {
       template_repo: templateRepo,
       owner: githubOrg!,
       name: newRepoName,
-      private: true,
+      private: false, // Make public so users can clone without being collaborators
       description: `DSA Lab: ${moduleId} challenge in ${language}`,
     });
 

@@ -1,6 +1,7 @@
 import { handleCors } from '../_shared/cors.ts';
 import { handleGet } from './get.ts';
 import { handlePost } from './post.ts';
+import { handleDelete } from './delete.ts';
 import { jsonResponse } from '../_shared/cors.ts';
 
 Deno.serve(async (req) => {
@@ -12,6 +13,8 @@ Deno.serve(async (req) => {
       return await handleGet(req);
     } else if (req.method === 'POST') {
       return await handlePost(req);
+    } else if (req.method === 'DELETE') {
+      return await handleDelete(req);
     } else {
       return jsonResponse({ error: 'Method not allowed' }, 405);
     }

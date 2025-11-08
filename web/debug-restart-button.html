@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Debug Restart Button</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      padding: 20px;
+      background: #f0f0f0;
+    }
+    .debug-box {
+      background: white;
+      border: 2px solid #333;
+      padding: 20px;
+      margin: 10px 0;
+      border-radius: 8px;
+    }
+    .status-ok { color: green; font-weight: bold; }
+    .status-error { color: red; font-weight: bold; }
+    button {
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: inherit;
+      margin: 5px;
+    }
+    button:hover {
+      background: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 Restart Button Debug Helper</h1>
+  
+  <div class="debug-box">
+    <h2>Quick Checks</h2>
+    <button onclick="checkProjects()">1. Check Your Library</button>
+    <button onclick="checkButtons()">2. Find Restart Buttons</button>
+    <button onclick="checkAuth()">3. Check Authentication</button>
+    <div id="results"></div>
+  </div>
+
+  <div class="debug-box">
+    <h2>How to See the Restart Button:</h2>
+    <ol>
+      <li><strong>Go to:</strong> <code>http://localhost:5173/challenges</code> (or your dev URL)</li>
+      <li><strong>Look for:</strong> "Your Library" section at the top</li>
+      <li><strong>Need:</strong> At least one started module (In Progress or Completed)</li>
+      <li><strong>Button location:</strong> Bottom-right of each library card</li>
+    </ol>
+  </div>
+
+  <div class="debug-box">
+    <h2>If You Don't Have Any Projects:</h2>
+    <ol>
+      <li>Scroll to "All Challenges" section</li>
+      <li>Click any module (e.g., "Stack")</li>
+      <li>Click "Start Challenge" button</li>
+      <li>Choose a language</li>
+      <li>Create the project</li>
+      <li>Go back to <code>/challenges</code></li>
+      <li>You should now see it in "Your Library" with a Restart button</li>
+    </ol>
+  </div>
+
+  <script>
+    function checkProjects() {
+      const results = document.getElementById('results');
+      results.innerHTML = '<h3>Checking...</h3>';
+      
+      // Open the challenges page
+      const challengesUrl = window.location.origin.replace('debug-restart-button.html', '') + '/challenges';
+      
+      results.innerHTML = `
+        <h3>Instructions:</h3>
+        <ol>
+          <li>Open DevTools (F12) on the Challenges page</li>
+          <li>Go to Console tab</li>
+          <li>Paste this code:</li>
+        </ol>
+        <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px;">
+// Check if Your Library has projects
+const librarySection = document.querySelector('h2').textContent.includes('Your Library');
+console.log('Found Your Library section:', librarySection);
+
+// Check project count
+const inProgressText = document.body.textContent.match(/In Progress:\\s*(\\d+)/);
+const completedText = document.body.textContent.match(/Completed:\\s*(\\d+)/);
+console.log('In Progress:', inProgressText ? inProgressText[1] : '0');
+console.log('Completed:', completedText ? completedText[1] : '0');
+
+// Check if restart buttons exist
+const restartButtons = Array.from(document.querySelectorAll('button')).filter(btn => 
+  btn.textContent.includes('Restart')
+);
+console.log('Found Restart buttons:', restartButtons.length);
+console.log('Restart buttons:', restartButtons);
+
+// If no buttons
+if (restartButtons.length === 0) {
+  console.log('❌ No restart buttons found!');
+  console.log('Reason: Likely no projects in library yet.');
+  console.log('Solution: Start a module from "All Challenges" section below.');
+} else {
+  console.log('✅ Found', restartButtons.length, 'restart button(s)!');
+}
+        </pre>
+        <button onclick="window.open('${challengesUrl}', '_blank')">Open Challenges Page</button>
+      `;
+    }
+
+    function checkButtons() {
+      const results = document.getElementById('results');
+      results.innerHTML = `
+        <h3>Visual Guide:</h3>
+        <p>The restart button appears like this:</p>
+        <div style="border: 2px solid #333; padding: 15px; background: #fff; max-width: 300px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <strong>Stack</strong>
+            <span style="background: #ddd; padding: 4px 8px; border-radius: 12px; font-size: 11px;">In Progress</span>
+          </div>
+          <div style="margin: 10px 0; color: #666;">Beginner</div>
+          <div style="margin: 10px 0; color: #666;">2/4 tasks</div>
+          <div style="height: 8px; background: #eee; border-radius: 4px; margin: 10px 0;">
+            <div style="height: 100%; width: 50%; background: #66A056; border-radius: 4px;"></div>
+          </div>
+          <div style="border-top: 1px solid #ddd; margin-top: 15px; padding-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: #333;">View Details →</span>
+            <button style="padding: 4px 8px; font-size: 12px; background: none; color: #666; border: none;">
+              🔄 Restart
+            </button>
+          </div>
+        </div>
+        <p style="margin-top: 20px;"><strong>Location:</strong> Bottom-right of each module card in "Your Library"</p>
+      `;
+    }
+
+    function checkAuth() {
+      const results = document.getElementById('results');
+      results.innerHTML = `
+        <h3>Check Authentication:</h3>
+        <p>Run this in Console on your app:</p>
+        <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px;">
+// Check if user is logged in
+const checkAuth = async () => {
+  const { supabase } = await import('./src/lib/supabase.ts');
+  const { data: { session } } = await supabase.auth.getSession();
+  console.log('Authenticated:', !!session);
+  console.log('User:', session?.user?.email || 'Not logged in');
+  return !!session;
+};
+checkAuth();
+        </pre>
+        <p><strong>If not authenticated:</strong> Click "Log in" or "Start Learning" to sign in.</p>
+      `;
+    }
+  </script>
+</body>
+</html>
+
