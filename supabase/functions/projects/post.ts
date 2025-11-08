@@ -268,21 +268,79 @@ export async function handlePost(req: Request): Promise<Response> {
       throw new Error(`Template repository ${githubOrg}/${templateRepo} not accessible: ${templateError.message}`);
     }
 
-    console.log(`Creating repo: ${githubOrg}/${newRepoName} from template: ${templateRepo}`);
+    // Check if repo already exists
+    console.log(`Checking if repo already exists: ${githubOrg}/${newRepoName}...`);
+    let repo;
+    let repoAlreadyExisted = false;
+    
+    try {
+      const { data: existingRepo } = await octokit.repos.get({
+        owner: githubOrg!,
+        repo: newRepoName,
+      });
+      
+      console.log(`⚠️  Repo already exists: ${existingRepo.html_url}`);
+      console.log(`  This might be from a previous session. Deleting to ensure fresh start...`);
+      
+      // Delete the old repo to ensure we start fresh from the latest template
+      try {
+        await octokit.repos.delete({
+          owner: githubOrg!,
+          repo: newRepoName,
+        });
+        console.log(`  ✓ Old repo deleted, will create fresh from template`);
+        
+        // Wait a moment for GitHub to process the deletion
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      } catch (deleteError) {
+        console.error(`  ✗ Failed to delete old repo:`, deleteError);
+        console.log(`  Will try to use existing repo...`);
+        
+        // If deletion fails, make it public and reuse it
+        if (existingRepo.private) {
+          console.log(`  Converting repo to public...`);
+          await octokit.repos.update({
+            owner: githubOrg!,
+            repo: newRepoName,
+            private: false,
+          });
+          console.log(`  ✓ Repo is now public`);
+        }
+        
+        repo = existingRepo;
+        repoAlreadyExisted = true;
+      }
+    } catch (notFoundError) {
+      // Repo doesn't exist, good - we'll create it fresh
+      console.log(`✓ No existing repo found, will create fresh`);
+    }
+    
+    // Create repo from template if we deleted the old one or it never existed
+    if (!repoAlreadyExisted) {
+      console.log(`Creating: ${githubOrg}/${newRepoName} from template: ${templateRepo}`);
+      
+      try {
+        const { data: newRepo } = await octokit.repos.createUsingTemplate({
+          template_owner: githubOrg!,
+          template_repo: templateRepo,
+          owner: githubOrg!,
+          name: newRepoName,
+          private: false, // Make public so users can clone without being collaborators
+          description: `DSA Lab: ${moduleId} challenge in ${language}`,
+        });
+        
+        repo = newRepo;
+        console.log(`✓ Repo created: ${repo.html_url}`);
+      } catch (createError) {
+        console.error('Failed to create repo from template:', createError);
+        throw new Error(`Could not create repository: ${createError.message}`);
+      }
+    }
 
-    const { data: repo } = await octokit.repos.createUsingTemplate({
-      template_owner: githubOrg!,
-      template_repo: templateRepo,
-      owner: githubOrg!,
-      name: newRepoName,
-      private: false, // Make public so users can clone without being collaborators
-      description: `DSA Lab: ${moduleId} challenge in ${language}`,
-    });
-
-    console.log(`✓ Repo created: ${repo.html_url}`);
-
-    // Wait a bit for repo to be ready
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    // Wait a bit for repo to be ready (only for new repos)
+    if (!repoAlreadyExisted) {
+      await new Promise(resolve => setTimeout(resolve, 3000));
+    }
 
     // Get the default branch
     console.log(`Getting default branch for ${newRepoName}...`);

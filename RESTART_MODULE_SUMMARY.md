@@ -9,6 +9,7 @@ The restart module functionality has been successfully implemented and is ready 
 ### Backend (Supabase Functions)
 
 1. **New DELETE Endpoint**: `DELETE /projects/:id`
+
    - File: `supabase/functions/projects/delete.ts`
    - Authentication: JWT token required
    - Authorization: Users can only delete their own projects
@@ -21,12 +22,13 @@ The restart module functionality has been successfully implemented and is ready 
 ### Frontend (React Web App)
 
 1. **API Client Enhancement**: `web/src/lib/api.ts`
+
    - New `deleteProject(projectId: string)` method
    - Proper error handling and response typing
 
 2. **UI Components**: `web/src/pages/Challenges.tsx`
    - **Restart Button**: Added to each library card with RotateCcw icon
-   - **Confirmation Modal**: 
+   - **Confirmation Modal**:
      - Shows module title
      - Lists consequences of restart
      - Red "Restart Module" button for danger awareness
@@ -38,6 +40,7 @@ The restart module functionality has been successfully implemented and is ready 
 ### Documentation
 
 1. **Feature Documentation**: `RESTART_MODULE_FEATURE.md`
+
    - Complete technical overview
    - Architecture decisions
    - Future enhancement ideas
@@ -59,6 +62,7 @@ User Flow:
 6. If confirmed:
    - API deletes project from database
    - Submissions cascade delete
+   - LocalStorage checkmarks cleared
    - UI immediately updates
    - Module can be started fresh
 ```
@@ -66,15 +70,18 @@ User Flow:
 ## 📦 Files Modified/Created
 
 ### Created
+
 - ✅ `supabase/functions/projects/delete.ts` (NEW)
 - ✅ `RESTART_MODULE_FEATURE.md` (NEW)
 - ✅ `RESTART_MODULE_TESTING_GUIDE.md` (NEW)
 - ✅ `RESTART_MODULE_SUMMARY.md` (NEW)
 
 ### Modified
+
 - ✅ `supabase/functions/projects/index.ts`
 - ✅ `web/src/lib/api.ts`
 - ✅ `web/src/pages/Challenges.tsx`
+- ✅ `web/src/utils/challengeProgress.ts` (added clearChallengeProgress)
 
 ## 🎨 UI/UX Features
 
@@ -104,16 +111,17 @@ User Flow:
 
 ## 🔍 What Happens During Restart
 
-| Action | Result |
-|--------|--------|
-| User clicks "Restart" | Confirmation modal opens |
-| User confirms | API DELETE request sent |
-| Backend receives request | Verifies auth and ownership |
-| Backend deletes project | Database entry removed |
-| Backend responds | Success message sent |
-| Frontend receives response | Project removed from UI |
-| User starts module again | New project can be created |
-| Old GitHub repo | **Remains untouched** ✅ |
+| Action                     | Result                         |
+| -------------------------- | ------------------------------ |
+| User clicks "Restart"      | Confirmation modal opens       |
+| User confirms              | API DELETE request sent        |
+| Backend receives request   | Verifies auth and ownership    |
+| Backend deletes project    | Database entry removed         |
+| Backend responds           | Success message sent           |
+| Frontend receives response | Project removed from UI        |
+| Frontend clears storage    | **All checkmarks removed** ✅  |
+| User starts module again   | New project can be created     |
+| Old GitHub repo            | **Remains untouched** ✅       |
 
 ## 🎁 Key Benefits
 
@@ -126,6 +134,7 @@ User Flow:
 ## 🧪 Testing
 
 Run through the testing guide in `RESTART_MODULE_TESTING_GUIDE.md` to verify:
+
 - Basic restart flow
 - Completed module restart
 - Multiple restarts
@@ -138,12 +147,14 @@ Run through the testing guide in `RESTART_MODULE_TESTING_GUIDE.md` to verify:
 The feature is complete and ready to deploy:
 
 1. **Deploy backend functions**:
+
    ```bash
    cd supabase/functions
    supabase functions deploy projects
    ```
 
 2. **Deploy frontend**:
+
    ```bash
    cd web
    npm run build
@@ -159,6 +170,7 @@ The feature is complete and ready to deploy:
 ## 📝 Next Steps
 
 ### Immediate
+
 - [x] Code complete
 - [x] Documentation complete
 - [ ] Manual testing in development
@@ -167,6 +179,7 @@ The feature is complete and ready to deploy:
 - [ ] Deploy to production
 
 ### Future Enhancements
+
 - [ ] Add toast notifications instead of alerts
 - [ ] Option to delete GitHub repo during restart
 - [ ] Restart history/analytics
@@ -189,6 +202,7 @@ After deployment, users can:
 ## 🎉 Success Metrics
 
 Track these metrics to measure feature success:
+
 - Number of module restarts per user
 - Which modules are restarted most often
 - Time between restart and re-start
@@ -197,6 +211,7 @@ Track these metrics to measure feature success:
 ## 📞 Support
 
 If issues arise:
+
 1. Check browser console for frontend errors
 2. Check Supabase function logs for backend errors
 3. Verify authentication tokens are valid
@@ -208,4 +223,3 @@ If issues arise:
 **Status**: ✅ Ready for Testing & Deployment
 **Version**: 1.0.0
 **Date**: November 8, 2025
-

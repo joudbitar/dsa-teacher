@@ -1,3 +1,5 @@
+import { Octokit } from '@octokit/rest';
+import { createAppAuth } from '@octokit/auth-app';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getSupabaseClient } from '../_shared/supabase.ts';
 import { jsonResponse } from '../_shared/cors.ts';
@@ -55,6 +57,59 @@ export async function handleDelete(req: Request): Promise<Response> {
     return jsonResponse({ error: 'Project not found or unauthorized' }, 404);
   }
 
+  // Try to delete the GitHub repository if it exists
+  if (project.githubRepoUrl) {
+    console.log(`Attempting to delete GitHub repo: ${project.githubRepoUrl}`);
+    
+    try {
+      // Extract owner and repo name from URL
+      const urlMatch = project.githubRepoUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
+      if (urlMatch) {
+        const [, owner, repoName] = urlMatch;
+        
+        // Authenticate with GitHub App
+        const privateKeyPath = Deno.env.get('GITHUB_APP_PRIVATE_KEY_PATH');
+        let privateKey = Deno.env.get('GITHUB_APP_PRIVATE_KEY');
+        
+        if (!privateKey && privateKeyPath) {
+          try {
+            privateKey = await Deno.readTextFile(privateKeyPath);
+          } catch {
+            privateKey = Deno.env.get('GITHUB_APP_PRIVATE_KEY');
+          }
+        }
+
+        if (privateKey) {
+          const appId = Deno.env.get('GITHUB_APP_ID');
+          const installationId = Deno.env.get('GITHUB_APP_INSTALLATION_ID');
+
+          const octokit = new Octokit({
+            authStrategy: createAppAuth,
+            auth: {
+              appId,
+              privateKey,
+              installationId,
+            },
+          });
+
+          // Delete the repository
+          await octokit.repos.delete({
+            owner,
+            repo: repoName,
+          });
+
+          console.log(`✓ GitHub repo deleted: ${owner}/${repoName}`);
+        } else {
+          console.log('⚠️  GitHub credentials not available, skipping repo deletion');
+        }
+      }
+    } catch (githubError) {
+      // Don't fail the entire operation if GitHub deletion fails
+      console.error('Failed to delete GitHub repo (non-fatal):', githubError);
+      console.log('Continuing with database deletion...');
+    }
+  }
+
   // Delete the project (submissions will be cascade deleted due to foreign key)
   const { error: deleteError } = await supabase
     .from('projects')
@@ -71,7 +126,7 @@ export async function handleDelete(req: Request): Promise<Response> {
 
   return jsonResponse({ 
     success: true, 
-    message: 'Project deleted successfully. You can now create a new project for this module.' 
+    message: 'Project deleted successfully. GitHub repo removed. You can now create a fresh project for this module.' 
   });
 }
 

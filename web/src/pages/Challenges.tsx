@@ -6,6 +6,7 @@ import { fetchUserProjects, apiClient, type Project } from "@/lib/api";
 import { useAuth } from "@/auth/useAuth";
 import { Link, useLocation } from "react-router-dom";
 import { challengeData } from "@/data/challenges";
+import { clearChallengeProgress } from "@/utils/challengeProgress";
 import {
   ArrowRight,
   Layers,
@@ -97,7 +98,22 @@ export function Challenges() {
     setShowRestartConfirm(false);
 
     try {
+      // Find the module ID for this project before deleting
+      const projectToDelete = projects.find((p) => p.id === projectToRestart.id);
+      const moduleId = projectToDelete?.moduleId;
+
+      // Delete the project from database
       await apiClient.deleteProject(projectToRestart.id);
+
+      // Clear localStorage checkmarks and progress for this module
+      if (moduleId) {
+        clearChallengeProgress(moduleId);
+        
+        // Also dispatch event to notify ChallengeDetail page to refresh
+        window.dispatchEvent(new CustomEvent('challenge-restarted', {
+          detail: { moduleId }
+        }));
+      }
 
       // Remove the project from state
       setProjects(projects.filter((p) => p.id !== projectToRestart.id));

@@ -89,7 +89,12 @@ export function ChallengeDetail() {
           setSelectedLanguage(project.language.toLowerCase());
 
           // Set progress from project
-          setCurrentStepIndex(project.currentChallengeIndex + 1); // +1 for "Choose Language" step
+          // If currentChallengeIndex = 0 (just created), keep on step 0 (setup)
+          // Otherwise, show the current challenge step
+          const stepIndex = project.currentChallengeIndex === 0 
+            ? 0  // Stay on setup/language selection
+            : project.currentChallengeIndex + 1; // +1 for "Choose Language" step
+          setCurrentStepIndex(stepIndex);
 
           // Mark completed steps based on currentChallengeIndex
           const completed = Array.from(
@@ -101,13 +106,12 @@ export function ChallengeDetail() {
           // Set saved repo URL
           setSavedRepoUrl(project.githubRepoUrl);
         } else {
-          // Load from localStorage if no API project
-          const savedProgress = getChallengeProgress(id);
-          if (savedProgress) {
-            setSelectedLanguage(savedProgress.selectedLanguage);
-            setCurrentStepIndex(savedProgress.currentStepIndex || 0);
-            setCompletedSteps(savedProgress.completedSteps || []);
-          }
+          // No project exists - ensure we start fresh (don't load stale localStorage)
+          // If user just restarted, localStorage should already be cleared
+          // But check again to be safe
+          setSelectedLanguage(undefined);
+          setCurrentStepIndex(0);
+          setCompletedSteps([]);
         }
       } catch (error) {
         console.error("Failed to check existing project:", error);
@@ -124,6 +128,23 @@ export function ChallengeDetail() {
     }
 
     loadData();
+  }, [id]);
+
+  // Listen for module restart events
+  useEffect(() => {
+    const handleRestart = (event: CustomEvent) => {
+      if (event.detail?.moduleId === id) {
+        // Module was restarted - clear state and reload
+        setExistingProject(null);
+        setSelectedLanguage(undefined);
+        setCurrentStepIndex(0);
+        setCompletedSteps([]);
+        setSavedRepoUrl(undefined);
+      }
+    };
+
+    window.addEventListener('challenge-restarted', handleRestart as EventListener);
+    return () => window.removeEventListener('challenge-restarted', handleRestart as EventListener);
   }, [id]);
 
   // Poll for progress updates when user has an existing project
@@ -148,7 +169,7 @@ export function ChallengeDetail() {
 
             setExistingProject(updatedProject);
 
-            // Update steps
+            // Update steps - challenge was completed, advance to next
             const newIndex = updatedProject.currentChallengeIndex + 1; // +1 for "Choose Language"
             setCurrentStepIndex(newIndex);
 
@@ -230,12 +251,17 @@ export function ChallengeDetail() {
 
   const highestCompletedStep =
     completedSteps.length > 0 ? Math.max(...completedSteps) : -1;
-  const maxAccessibleStep = isLanguageStepCompleted
-    ? Math.min(
-        timelineSteps.length - 1,
-        Math.max(displayStepIndex, highestCompletedStep + 1)
-      )
-    : 0;
+  
+  // Max accessible step is based on backend's currentChallengeIndex
+  // currentChallengeIndex = 0 means working on first challenge (step 1)
+  // currentChallengeIndex = 1 means working on second challenge (step 2), etc.
+  // HOWEVER: When project is first created (currentChallengeIndex = 0 and still on step 0),
+  // keep user on setup screen until they explicitly continue
+  const maxAccessibleStep = existingProject
+    ? (existingProject.currentChallengeIndex === 0 && currentStepIndex === 0
+        ? 0  // Just setup step - user hasn't cloned repo yet
+        : existingProject.currentChallengeIndex + 1)  // Normal progression
+    : (isLanguageStepCompleted ? 1 : 0);
 
   // Handle project creation when language is selected
   const handleStartChallenge = async (language: string) => {
@@ -284,8 +310,9 @@ export function ChallengeDetail() {
         lastUpdated: Date.now(),
       });
 
-      // Move to first challenge step
-      setCurrentStepIndex(1);
+      // Stay on language step - user will move to first challenge
+      // after viewing the repo modal and clicking "Continue"
+      setCurrentStepIndex(0);
     } catch (error) {
       console.error("Failed to create project:", error);
       let errorMessage = "Failed to create project. Please try again.";

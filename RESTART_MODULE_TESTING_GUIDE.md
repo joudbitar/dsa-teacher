@@ -13,11 +13,13 @@
 
 1. **Navigate to Challenges page** (`/challenges`)
 2. **Verify UI elements**:
+
    - Your Library section shows your projects
    - Each project card has a "Restart" button at the bottom right
    - Button has a rotating arrow (RotateCcw) icon
 
 3. **Click "Restart" button** on any project:
+
    - Confirmation modal should appear
    - Modal shows:
      - "Restart Module?" title
@@ -27,11 +29,13 @@
    - "Restart Module" button is red to indicate danger
 
 4. **Click "Cancel"**:
+
    - Modal should close
    - Project should remain in library
    - No changes made
 
 5. **Click "Restart" again, then "Restart Module"**:
+
    - Modal should close immediately
    - Button text changes to "Restarting..."
    - Button becomes disabled
@@ -40,6 +44,7 @@
      - In Progress count decreases by 1 (or Completed count if it was completed)
 
 6. **Verify backend**:
+
    - Check Supabase dashboard → Projects table
    - Project should be deleted
    - Associated submissions should be deleted (cascade)
@@ -80,11 +85,13 @@
 ### Test 5: Edge Cases
 
 #### 5.1 Restart with no progress
+
 1. Start a module (create project but don't make progress)
 2. Restart it immediately
 3. Should work fine
 
 #### 5.2 Network Error
+
 1. Disconnect network
 2. Try to restart a module
 3. Should see an alert: "Failed to restart module. Please try again."
@@ -92,6 +99,7 @@
 5. Reconnect and try again - should work
 
 #### 5.3 Unauthorized Access
+
 1. Open DevTools → Console
 2. Run: `localStorage.clear()` (to clear auth token)
 3. Try to restart a module
@@ -101,11 +109,13 @@
 ### Test 6: Visual and UX
 
 1. **Theme compatibility**:
+
    - Modal should respect current theme colors
    - Buttons should have proper hover effects
    - Text should be readable against background
 
 2. **Responsive design**:
+
    - Test on mobile screen size
    - Modal should be scrollable if needed
    - Buttons should be easily tappable
@@ -118,12 +128,14 @@
 ## Expected Results Summary
 
 ✅ **Backend**:
+
 - DELETE endpoint responds correctly
 - Only authorized users can delete
 - Project and submissions are deleted
 - Unique constraint allows recreation
 
 ✅ **Frontend**:
+
 - Restart button is visible and clickable
 - Confirmation modal prevents accidents
 - Loading states work correctly
@@ -131,6 +143,7 @@
 - Error handling works properly
 
 ✅ **User Experience**:
+
 - Clear feedback at every step
 - No accidental deletions
 - Can restart and start fresh
@@ -139,18 +152,22 @@
 ## Common Issues and Solutions
 
 ### Issue 1: "Failed to delete project"
+
 **Cause**: Backend not deployed or not reachable
 **Solution**: Deploy backend functions: `cd supabase/functions && supabase functions deploy projects`
 
 ### Issue 2: Project doesn't disappear from UI
+
 **Cause**: State not updating correctly
 **Solution**: Check browser console for errors, refresh page to verify backend deletion worked
 
 ### Issue 3: Can't create new project after restart
+
 **Cause**: Project wasn't actually deleted (unique constraint violation)
 **Solution**: Check Supabase dashboard, manually delete project if needed
 
 ### Issue 4: Modal doesn't close
+
 **Cause**: Click handler not working
 **Solution**: Check browser console for JavaScript errors
 
@@ -159,12 +176,14 @@
 For CI/CD, consider implementing:
 
 1. **Backend Unit Tests**:
+
    - Test DELETE handler with valid auth
    - Test DELETE handler with invalid auth
    - Test DELETE handler with non-existent project
    - Test cascade deletion of submissions
 
 2. **Frontend Unit Tests**:
+
    - Test restart button click
    - Test modal open/close
    - Test confirmation flow
@@ -190,4 +209,3 @@ For CI/CD, consider implementing:
 - ✅ No other user's projects can be deleted
 - ✅ No SQL injection vulnerabilities
 - ✅ Proper error messages (no sensitive data leaked)
-

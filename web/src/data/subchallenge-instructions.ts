@@ -426,9 +426,234 @@ export const subchallengeInstructions: Record<string, Record<string, Subchalleng
         'Size of empty stack is 0'
       ]
     }
+  },
+
+  'queue': {
+    'Create class': {
+      title: 'Create Queue Class',
+      objective: 'Initialize a queue data structure with internal storage and a head pointer for efficient FIFO operations',
+      methodSignature: {
+        python: 'class Queue:\n    def __init__(self):',
+        typescript: 'class Queue {\n  constructor()',
+        javascript: 'class Queue {\n  constructor()',
+        java: 'public class Queue {\n    public Queue()',
+        go: 'type Queue struct {\n    items []int\n    head int\n}',
+        'c++': 'class Queue {\npublic:\n    Queue()'
+      },
+      requirements: [
+        'Create a class named Queue',
+        'Initialize an internal array/list to store elements (_items or items)',
+        'Initialize a head pointer (_head or head) starting at 0',
+        'The queue should start empty',
+        'The head pointer tracks the front of the queue without removing elements'
+      ],
+      examples: [
+        {
+          input: 'queue = Queue()',
+          output: 'Empty queue created with _items=[] and _head=0',
+          explanation: 'Creates a new queue instance ready to enqueue and dequeue elements'
+        }
+      ],
+      hints: [
+        'Use a list/array as internal storage',
+        'Keep a separate integer variable for the head position',
+        'The head pointer helps avoid expensive remove operations from the front',
+        'Initialize both in the constructor'
+      ],
+      edgeCases: [
+        'Creating multiple independent queue instances',
+        'Each instance should have its own items and head'
+      ]
+    },
+    'enqueue()': {
+      title: 'Implement enqueue() Method',
+      objective: 'Add an element to the rear (end) of the queue',
+      methodSignature: {
+        python: 'def enqueue(self, value: int) -> None:',
+        typescript: 'enqueue(value: number): void',
+        javascript: 'enqueue(value)',
+        java: 'public void enqueue(int value)',
+        go: 'func (q *Queue) Enqueue(value int)',
+        'c++': 'void enqueue(int value)'
+      },
+      requirements: [
+        'Add element to the end of the internal array',
+        'Use append/push to add to the rear',
+        'Time complexity: O(1)',
+        'FIFO principle: first in, first out'
+      ],
+      examples: [
+        {
+          input: 'queue.enqueue(1)\nqueue.enqueue(2)\nqueue.enqueue(3)',
+          output: 'Queue internally: [1, 2, 3] with head=0',
+          explanation: 'Elements are added to the back. Element 1 is at front, 3 at rear'
+        },
+        {
+          input: 'queue.enqueue(10)',
+          output: 'Queue size increases by 1',
+          explanation: 'Each enqueue adds one element to the rear'
+        }
+      ],
+      hints: [
+        'Simply append/push the value to the internal array',
+        'The head pointer stays unchanged during enqueue',
+        'New elements always go to the end'
+      ],
+      edgeCases: [
+        'Enqueueing to empty queue',
+        'Enqueueing after dequeue operations',
+        'Enqueueing duplicate values is allowed'
+      ]
+    },
+    'dequeue()': {
+      title: 'Implement dequeue() Method',
+      objective: 'Remove and return the element at the front of the queue',
+      methodSignature: {
+        python: 'def dequeue(self) -> int | None:',
+        typescript: 'dequeue(): number | null',
+        javascript: 'dequeue()',
+        java: 'public Integer dequeue()',
+        go: 'func (q *Queue) Dequeue() (int, error)',
+        'c++': 'int dequeue()'
+      },
+      requirements: [
+        'Return the element at the head position',
+        'Increment the head pointer after returning',
+        'Return None/null if queue is empty',
+        'Time complexity: O(1) (no array shifting required)',
+        'Optional: Periodically clean up unused space when head grows large'
+      ],
+      examples: [
+        {
+          input: 'queue with [1, 2, 3], head=0\nqueue.dequeue()',
+          output: 'Returns: 1\nQueue state: [1, 2, 3], head=1',
+          explanation: 'Returns element at head, increments head pointer. No array modification needed.'
+        },
+        {
+          input: 'queue.enqueue(5)\nqueue.enqueue(10)\nqueue.dequeue()\nqueue.dequeue()',
+          output: 'First dequeue returns 5, second returns 10',
+          explanation: 'FIFO: elements are removed in the order they were added'
+        },
+        {
+          input: 'empty queue\nqueue.dequeue()',
+          output: 'None (or null)',
+          explanation: 'Dequeueing from empty queue returns None/null'
+        }
+      ],
+      hints: [
+        'Check if queue is empty: head >= len(items)',
+        'Get value at items[head]',
+        'Increment head by 1',
+        'Return the value',
+        'Advanced: If head exceeds half the array length, trim the unused front portion'
+      ],
+      edgeCases: [
+        'Dequeueing from empty queue (return None/null)',
+        'Dequeueing the last element',
+        'Dequeueing after multiple enqueue/dequeue operations',
+        'Memory optimization: resetting array when head grows too large'
+      ]
+    },
+    'front()': {
+      title: 'Implement front() Method',
+      objective: 'Return the element at the front of the queue without removing it',
+      methodSignature: {
+        python: 'def front(self) -> int | None:',
+        typescript: 'front(): number | null',
+        javascript: 'front()',
+        java: 'public Integer front()',
+        go: 'func (q *Queue) Front() (int, error)',
+        'c++': 'int front()'
+      },
+      requirements: [
+        'Return the element at the head position',
+        'Do NOT remove the element',
+        'Do NOT increment the head pointer',
+        'Return None/null if queue is empty',
+        'Time complexity: O(1)'
+      ],
+      examples: [
+        {
+          input: 'queue with [1, 2, 3], head=0\nqueue.front()',
+          output: 'Returns: 1\nQueue unchanged: [1, 2, 3], head=0',
+          explanation: 'Returns front element without modifying queue'
+        },
+        {
+          input: 'empty queue\nqueue.front()',
+          output: 'None (or null)',
+          explanation: 'Returns None/null when queue is empty'
+        },
+        {
+          input: 'queue.front()\nqueue.front()',
+          output: 'Both calls return the same value',
+          explanation: 'Multiple front() calls return the same element'
+        }
+      ],
+      hints: [
+        'Check if queue is empty: head >= len(items)',
+        'Return items[head] without modifying anything',
+        'Similar to peek() in stack, but returns the front not the back'
+      ],
+      edgeCases: [
+        'Front of empty queue (return None/null)',
+        'Front after dequeue operations (head > 0)',
+        'Multiple front calls should be idempotent'
+      ]
+    },
+    'size()': {
+      title: 'Implement size() Method',
+      objective: 'Return the number of elements currently in the queue',
+      methodSignature: {
+        python: 'def size(self) -> int:',
+        typescript: 'size(): number',
+        javascript: 'size()',
+        java: 'public int size()',
+        go: 'func (q *Queue) Size() int',
+        'c++': 'int size()'
+      },
+      requirements: [
+        'Return the count of elements available in the queue',
+        'Account for the head pointer position',
+        'Formula: length of items - head position',
+        'Time complexity: O(1)'
+      ],
+      examples: [
+        {
+          input: 'Empty queue\nqueue.size()',
+          output: '0',
+          explanation: 'Empty queue has size 0'
+        },
+        {
+          input: 'queue.enqueue(1)\nqueue.enqueue(2)\nqueue.size()',
+          output: '2',
+          explanation: 'Two elements enqueued, size is 2'
+        },
+        {
+          input: 'queue with [1, 2, 3, 4], head=2\nqueue.size()',
+          output: '2',
+          explanation: 'Array has 4 elements, but head=2, so only 2 elements remain (indices 2 and 3)'
+        },
+        {
+          input: 'queue with 5 elements\nqueue.dequeue()\nqueue.size()',
+          output: '4',
+          explanation: 'After dequeueing, size decreases by 1'
+        }
+      ],
+      hints: [
+        'Calculate: len(items) - head',
+        'This accounts for elements already dequeued (before head)',
+        'Don\'t just return array length, must subtract head'
+      ],
+      edgeCases: [
+        'Size of empty queue (should be 0)',
+        'Size after multiple enqueues',
+        'Size after multiple dequeues (head > 0)',
+        'Size after alternating enqueue/dequeue operations'
+      ]
+    }
   }
   
-  // Add more modules as needed (queue, binary-search, etc.)
+  // Add more modules as needed (binary-search, etc.)
 }
 
 /**
