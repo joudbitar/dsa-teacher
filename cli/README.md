@@ -33,25 +33,70 @@ Submits test results to the DSA Lab API and updates dashboard.
 
 ## Installation
 
-⚠️ **Note:** Installation currently requires manual steps. See `INSTALLATION.md` for details.
+### Quick Install (Recommended) 🚀
 
-**Current Manual Installation:**
+**One command installation:**
+
 ```bash
-# 1. Set up pnpm (if not already done)
-pnpm setup
-source ~/.zshrc  # or restart terminal
+./cli/scripts/install.sh
+```
 
-# 2. Link CLI globally
+The automated script handles everything:
+- ✅ Checks for Node.js and npm
+- ✅ Installs pnpm if needed
+- ✅ Sets up pnpm automatically
+- ✅ Installs CLI dependencies
+- ✅ Builds TypeScript
+- ✅ Links CLI globally
+- ✅ Verifies installation
+
+**For Windows (PowerShell):**
+```powershell
 cd cli
-pnpm link --global
+.\scripts\install.ps1
+```
 
-# 3. Verify
+**Verify installation:**
+```bash
 dsa --version
 ```
 
-**TODO:** Create automated installation script. See `TODO_INSTALLATION.md` for details.
+### Alternative: Manual Installation
 
-**Future (After Publishing):**
+If you prefer manual steps or the script doesn't work:
+
+```bash
+# 1. Install and set up pnpm
+npm install -g pnpm
+pnpm setup
+source ~/.zshrc  # or restart terminal
+
+# 2. Install dependencies and build
+cd cli
+pnpm install
+pnpm build
+
+# 3. Link CLI globally
+pnpm link --global
+
+# 4. Verify
+dsa --version
+```
+
+### Troubleshooting
+
+If `dsa` command is not found after installation:
+
+1. **Restart your terminal**
+2. **Or add to PATH:**
+   ```bash
+   export PATH="$(npm config get prefix)/bin:$PATH"
+   ```
+
+See `INSTALL.md` for detailed troubleshooting guide.
+
+### Future (After Publishing to npm)
+
 ```bash
 pnpm install -g @dsa/cli
 ```
