@@ -34,10 +34,10 @@ function findConfigFile(startDir: string): string | null {
 /**
  * Load and validate project configuration
  * @param cwd - Current working directory to search from
- * @returns ProjectConfig object
+ * @returns Object with config and projectRoot (directory containing dsa.config.json)
  * @throws Error if config file not found or invalid
  */
-export function loadConfig(cwd: string = process.cwd()): ProjectConfig {
+export function loadConfig(cwd: string = process.cwd()): { config: ProjectConfig; projectRoot: string } {
   const configPath = findConfigFile(cwd);
 
   if (!configPath) {
@@ -46,6 +46,8 @@ export function loadConfig(cwd: string = process.cwd()): ProjectConfig {
       'Make sure dsa.config.json exists in the project directory.'
     );
   }
+
+  const projectRoot = dirname(configPath);
 
   try {
     const configContent = readFileSync(configPath, 'utf-8');
@@ -71,7 +73,15 @@ export function loadConfig(cwd: string = process.cwd()): ProjectConfig {
       );
     }
 
-    return config as ProjectConfig;
+    // Ensure currentChallengeIndex defaults to 0 for backward compatibility
+    if (config.currentChallengeIndex === undefined) {
+      config.currentChallengeIndex = 0;
+    }
+
+    return {
+      config: config as ProjectConfig,
+      projectRoot,
+    };
   } catch (error) {
     if (error instanceof SyntaxError) {
       throw new Error(

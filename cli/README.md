@@ -13,6 +13,7 @@ DSA Lab command-line tool for testing and submitting solutions locally.
 ```
 
 The automated script handles everything:
+
 - ✅ Checks for Node.js and npm
 - ✅ Installs pnpm if needed
 - ✅ Sets up pnpm automatically
@@ -22,12 +23,14 @@ The automated script handles everything:
 - ✅ Verifies installation
 
 **For Windows (PowerShell):**
+
 ```powershell
 cd cli
 .\scripts\install.ps1
 ```
 
 **Verify installation:**
+
 ```bash
 dsa --version
 ```
@@ -83,6 +86,7 @@ dsa test
 ```
 
 **What it does:**
+
 1. Reads `dsa.config.json`
 2. Executes test command (e.g., `node tests/run.js`)
 3. Parses `.dsa-report.json`
@@ -97,6 +101,7 @@ dsa submit
 ```
 
 **What it does:**
+
 1. Runs `dsa test` internally to get latest results
 2. Checks git status (warns if uncommitted changes)
 3. Captures current git commit SHA

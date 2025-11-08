@@ -18,11 +18,25 @@ export async function handlePost(req: Request): Promise<Response> {
   }
 
   const body = await req.json();
-  const { moduleId, language } = body;
+  let { moduleId, language } = body;
 
   if (!moduleId || !language) {
     return jsonResponse({ error: 'Missing moduleId or language' }, 400);
   }
+
+  // Normalize language to proper case (e.g., "go" -> "Go", "python" -> "Python")
+  const languageMap: Record<string, string> = {
+    'typescript': 'TypeScript',
+    'javascript': 'JavaScript',
+    'python': 'Python',
+    'go': 'Go',
+    'java': 'Java',
+    'c++': 'C++',
+    'cpp': 'C++',
+  };
+  
+  const normalizedLanguage = languageMap[language.toLowerCase()] || language;
+  language = normalizedLanguage;
 
   // Validate language support
   if (!validateLanguageSupport(moduleId, language)) {
@@ -46,6 +60,7 @@ export async function handlePost(req: Request): Promise<Response> {
       status: 'in_progress',
       progress: 0,
       projectToken,
+      currentChallengeIndex: 0,
     })
     .select()
     .single();
@@ -194,6 +209,7 @@ export async function handlePost(req: Request): Promise<Response> {
       apiUrl: 'https://mwlhxwbkuumjxpnvldli.supabase.co/functions/v1',
       testCommand: getTestCommand(language),
       reportFile: '.dsa-report.json',
+      currentChallengeIndex: 0,
     };
 
     const encodedContent = btoa(JSON.stringify(configContent, null, 2));

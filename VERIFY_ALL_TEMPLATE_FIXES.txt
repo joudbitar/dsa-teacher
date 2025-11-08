@@ -1,0 +1,245 @@
+# DSA Lab Template Fixes Verification Prompt
+
+You are a QA tester verifying that all 24 DSA Lab templates were fixed correctly. All templates were just pushed to GitHub.
+
+## What Was Fixed
+
+1. **Empty Starter Code** → Added complete method signatures with proper error throwing
+2. **Hidden Compilation Errors** → Modified C++/Java run.sh to show errors instead of hiding them
+3. **Cross-Challenge Dependencies** → Removed tests that call methods from later challenges
+
+## Your Mission
+
+Test **6 different module/language combinations** to verify all fixes work:
+- 2× C++ or Java (to verify compilation error visibility)
+- 2× Any other languages
+- 2× Different modules
+
+**Recommended combinations**:
+1. Queue + C++ (tests starter code + compilation errors + test independence)
+2. Stack + Java (tests cross-challenge dependency fixes)
+3. Min-Heap + Go (tests starter code + test independence)
+4. Binary-Search + Python (tests starter code)
+5. Queue + TypeScript (tests starter code + test independence)
+6. Stack + JavaScript (tests starter code)
+
+## Testing Protocol
+
+For EACH combination, follow these steps:
+
+### Step 1: Create Project
+```bash
+cd ~/dsa-testing
+PROJECT_ID=$(date +%s)
+curl -X POST https://mwlhxwbkuumjxpnvldli.supabase.co/functions/v1/projects \
+  -H "Content-Type: application/json" \
+  -H "x-user-id: verify-fixes-$PROJECT_ID" \
+  -d '{"moduleId": "MODULE_HERE", "language": "LANGUAGE_HERE"}' | jq . > project-$PROJECT_ID.json
+
+# Extract repo URL
+REPO_URL=$(jq -r '.githubRepoUrl' project-$PROJECT_ID.json)
+echo "Repo: $REPO_URL"
+```
+
+### Step 2: Clone and Setup
+```bash
+git clone $REPO_URL
+cd $(basename $REPO_URL)
+
+# Install dependencies based on language
+# TypeScript/JavaScript: npm install
+# Python: pip install -r requirements.txt
+# Java: mvn clean install
+# Go: go mod download
+# C++: (no install needed)
+```
+
+### Step 3: Verify Starter Code
+Check the main source file and verify:
+- ✅ Class/function is defined (not empty)
+- ✅ All methods have signatures
+- ✅ Methods throw errors (not just empty bodies)
+- ✅ TODO comments are present
+
+**Example checks**:
+```bash
+# View the starter code
+cat src/queue.ts  # or appropriate file for your language
+
+# Should see something like:
+# - Constructor that throws error
+# - All methods defined with throw statements
+# - TODO comments for each challenge
+```
+
+### Step 4: Test Challenge 1 (Verify No Compilation Errors Shown)
+```bash
+# Try to run tests WITHOUT modifying code
+dsa test
+```
+
+**Expected for C++/Java**: Should see **compilation errors** (not silent failure)
+**Expected for others**: Should see clear test failures (not cryptic errors)
+
+**Document**:
+- Did compilation errors appear? (C++/Java only)
+- Were error messages helpful?
+
+### Step 5: Fix Challenge 1
+Implement ONLY what Challenge 1 requires (usually: create class/initialize fields)
+
+```bash
+# Example for Queue + TypeScript:
+# Edit src/queue.ts - replace constructor to initialize empty array
+# Keep all other methods throwing errors
+
+dsa test
+```
+
+**Expected**: Challenge 1 passes, others fail cleanly
+
+### Step 6: Test Challenge 2 (Verify Test Independence)
+Implement ONLY Challenge 2 method (e.g., enqueue, push, insert)
+
+```bash
+# Example: implement enqueue() but leave all other methods throwing errors
+dsa test
+```
+
+**Critical Check**: Does Challenge 2 test pass WITHOUT implementing size(), peek(), etc.?
+
+**Expected**: 
+- ✅ Challenge 2 passes
+- ✅ No errors about "size is not defined" or similar
+- ✅ Later challenges fail cleanly (locked or not yet implemented)
+
+### Step 7: Submit and Verify
+```bash
+dsa submit
+```
+
+**Expected**: Challenge 2 unlocks, progress updates
+
+### Step 8: Clean Up
+```bash
+cd ~/dsa-testing
+rm -rf $(basename $REPO_URL)
+```
+
+## Verification Checklist
+
+For each of the 6 test runs, document:
+
+### Starter Code ✓/✗
+- [ ] Files are not empty
+- [ ] All method signatures present
+- [ ] Methods throw proper errors
+- [ ] TODO comments guide students
+
+### Compilation Errors ✓/✗ (C++/Java only)
+- [ ] Compilation errors are SHOWN (not hidden)
+- [ ] Error messages are readable
+- [ ] Students can debug their syntax errors
+
+### Test Independence ✓/✗
+- [ ] Challenge 1 passes with minimal implementation
+- [ ] Challenge 2 passes WITHOUT implementing later methods
+- [ ] No "size() is not defined" type errors
+- [ ] No cross-challenge dependencies
+
+### CLI Functionality ✓/✗
+- [ ] `dsa test` runs successfully
+- [ ] Test output is clear and helpful
+- [ ] `dsa submit` works correctly
+- [ ] Progress tracking updates
+
+## Output Format
+
+Create a markdown report with this structure:
+
+```markdown
+# Template Fix Verification Report
+**Date**: [Date]
+**Tester**: AI Agent
+
+## Test Results
+
+### Test 1: [Module] + [Language]
+**Status**: ✅ PASS / ❌ FAIL
+
+**Starter Code**: ✅/❌
+- Notes: [observations]
+
+**Compilation Errors** (C++/Java): ✅/❌/N/A
+- Notes: [what errors appeared, were they helpful?]
+
+**Test Independence**: ✅/❌
+- Challenge 1: [result]
+- Challenge 2: [result]
+- Notes: [any dependencies found?]
+
+**CLI**: ✅/❌
+- Notes: [any issues?]
+
+[Repeat for all 6 tests]
+
+## Summary
+- **Total Passed**: X/6
+- **Critical Issues**: [list any]
+- **Minor Issues**: [list any]
+- **Recommendation**: READY FOR PRODUCTION / NEEDS FIXES
+
+## Issues Found
+[If any issues, list them here with details]
+```
+
+## Expected Results
+
+If all fixes are working correctly, you should see:
+- ✅ **24/24** starter code files properly populated
+- ✅ **8/8** C++/Java templates show compilation errors
+- ✅ **24/24** Challenge 2 tests pass without size/peek dependencies
+- ✅ **6/6** test runs complete successfully
+
+## What NOT to Do
+
+- ❌ Don't skip any steps
+- ❌ Don't implement all methods at once (defeats the purpose)
+- ❌ Don't test the same language twice unless testing different aspects
+- ❌ Don't assume something works without verifying
+
+## Red Flags to Watch For
+
+1. **Empty starter files** - Student has no starting point
+2. **Silent compilation failures** - Student can't see errors
+3. **"Size is not defined"** in Challenge 2 tests - Cross-challenge dependency
+4. **Test runner crashes** - Bad test infrastructure
+5. **All tests run at once** - Progressive unlocking broken
+
+## Time Estimate
+
+- Each test run: 5-10 minutes
+- Total: 30-60 minutes for all 6 tests
+- Report writing: 10-15 minutes
+
+## Success Criteria
+
+This verification PASSES if:
+- ✅ At least 5/6 combinations work perfectly
+- ✅ No critical issues (empty files, hidden errors, cross-dependencies)
+- ✅ Any minor issues are cosmetic/non-blocking
+
+## Notes
+
+- **GitHub Cache**: Templates were just pushed, so GitHub might still be propagating. If you see old code, wait 5 minutes and try again.
+- **Test Early**: Start with one C++ and one Java test to verify the run.sh fixes
+- **Document Everything**: Even small observations might reveal patterns
+
+## After Testing
+
+1. Save your report as `TEMPLATE_FIX_VERIFICATION_REPORT.md`
+2. If any issues found, list them clearly with reproduction steps
+3. If all passed, confirm system is ready for students
+
+Good luck! 🚀
+

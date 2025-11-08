@@ -20,7 +20,7 @@ export function getTestCommand(language: string): string {
     "JavaScript": "npm test",
     "Python": "python3 tests/run.py",
     "Go": "go run tests/run.go",
-    "Java": "mvn test",
+    "Java": "bash tests/run.sh",
     "C++": "bash tests/run.sh"
   };
   return commands[language] || "npm test";
