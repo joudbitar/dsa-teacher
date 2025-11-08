@@ -311,6 +311,18 @@ export function ChallengeDetail() {
     ? 1
     : 0;
 
+  // Debug logging
+  console.log("ChallengeDetail Debug:", {
+    existingProject: existingProject ? {
+      id: existingProject.id,
+      currentChallengeIndex: existingProject.currentChallengeIndex,
+    } : null,
+    currentStepIndex,
+    maxAccessibleStep,
+    completedSteps,
+    isLanguageStepCompleted,
+  });
+
   // Handle project creation when language is selected
   const handleStartChallenge = async (language: string) => {
     if (!id) return;

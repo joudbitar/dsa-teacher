@@ -199,7 +199,8 @@ export function Challenges() {
           ? ("in-progress" as const)
           : ("in-progress" as const);
 
-      if (status === "in-progress" && progressPercentage > 0) {
+      if (status === "in-progress") {
+        // Show all in-progress projects, even if progress is 0% (just created repo)
         inProgress++;
         challenges.push({
           id: project.moduleId,
