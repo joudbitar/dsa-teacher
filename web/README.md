@@ -4,9 +4,10 @@ This is the front-end dashboard built with **Vite + React + TypeScript**.
 
 ## Status
 
-Currently contains **only** placeholder documentation. No JSX, no route handlers, no application logic.
+✅ Landing page implemented with Hero, OnboardingSteps, and FeaturedCourses sections
+🔨 Challenges page and other features coming soon
 
-Post-kickoff, this will be a Vite React app styled with Tailwind CSS and shadcn/ui components.
+Built with Vite React app styled with Tailwind CSS.
 
 ## Structure
 
