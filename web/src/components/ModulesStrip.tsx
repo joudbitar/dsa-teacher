@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Layers, Search, Minus } from 'lucide-react'
+import { ArrowRight, Layers, Minus } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 
@@ -91,7 +91,7 @@ export function ModulesStrip() {
                     {module.invariants.map((invariant, i) => (
                       <span
                         key={i}
-                        className="text-xs px-2 py-1 rounded-full bg-muted border border-border text-muted-foreground"
+                        className="text-xs px-2 py-1 rounded-full bg-primary text-primary-foreground font-medium"
                       >
                         {invariant}
                       </span>
