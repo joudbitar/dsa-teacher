@@ -428,7 +428,24 @@ export function ChallengeDetail() {
   // Continue to challenge after viewing repo modal
   const handleContinueToChallenge = () => {
     setShowRepoCommand(false);
+    
+    // Move to first challenge (step 1)
     setCurrentStepIndex(1);
+    
+    // Mark step 0 (language selection) as completed
+    if (!completedSteps.includes(0)) {
+      setCompletedSteps([0]);
+      
+      // Save to localStorage
+      if (id) {
+        saveChallengeProgress(id, {
+          completedSteps: [0],
+          currentStepIndex: 1,
+          selectedLanguage,
+          lastUpdated: Date.now(),
+        });
+      }
+    }
   };
 
   const handleStepClick = (stepIndex: number) => {
