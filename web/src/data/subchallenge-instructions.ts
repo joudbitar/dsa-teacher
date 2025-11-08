@@ -313,22 +313,30 @@ export const subchallengeInstructions: Record<string, Record<string, Subchalleng
       requirements: [
         'Add element to the top of the stack',
         'Append to the end of internal array',
-        'Time complexity: O(1)'
+        'Time complexity: O(1)',
+        'Every push represents a "new context" in the stack'
       ],
       examples: [
         {
           input: 'stack.push(1)\nstack.push(2)\nstack.push(3)',
           output: 'Stack: [1, 2, 3] (3 is on top)',
-          explanation: 'Elements are added to the top in order'
+          explanation: 'Elements are added to the top in order. The last element pushed is at the top.'
+        },
+        {
+          input: 'stack.push("S")\nstack.push("T")\nstack.push("A")\nstack.push("C")\nstack.push("K")',
+          output: 'Stack: ["S", "T", "A", "C", "K"] (top = "K")',
+          explanation: 'Useful for string reversal: push all characters, then pop to get reversed order'
         }
       ],
       hints: [
         'Use array.append() or array.push()',
-        'The last element added is the "top"'
+        'The last element added is the "top"',
+        'Think of it like adding a plate to a stack of plates'
       ],
       edgeCases: [
         'Pushing to empty stack',
-        'Pushing duplicate values'
+        'Pushing duplicate values',
+        'Pushing after multiple pops'
       ]
     },
     'pop()': {
@@ -345,23 +353,31 @@ export const subchallengeInstructions: Record<string, Record<string, Subchalleng
       requirements: [
         'Remove the last element from internal array',
         'Return the removed element',
-        'Return None/null if stack is empty',
-        'Time complexity: O(1)'
+        'Return None/null if stack is empty (handle stack underflow)',
+        'Time complexity: O(1)',
+        'Every pop returns control to the previous state'
       ],
       examples: [
         {
           input: 'stack: [1, 2, 3]\nstack.pop()',
           output: 'Returns: 3\nStack becomes: [1, 2]',
-          explanation: 'Removes and returns the top element'
+          explanation: 'Removes and returns the top element (LIFO: Last In, First Out)'
+        },
+        {
+          input: 'stack: ["S", "T", "A", "C", "K"]\nwhile not stack.is_empty():\n    print(stack.pop())',
+          output: 'K\nC\nA\nT\nS',
+          explanation: 'Popping all elements reverses the order—this is how string reversal works!'
         }
       ],
       hints: [
-        'Check if stack is empty first',
-        'Use array.pop() to remove last element'
+        'Check if stack is empty first to avoid stack underflow',
+        'Use array.pop() to remove last element',
+        'The element removed is always the most recently added (LIFO)'
       ],
       edgeCases: [
-        'Popping from empty stack',
-        'Popping the last element'
+        'Popping from empty stack (stack underflow)',
+        'Popping the last element (stack becomes empty)',
+        'Multiple consecutive pops'
       ]
     },
     'peek()': {

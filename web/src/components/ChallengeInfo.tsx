@@ -82,6 +82,109 @@ export function ChallengeInfo({
     return displayNames[lang.toLowerCase()] || lang;
   };
 
+  // Helper to get stack example code for selected language
+  const getStackExample = (lang: string): string => {
+    const examples: Record<string, string> = {
+      python: `# Example: Reverse a string using stack
+def reverse_string(s):
+    stack = []
+    
+    # Push all characters onto the stack
+    for char in s:
+        stack.append(char)
+    
+    reversed_str = ""
+    # Pop all characters from the stack
+    while stack:
+        reversed_str += stack.pop()
+    
+    return reversed_str
+
+
+# Usage
+result = reverse_string("STACK")
+print(result)  # Output: KCATS`,
+      
+      java: `// Example: Reverse a string using stack
+import java.util.Stack;
+
+public class StackExample {
+    public static String reverseString(String s) {
+        Stack<Character> stack = new Stack<>();
+        
+        // Push all characters onto the stack
+        for (char c : s.toCharArray()) {
+            stack.push(c);
+        }
+        
+        StringBuilder reversed = new StringBuilder();
+        // Pop all characters from the stack
+        while (!stack.isEmpty()) {
+            reversed.append(stack.pop());
+        }
+        
+        return reversed.toString();
+    }
+    
+    public static void main(String[] args) {
+        String result = reverseString("STACK");
+        System.out.println(result);  // Output: KCATS
+    }
+}`,
+      
+      javascript: `// Example: Reverse a string using stack
+function reverseString(s) {
+    const stack = [];
+    
+    // Push all characters onto the stack
+    for (let char of s) {
+        stack.push(char);
+    }
+    
+    let reversed = "";
+    // Pop all characters from the stack
+    while (stack.length > 0) {
+        reversed += stack.pop();
+    }
+    
+    return reversed;
+}
+
+
+// Usage
+const result = reverseString("STACK");
+console.log(result);  // Output: KCATS`,
+      
+      typescript: `// Example: Reverse a string using stack
+function reverseString(s: string): string {
+    const stack: string[] = [];
+    
+    // Push all characters onto the stack
+    for (const char of s) {
+        stack.push(char);
+    }
+    
+    let reversed = "";
+    // Pop all characters from the stack
+    while (stack.length > 0) {
+        const char = stack.pop();
+        if (char) {
+            reversed += char;
+        }
+    }
+    
+    return reversed;
+}
+
+
+// Usage
+const result = reverseString("STACK");
+console.log(result);  // Output: KCATS`,
+    };
+    
+    return examples[lang.toLowerCase()] || examples.javascript;
+  };
+
   // Copy to clipboard handler
   const handleCopy = async () => {
     if (githubRepoUrl) {
@@ -141,6 +244,38 @@ export function ChallengeInfo({
               ))}
             </ul>
           </div>
+
+          {/* Code Example - Stack Usage */}
+          {moduleId === 'stack' && (
+            <div className="rounded-xl border border-border bg-muted p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
+                  <Code2 className="h-5 w-5 text-accent" />
+                </div>
+                <h2 className="text-2xl font-bold">Example: Using a Stack</h2>
+              </div>
+              <p className="text-foreground/90 mb-4">
+                Here's how to use a stack to reverse a string. Select a language to see the example:
+              </p>
+              {selectedLanguage ? (
+                <div className="space-y-4">
+                  <div className="bg-background rounded-lg border border-border p-4 overflow-x-auto">
+                    <pre className="text-sm font-mono text-foreground whitespace-pre">
+                      <code>{getStackExample(selectedLanguage)}</code>
+                    </pre>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    This example demonstrates the LIFO principle: characters are pushed onto the stack,
+                    then popped in reverse order to create the reversed string.
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-background rounded-lg border border-border p-4 text-center text-muted-foreground">
+                  <p>Select a language above to see a code example</p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Error Display */}
           {projectError && (
