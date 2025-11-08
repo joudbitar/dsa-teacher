@@ -4,6 +4,7 @@ import {
   Target,
   CheckCircle2,
   AlertCircle,
+  Check,
 } from "lucide-react";
 import { ChallengeSteps } from "./ChallengeSteps";
 import { ChallengeData } from "@/data/challenges/types";
@@ -139,37 +140,50 @@ export function ChallengeInfo({
             </div>
           )}
 
-          {/* Start Button */}
+          {/* Start Button or Existing Repo Info */}
           <div className="text-center py-4">
-            {githubRepoUrl && (
-              <p className="text-sm text-muted-foreground mb-3">
-                You already have a repository. Click below to create a new attempt with a different repo.
-              </p>
-            )}
-            {!selectedLanguage ? (
-              <button
-                disabled
-                className="px-6 py-3 rounded-lg bg-muted text-muted-foreground cursor-not-allowed font-medium"
-              >
-                Select a language to continue
-              </button>
+            {githubRepoUrl ? (
+              /* User already has a repo - show existing repo info */
+              <div className="rounded-xl border border-border bg-card p-6 space-y-4">
+                <div className="flex items-center justify-center gap-2 text-success">
+                  <Check className="h-5 w-5" />
+                  <h3 className="text-lg font-semibold">Repository Already Created</h3>
+                </div>
+                <p className="text-muted-foreground text-sm">
+                  You're working on this challenge with <span className="font-semibold text-foreground">{getLanguageDisplayName(selectedLanguage || '')}</span>. 
+                  Clone your repository and run <code className="px-2 py-1 rounded bg-muted text-accent">dsa test</code> to continue.
+                </p>
+                <div className="pt-2 text-xs text-muted-foreground">
+                  <p>Want to start over? Visit the Challenges page and click "Restart" on this module.</p>
+                </div>
+              </div>
             ) : (
-              <button
-                onClick={() => onStartChallenge?.(selectedLanguage)}
-                disabled={isCreatingProject}
-                className="px-6 py-3 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 font-medium transition-colors font-mono disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isCreatingProject ? (
-                  <span className="flex items-center gap-2">
-                    <span className="animate-spin">⏳</span>
-                    Creating repository...
-                  </span>
-                ) : githubRepoUrl ? (
-                  `Create New Attempt with ${getLanguageDisplayName(selectedLanguage)}`
+              /* No repo yet - show start button */
+              <>
+                {!selectedLanguage ? (
+                  <button
+                    disabled
+                    className="px-6 py-3 rounded-lg bg-muted text-muted-foreground cursor-not-allowed font-medium"
+                  >
+                    Select a language to continue
+                  </button>
                 ) : (
-                  `Start with ${getLanguageDisplayName(selectedLanguage)}`
+                  <button
+                    onClick={() => onStartChallenge?.(selectedLanguage)}
+                    disabled={isCreatingProject}
+                    className="px-6 py-3 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 font-medium transition-colors font-mono disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isCreatingProject ? (
+                      <span className="flex items-center gap-2">
+                        <span className="animate-spin">⏳</span>
+                        Creating repository...
+                      </span>
+                    ) : (
+                      `Start with ${getLanguageDisplayName(selectedLanguage)}`
+                    )}
+                  </button>
                 )}
-              </button>
+              </>
             )}
           </div>
         </>
