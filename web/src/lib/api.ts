@@ -20,10 +20,11 @@ export interface Project {
   userId: string
   moduleId: string
   language: string
-  githubRepoUrl: string
-  status: 'in_progress' | 'completed' | 'needs_config'
+  githubRepoUrl: string | null
+  status: 'not_started' | 'in_progress' | 'completed'
   progress: number
   currentChallengeIndex: number
+  projectToken: string
   createdAt: string
   updatedAt: string
 }
@@ -135,3 +136,89 @@ class ApiClient {
 
 export const apiClient = new ApiClient(API_BASE_URL)
 
+/**
+ * Fetch user projects from the API
+ * Uses Supabase auth session to get user ID and access token
+ */
+export async function fetchUserProjects(): Promise<Project[]> {
+  try {
+    // Get current session to extract user ID and access token
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    if (!session?.user) {
+      // User not authenticated, return empty array
+      return []
+    }
+
+    const userId = session.user.id
+    const accessToken = session.access_token
+
+    // Fetch projects from API
+    const headers: HeadersInit = {
+      'x-user-id': userId,
+      'Content-Type': 'application/json',
+    }
+
+    // Include auth token if available (for backend verification)
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`
+    }
+
+    const response = await fetch(`${API_BASE_URL}/projects`, {
+      method: 'GET',
+      headers,
+    })
+
+    if (!response.ok) {
+      console.error('Failed to fetch projects:', response.status, response.statusText)
+      return []
+    }
+
+    const projects = await response.json()
+    return projects as Project[]
+  } catch (error) {
+    console.error('Error fetching projects:', error)
+    return []
+  }
+}
+
+/**
+ * Fetch a single project by moduleId
+ */
+export async function fetchProjectByModuleId(moduleId: string): Promise<Project | null> {
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    if (!session?.user) {
+      return null
+    }
+
+    const userId = session.user.id
+    const accessToken = session.access_token
+
+    const headers: HeadersInit = {
+      'x-user-id': userId,
+      'Content-Type': 'application/json',
+    }
+
+    // Include auth token if available
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`
+    }
+
+    const response = await fetch(`${API_BASE_URL}/projects?moduleId=${encodeURIComponent(moduleId)}`, {
+      method: 'GET',
+      headers,
+    })
+
+    if (!response.ok) {
+      return null
+    }
+
+    const projects = await response.json()
+    return (projects as Project[])[0] || null
+  } catch (error) {
+    console.error('Error fetching project:', error)
+    return null
+  }
+}
