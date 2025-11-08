@@ -26,4 +26,3 @@ public class Stack<T> {
         return items.get(items.size() - 1);
     }
 }
-

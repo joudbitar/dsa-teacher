@@ -14,4 +14,3 @@ public class Queue<T> {
         items.add(value);
     }
 }
-

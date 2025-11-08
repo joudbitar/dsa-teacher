@@ -19,4 +19,3 @@ public class Stack<T> {
         return items.remove(items.size() - 1);
     }
 }
-

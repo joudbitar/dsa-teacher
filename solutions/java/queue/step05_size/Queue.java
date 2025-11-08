@@ -42,4 +42,3 @@ public class Queue<T> {
         return size() == 0;
     }
 }
-

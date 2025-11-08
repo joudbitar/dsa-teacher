@@ -23,4 +23,3 @@ public class Queue<T> {
         return value;
     }
 }
-

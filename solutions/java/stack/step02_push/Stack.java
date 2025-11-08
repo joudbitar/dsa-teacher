@@ -12,4 +12,3 @@ public class Stack<T> {
         items.add(value);
     }
 }
-

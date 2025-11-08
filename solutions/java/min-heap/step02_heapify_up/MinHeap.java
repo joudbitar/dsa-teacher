@@ -31,4 +31,3 @@ public class MinHeap {
         items.set(j, temp);
     }
 }
-

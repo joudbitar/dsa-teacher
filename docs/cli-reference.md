@@ -169,14 +169,14 @@ Common API responses:
 
 ## 4. Troubleshooting
 
-| Issue | Diagnosis & Fix |
-| ----- | --------------- |
-| `dsa: command not found` | The CLI isn’t linked globally. Re-run the install script or `pnpm link --global`. Restart the terminal. |
-| `Not a DSA project` | You are not inside the repo containing `dsa.config.json`. Navigate to the challenge root. |
-| `Failed to parse test report` | The test command crashed or the report file is missing. Delete stale reports and run `dsa test` again. |
-| Tests always fail silently | Run the underlying `testCommand` manually to view raw errors (e.g., `node tests/run.js`). |
-| Submission returns 401 | The project token rotated. Recreate the challenge or update `dsa.config.json` from the dashboard. |
-| Submission returns 404 | The project ID doesn’t match the Supabase record. Ensure you are in the correct repository. |
+| Issue                         | Diagnosis & Fix                                                                                         |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `dsa: command not found`      | The CLI isn’t linked globally. Re-run the install script or `pnpm link --global`. Restart the terminal. |
+| `Not a DSA project`           | You are not inside the repo containing `dsa.config.json`. Navigate to the challenge root.               |
+| `Failed to parse test report` | The test command crashed or the report file is missing. Delete stale reports and run `dsa test` again.  |
+| Tests always fail silently    | Run the underlying `testCommand` manually to view raw errors (e.g., `node tests/run.js`).               |
+| Submission returns 401        | The project token rotated. Recreate the challenge or update `dsa.config.json` from the dashboard.       |
+| Submission returns 404        | The project ID doesn’t match the Supabase record. Ensure you are in the correct repository.             |
 
 General tips:
 
@@ -225,4 +225,3 @@ When adding commands:
 ---
 
 Stay current: rerun the installer script after pulling updates, and check release notes in the repository for new commands or breaking changes.
-

@@ -1,9 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { ChallengesGrid } from "@/components/ChallengesGrid";
 import { useTheme } from "@/theme/ThemeContext";
-import { apiClient, Module, fetchUserProjects, type Project } from "@/lib/api";
+import { fetchUserProjects, type Project } from "@/lib/api";
 import { useAuth } from "@/auth/useAuth";
 import { Link, useLocation } from "react-router-dom";
 import { challengeData } from "@/data/challenges";
@@ -43,31 +42,8 @@ export function Challenges() {
   } = useTheme();
   const location = useLocation();
   const { user } = useAuth();
-  const [modules, setModules] = useState<Module[]>([]);
-  const [modulesLoading, setModulesLoading] = useState(true);
-  const [modulesError, setModulesError] = useState<string | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectsLoading, setProjectsLoading] = useState(true);
-
-  // Load modules for ChallengesGrid
-  useEffect(() => {
-    async function loadModules() {
-      try {
-        setModulesLoading(true);
-        const data = await apiClient.getModules();
-        setModules(data);
-      } catch (err) {
-        console.error("Failed to load modules:", err);
-        setModulesError(
-          err instanceof Error ? err.message : "Failed to load modules"
-        );
-      } finally {
-        setModulesLoading(false);
-      }
-    }
-
-    loadModules();
-  }, []);
 
   // Fetch projects from API for Your Library section
   useEffect(() => {
@@ -194,44 +170,6 @@ export function Challenges() {
       completedCount: completed,
     };
   }, [projects]);
-
-  if (modulesLoading) {
-    return (
-      <div
-        className="min-h-screen flex flex-col relative"
-        style={{ backgroundColor }}
-      >
-        <Navbar className="relative z-10" />
-        <main className="flex-1 relative z-10">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="text-center">
-              <p className="text-lg">Loading challenges...</p>
-            </div>
-          </div>
-        </main>
-        <Footer className="relative z-10" />
-      </div>
-    );
-  }
-
-  if (modulesError) {
-    return (
-      <div
-        className="min-h-screen flex flex-col relative"
-        style={{ backgroundColor }}
-      >
-        <Navbar className="relative z-10" />
-        <main className="flex-1 relative z-10">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="text-center">
-              <p className="text-lg text-destructive">Error: {modulesError}</p>
-            </div>
-          </div>
-        </main>
-        <Footer className="relative z-10" />
-      </div>
-    );
-  }
 
   return (
     <div
@@ -447,17 +385,107 @@ export function Challenges() {
             )}
           </div>
 
-          <div className="mb-12">
-            <h1 className="text-4xl font-bold mb-4">
-              Data Structures & Algorithms Challenges
-            </h1>
-            <p className="text-lg text-muted-foreground">
+          <div className="mb-8">
+            <h2
+              className="text-3xl font-bold font-mono mb-2"
+              style={{ color: textColor }}
+            >
+              All Challenges
+            </h2>
+            <p
+              className="text-base font-mono"
+              style={{ color: secondaryTextColor }}
+            >
               Pick a challenge and start building. Each module comes with tests,
               starter code, and clear goals.
             </p>
           </div>
 
-          <ChallengesGrid />
+          {/* All Challenges Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {Object.values(challengeData).map((challenge) => {
+              const Icon = iconMap[challenge.id] || Code2;
+              const isIntermediate = challenge.level === "Intermediate";
+              const isAdvanced = challenge.level === "Advanced";
+
+              return (
+                <Link
+                  key={challenge.id}
+                  to={`/challenges/${challenge.id}`}
+                  className="group relative rounded-lg border-2 p-6 transition-all hover:shadow-lg"
+                  style={{
+                    backgroundColor: backgroundColor,
+                    borderColor: borderColor,
+                  }}
+                >
+                  {/* Icon */}
+                  <div className="mb-3">
+                    <div
+                      className="flex h-10 w-10 items-center justify-center rounded-lg"
+                      style={{
+                        backgroundColor: hexToRgba(textColor, 0.1),
+                        borderColor: borderColor,
+                        borderWidth: "1px",
+                      }}
+                    >
+                      <Icon className="h-5 w-5" style={{ color: textColor }} />
+                    </div>
+                  </div>
+
+                  {/* Title */}
+                  <h3
+                    className="text-lg font-semibold font-mono mb-2 group-hover:opacity-80 transition-opacity"
+                    style={{ color: textColor }}
+                  >
+                    {challenge.title}
+                  </h3>
+
+                  {/* Level Badge */}
+                  <div className="mb-3">
+                    <span
+                      className="inline-block px-2.5 py-1 rounded text-xs font-semibold font-mono"
+                      style={{
+                        backgroundColor: isAdvanced
+                          ? hexToRgba("#B91C1C", 0.2)
+                          : isIntermediate
+                          ? hexToRgba("#F4A300", 0.2)
+                          : hexToRgba(accentGreen, 0.2),
+                        color: isAdvanced
+                          ? "#B91C1C"
+                          : isIntermediate
+                          ? "#F4A300"
+                          : accentGreen,
+                      }}
+                    >
+                      {challenge.level}
+                    </span>
+                  </div>
+
+                  {/* Summary */}
+                  <p
+                    className="text-sm font-mono mb-3"
+                    style={{ color: secondaryTextColor }}
+                  >
+                    {challenge.summary}
+                  </p>
+
+                  {/* Time Estimate */}
+                  <p
+                    className="text-xs font-mono"
+                    style={{ color: secondaryTextColor }}
+                  >
+                    {challenge.time}
+                  </p>
+
+                  {/* Arrow Icon */}
+                  <ArrowRight
+                    className="absolute bottom-4 right-4 h-4 w-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all"
+                    style={{ color: secondaryTextColor }}
+                  />
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </main>
       <Footer className="relative z-10 mt-auto" />

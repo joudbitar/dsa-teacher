@@ -10,4 +10,3 @@ public class Queue<T> {
         this.head = 0;
     }
 }
-

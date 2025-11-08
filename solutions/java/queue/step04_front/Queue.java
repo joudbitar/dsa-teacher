@@ -30,4 +30,3 @@ public class Queue<T> {
         return items.get(head);
     }
 }
-
