@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, GitBranch, Terminal, Code2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
-import { colors } from '@/theme/colors'
+import { useTheme } from '@/theme/ThemeContext'
 
 const codeExamples = {
   stack: {
@@ -33,7 +33,7 @@ const codeExamples = {
 }
 
 // Enhanced syntax highlighting function with IDE-like colors
-const highlightCode = (code: string) => {
+const highlightCode = (code: string, defaultTextColor: string) => {
   const tokens: Array<{ text: string; color: string }> = []
   const lines = code.split('\n')
   
@@ -50,7 +50,7 @@ const highlightCode = (code: string) => {
       if (match.index > lastIndex) {
         const beforeText = line.substring(lastIndex, match.index)
         if (beforeText) {
-          tokens.push({ text: beforeText, color: '#171512' })
+          tokens.push({ text: beforeText, color: defaultTextColor })
         }
       }
       lastIndex = match.index + fullMatch.length
@@ -58,7 +58,7 @@ const highlightCode = (code: string) => {
       if (comment) {
         tokens.push({ text: comment, color: '#6a737d' }) // Gray for comments
       } else if (whitespace) {
-        tokens.push({ text: whitespace, color: '#171512' })
+        tokens.push({ text: whitespace, color: defaultTextColor })
       } else if (keyword) {
         // Make class and private blue, others red
         const blueKeywords = ['class', 'private']
@@ -79,10 +79,10 @@ const highlightCode = (code: string) => {
         } else if (line.includes('function ') && identifier === line.split('function ')[1]?.split(/[<(\s]/)[0]) {
           tokens.push({ text: identifier, color: '#8250df' }) // Purple for function names
         } else {
-          tokens.push({ text: identifier, color: '#171512' }) // Black for other identifiers
+          tokens.push({ text: identifier, color: defaultTextColor }) // Use theme color for other identifiers
         }
       } else if (bracket) {
-        tokens.push({ text: bracket, color: '#171512' }) // Black for brackets
+        tokens.push({ text: bracket, color: defaultTextColor }) // Use theme color for brackets
       }
     }
     
@@ -90,12 +90,12 @@ const highlightCode = (code: string) => {
     if (lastIndex < line.length) {
       const remaining = line.substring(lastIndex)
       if (remaining) {
-        tokens.push({ text: remaining, color: '#171512' })
+        tokens.push({ text: remaining, color: defaultTextColor })
       }
     }
     
     if (lineIdx < lines.length - 1) {
-      tokens.push({ text: '\n', color: '#171512' })
+      tokens.push({ text: '\n', color: defaultTextColor })
     }
   })
   
@@ -136,6 +136,7 @@ const features = [
 
 export function Landing() {
   const [currentChallenge, setCurrentChallenge] = useState(0)
+  const { backgroundColor, textColor, borderColor, secondaryTextColor, sectionBackgroundColor, accentGreen, accentBlue } = useTheme()
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -145,8 +146,8 @@ export function Landing() {
   }, [])
 
   const themeStyle = {
-    backgroundColor: colors.background.base,
-    color: colors.text.primary,
+    backgroundColor,
+    color: textColor,
     fontFamily: 'JetBrains Mono, monospace',
   }
 
@@ -168,17 +169,17 @@ export function Landing() {
                 <span className="font-bold">Start learning.</span>
               </h1>
               <p 
-                className="text-xl sm:text-2xl mb-8 text-[#4B463F]" 
-                style={{ fontFamily: themeStyle.fontFamily }}
+                className="text-xl sm:text-2xl mb-8" 
+                style={{ color: secondaryTextColor, fontFamily: themeStyle.fontFamily }}
               >
                 Learn data structures and algorithms by building them from scratch.
               </p>
               <Link
-                to="/challenges"
+                to="/auth?mode=signup"
                 className="inline-flex items-center justify-center rounded-lg px-8 py-4 text-lg font-bold transition-all hover:opacity-90 hover:scale-105"
                 style={{ 
-                  backgroundColor: '#66A056', 
-                  color: '#F0ECDA',
+                  backgroundColor: accentGreen, 
+                  color: backgroundColor,
                   fontFamily: themeStyle.fontFamily
                 }}
               >
@@ -203,10 +204,10 @@ export function Landing() {
                         pointerEvents: index === currentChallenge ? 'auto' : 'none'
                       }}
                     >
-                      <span style={{ fontWeight: 'normal', color: '#4B463F' }}>
+                      <span style={{ fontWeight: 'normal', color: secondaryTextColor }}>
                         {buildPart}:
                       </span>
-                      <span style={{ fontWeight: 'bold', color: themeStyle.color, marginLeft: '0.5rem' }}>
+                      <span style={{ fontWeight: 'bold', color: textColor, marginLeft: '0.5rem' }}>
                         {dsName}
                       </span>
                     </h2>
@@ -214,7 +215,7 @@ export function Landing() {
                 })}
               </div>
               
-              <div className="relative h-64 rounded-2xl border-2 overflow-hidden" style={{ borderColor: '#171512' }}>
+              <div className="relative h-64 rounded-2xl border-2 overflow-hidden" style={{ borderColor: borderColor }}>
                 <div className="relative h-full w-full">
                   {challenges.map((challenge, index) => {
                     return (
@@ -222,7 +223,7 @@ export function Landing() {
                         key={challenge.id}
                         className="absolute inset-0 h-full overflow-hidden transition-opacity duration-500 flex items-center justify-center"
                         style={{ 
-                          backgroundColor: colors.background.base,
+                          backgroundColor: backgroundColor,
                           opacity: index === currentChallenge ? 1 : 0,
                           pointerEvents: index === currentChallenge ? 'auto' : 'none'
                         }}
@@ -231,11 +232,11 @@ export function Landing() {
                           fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
                           fontSize: '1.5rem',
                           lineHeight: '1.8',
-                          color: '#171512',
+                          color: textColor,
                           whiteSpace: 'pre'
                         }}>
                           <code>
-                            {highlightCode(challenge.code).map((token, i) => (
+                            {highlightCode(challenge.code, textColor).map((token, i) => (
                               <span key={i} style={{ color: token.color }}>
                                 {token.text}
                               </span>
@@ -258,7 +259,7 @@ export function Landing() {
                       index === currentChallenge ? "w-8" : "w-2"
                     )}
                     style={{ 
-                      backgroundColor: index === currentChallenge ? '#171512' : '#4B463F'
+                      backgroundColor: index === currentChallenge ? textColor : secondaryTextColor
                     }}
                     aria-label={`Go to challenge ${index + 1}`}
                   />
@@ -269,16 +270,16 @@ export function Landing() {
         </section>
 
         {/* Why Section */}
-        <section className="py-16 sm:py-24" style={{ backgroundColor: '#E8E0C8' }}>
+        <section className="py-16 sm:py-24" style={{ backgroundColor: sectionBackgroundColor }}>
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl sm:text-4xl font-bold mb-6" style={{ color: themeStyle.color, fontFamily: themeStyle.fontFamily }}>
+              <h2 className="text-3xl sm:text-4xl font-bold mb-6" style={{ color: textColor, fontFamily: themeStyle.fontFamily }}>
                 Missing the fundamentals?
                 <br />
                 We've got your back.
               </h2>
-              <p className="text-xl sm:text-2xl text-[#4B463F] leading-relaxed" style={{ fontFamily: themeStyle.fontFamily }}>
-              AI won't make you great—fundamentals will. Learn how and why data structures and algorithms actually work. Earn the foundation.
+              <p className="text-xl sm:text-2xl leading-relaxed" style={{ color: secondaryTextColor, fontFamily: themeStyle.fontFamily }}>
+              AI won’t make you great—fundamentals will. Learn how and why data structures and algorithms actually work. Earn the foundation.
               </p>
             </div>
           </div>
@@ -295,22 +296,22 @@ export function Landing() {
                 <div
                   key={step.number}
                   className="relative rounded-xl border-2 p-6 text-center"
-                  style={{ borderColor: '#171512', backgroundColor: colors.background.base }}
+                  style={{ borderColor: borderColor, backgroundColor: backgroundColor }}
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full mx-auto mb-4" style={{ backgroundColor: '#171512' }}>
-                    <span className="text-2xl font-bold" style={{ color: colors.background.base, fontFamily: themeStyle.fontFamily }}>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full mx-auto mb-4" style={{ backgroundColor: textColor }}>
+                    <span className="text-2xl font-bold" style={{ color: backgroundColor, fontFamily: themeStyle.fontFamily }}>
                       {step.number}
                     </span>
                   </div>
                   <h3 className="text-lg font-bold mb-2" style={themeStyle}>
                     {step.title}
                   </h3>
-                  <p className="text-sm text-[#4B463F]" style={{ fontFamily: themeStyle.fontFamily }}>
+                  <p className="text-sm" style={{ color: secondaryTextColor, fontFamily: themeStyle.fontFamily }}>
                     {step.description}
                   </p>
                   {step.number < steps.length && (
                     <div className="hidden lg:block absolute top-1/2 -right-6 transform -translate-y-1/2">
-                      <ArrowRight className="h-6 w-6" style={{ color: '#4B463F' }} />
+                      <ArrowRight className="h-6 w-6" style={{ color: secondaryTextColor }} />
                     </div>
                   )}
                 </div>
@@ -321,8 +322,8 @@ export function Landing() {
                 to="/docs"
                 className="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-bold transition-all hover:opacity-90 hover:scale-105"
                 style={{ 
-                  backgroundColor: '#96BFBD',
-                  color: '#F0ECDA',
+                  backgroundColor: accentBlue,
+                  color: backgroundColor,
                   fontFamily: themeStyle.fontFamily
                 }}
               >
@@ -333,9 +334,9 @@ export function Landing() {
         </section>
 
         {/* Key Differentiators */}
-        <section className="py-16 sm:py-24" style={{ backgroundColor: '#E8E0C8' }}>
+        <section className="py-16 sm:py-24" style={{ backgroundColor: sectionBackgroundColor }}>
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-12 text-center" style={{ color: themeStyle.color, fontFamily: themeStyle.fontFamily }}>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-12 text-center" style={{ color: textColor, fontFamily: themeStyle.fontFamily }}>
               Build like an <span className="font-extrabold">engineer</span>.
             </h2>
             <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -345,15 +346,15 @@ export function Landing() {
                   <div
                     key={feature.title}
                     className="rounded-xl border-2 p-6 text-center"
-                    style={{ borderColor: '#171512', backgroundColor: colors.background.base }}
+                    style={{ borderColor: borderColor, backgroundColor: backgroundColor }}
                   >
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full mx-auto mb-4" style={{ backgroundColor: '#171512' }}>
-                      <Icon className="h-8 w-8" style={{ color: colors.background.base }} />
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full mx-auto mb-4" style={{ backgroundColor: textColor }}>
+                      <Icon className="h-8 w-8" style={{ color: backgroundColor }} />
                     </div>
                     <h3 className="text-xl font-bold mb-3" style={themeStyle}>
                       {feature.title}
                     </h3>
-                    <p className="text-[#4B463F] leading-relaxed" style={{ fontFamily: themeStyle.fontFamily }}>
+                    <p className="leading-relaxed" style={{ color: secondaryTextColor, fontFamily: themeStyle.fontFamily }}>
                       {feature.description}
                     </p>
                   </div>
@@ -370,16 +371,16 @@ export function Landing() {
               <h2 className="text-3xl sm:text-4xl font-bold mb-6" style={themeStyle}>
                 Ready to start building?
               </h2>
-              <p className="text-xl text-[#4B463F] mb-8" style={{ fontFamily: themeStyle.fontFamily }}>
+              <p className="text-xl mb-8" style={{ color: secondaryTextColor, fontFamily: themeStyle.fontFamily }}>
                 Pick your first challenge and start learning by doing.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Link
-                  to="/challenges"
+                  to="/auth?mode=signup"
                   className="inline-flex items-center justify-center rounded-lg px-8 py-4 text-lg font-bold transition-all hover:opacity-90 hover:scale-105"
                   style={{ 
-                    backgroundColor: '#171512', 
-                    color: colors.background.base,
+                    backgroundColor: textColor, 
+                    color: backgroundColor,
                     fontFamily: themeStyle.fontFamily
                   }}
                 >
@@ -390,8 +391,8 @@ export function Landing() {
                   to="/about"
                   className="inline-flex items-center justify-center rounded-lg border-2 px-8 py-4 text-lg font-semibold transition-all hover:opacity-80"
                   style={{ 
-                    borderColor: '#171512',
-                    color: '#171512',
+                    borderColor: borderColor,
+                    color: textColor,
                     fontFamily: themeStyle.fontFamily
                   }}
                 >
@@ -405,4 +406,3 @@ export function Landing() {
     </div>
   )
 }
-

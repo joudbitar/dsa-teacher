@@ -1,7 +1,6 @@
-import { Code2, Lightbulb, Target, CheckCircle2, BookOpen, Zap } from 'lucide-react'
+import { Code2, Lightbulb, Target, CheckCircle2 } from 'lucide-react'
 import { ChallengeStep } from '@/data/challenges/types'
 import { cn } from '@/lib/utils'
-import { OrganicStep } from './OrganicStep'
 
 interface ChallengeStepsProps {
   steps: ChallengeStep[]
@@ -13,206 +12,174 @@ interface ChallengeStepsProps {
   }
   currentStepIndex?: number // Index of the current step (0-based, -1 if no step started)
   showOnlyCurrentStep?: boolean // If true, only show the current step details
-  onNextStep?: () => void
 }
 
-export function ChallengeSteps({ steps, learningOutcome, coreSkills, integrationProject, currentStepIndex = -1, showOnlyCurrentStep = false, onNextStep }: ChallengeStepsProps) {
+export function ChallengeSteps({ steps, learningOutcome, coreSkills, integrationProject, currentStepIndex = -1, showOnlyCurrentStep = false }: ChallengeStepsProps) {
   // Filter steps based on showOnlyCurrentStep
   const displaySteps = showOnlyCurrentStep && currentStepIndex >= 0
     ? [steps[currentStepIndex]].filter(Boolean)
     : steps.filter((_, index) => currentStepIndex >= index)
 
   return (
-    <div className="space-y-6">
-      {/* Learning Outcome - Only show in multi-step view */}
-      {!showOnlyCurrentStep && (
-        <OrganicStep isCurrent={true} isCompleted={false} className="p-6">
+    <div className="space-y-8">
+      {/* Learning Outcome - Show only if showing all steps or on first step */}
+      {(!showOnlyCurrentStep || currentStepIndex === 0) && (
+        <div className="rounded-xl border border-border bg-muted p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/20 border border-accent/30">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
               <Target className="h-5 w-5 text-accent" />
             </div>
-            <h2 className="text-2xl font-bold font-mono text-[#3E2723]">Learning Outcome</h2>
+            <h2 className="text-2xl font-bold">Learning Outcome</h2>
           </div>
-          <p className="text-lg text-[#3E2723]/90 leading-relaxed font-mono">
+          <p className="text-foreground/90 leading-relaxed">
             {learningOutcome}
           </p>
-        </OrganicStep>
+        </div>
       )}
 
       {/* Current Step Details */}
       {showOnlyCurrentStep && currentStepIndex >= 0 && currentStepIndex < steps.length && steps[currentStepIndex] && (
         <div className="space-y-6">
-          {/* Main Step Card */}
-          <OrganicStep isCurrent={true} isCompleted={false} className="p-6">
-            <div className="flex items-start gap-6">
-              {/* Step Content without number badge */}
-              <div className="flex-1 space-y-6">
+          <div className="rounded-xl border-2 border-accent bg-accent/5 p-6">
+            <div className="flex items-start gap-4">
+              {/* Step Number */}
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground font-bold text-lg">
+                {steps[currentStepIndex].step}
+              </div>
+
+              {/* Step Content */}
+              <div className="flex-1 space-y-4">
                 <div>
-                  <div className="flex items-center gap-3 mb-3">
-                    <Zap className="h-6 w-6 text-accent" />
-                    <h2 className="text-2xl font-bold font-mono text-[#3E2723]">{steps[currentStepIndex].focus}</h2>
-                  </div>
-                  <p className="text-base text-[#3E2723]/90 font-medium leading-relaxed font-mono">
-                    {steps[currentStepIndex].challenge}
-                  </p>
+                  <h2 className="text-2xl font-bold mb-2">{steps[currentStepIndex].focus}</h2>
+                  <p className="text-lg text-foreground/90 font-medium">{steps[currentStepIndex].challenge}</p>
                 </div>
 
-                {/* Concept Gained Card */}
-                <OrganicStep isCurrent={false} isCompleted={false} className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
-                      <Lightbulb className="h-5 w-5 text-accent" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-[#3E2723] mb-2 font-mono">Concept You'll Gain</h3>
-                      <p className="text-base text-[#3E2723]/90 leading-relaxed font-mono">
-                        {steps[currentStepIndex].conceptGained}
-                      </p>
-                    </div>
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-background/50">
+                  <Lightbulb className="h-5 w-5 text-accent mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-sm font-semibold text-muted-foreground mb-2">Concept You'll Gain:</p>
+                    <p className="text-base text-foreground/90">{steps[currentStepIndex].conceptGained}</p>
                   </div>
-                </OrganicStep>
+                </div>
 
-                {/* Visualization Card */}
                 {steps[currentStepIndex].visualization && (
-                  <OrganicStep isCurrent={false} isCompleted={false} className="p-6">
-                    <div className="flex items-start gap-4">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
-                        <Code2 className="h-5 w-5 text-accent" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold text-[#3E2723] mb-2 font-mono">Visualization</h3>
-                        <p className="text-base text-[#3E2723]/90 leading-relaxed italic font-mono">
-                          {steps[currentStepIndex].visualization}
-                        </p>
-                      </div>
-                    </div>
-                  </OrganicStep>
-                )}
-
-                {/* Learning Tips */}
-                <OrganicStep isCurrent={false} isCompleted={false} className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-success/10 border border-success/20">
-                      <BookOpen className="h-5 w-5 text-success" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-[#3E2723] mb-2 font-mono">Pro Tip</h3>
-                      <p className="text-base text-[#3E2723]/90 leading-relaxed font-mono">
-                        Start by understanding the core operation. Test edge cases early—empty stacks, single elements, and maximum capacity. Use <code className="px-2 py-0.5 rounded bg-muted text-accent text-sm font-mono">dsa test</code> frequently to catch issues before they compound.
-                      </p>
+                  <div className="flex items-start gap-3 p-4 rounded-lg bg-background/50">
+                    <Code2 className="h-5 w-5 text-accent mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-sm font-semibold text-muted-foreground mb-2">Visualization:</p>
+                      <p className="text-base text-foreground/90 italic">{steps[currentStepIndex].visualization}</p>
                     </div>
                   </div>
-                </OrganicStep>
+                )}
               </div>
             </div>
-          </OrganicStep>
-
+          </div>
         </div>
       )}
 
       {/* Step-by-Step Progression - Show all visible steps when not in single-step mode */}
       {!showOnlyCurrentStep && (
         <div className="space-y-6">
-          <h2 className="text-2xl font-bold font-mono">Step-by-Step Progression</h2>
-          <div className="space-y-16">
-            {displaySteps.map((step, index) => {
+          <h2 className="text-2xl font-bold">Step-by-Step Progression</h2>
+          <div className="space-y-4">
+            {displaySteps.map((step) => {
               const originalIndex = steps.findIndex(s => s.step === step.step)
               const isCurrentStep = originalIndex === currentStepIndex
               
               return (
-                <OrganicStep
+                <div
                   key={step.step}
-                  shapeVariant={index}
-                  isCurrent={isCurrentStep}
-                  isCompleted={false}
-                  className="p-6"
+                  className={cn(
+                    "rounded-xl border p-6 transition-all",
+                    step.focus === 'Integration Project'
+                      ? "border-accent bg-accent/5"
+                      : isCurrentStep
+                      ? "border-accent bg-accent/5"
+                      : "border-border bg-muted"
+                  )}
                 >
-                  {/* Step Content without numbers */}
-                  <div className="flex-1 space-y-3">
-                    <div>
-                      <h3 className={cn(
-                        "text-xl font-bold mb-1 font-mono",
-                        isCurrentStep ? "text-[#3E2723]" : "text-foreground"
-                      )}>{step.focus}</h3>
-                      <p className={cn(
-                        "text-base font-medium font-mono",
-                        isCurrentStep ? "text-[#3E2723]/90" : "text-foreground/90"
-                      )}>{step.challenge}</p>
+                  <div className="flex items-start gap-4">
+                    {/* Step Number */}
+                    <div className={cn(
+                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-bold text-lg",
+                      step.focus === 'Integration Project'
+                        ? "bg-accent text-accent-foreground"
+                        : isCurrentStep
+                        ? "bg-accent text-accent-foreground"
+                        : "bg-muted text-foreground"
+                    )}>
+                      {step.step}
                     </div>
 
-                    <div className="flex items-start gap-2">
-                      <Lightbulb className="h-4 w-4 text-accent mt-0.5 shrink-0" />
+                    {/* Step Content */}
+                    <div className="flex-1 space-y-3">
                       <div>
-                        <p className={cn(
-                          "text-sm font-medium mb-1 font-mono",
-                          isCurrentStep ? "text-[#3E2723]/70" : "text-muted-foreground"
-                        )}>Concept Gained:</p>
-                        <p className={cn(
-                          "text-sm font-mono",
-                          isCurrentStep ? "text-[#3E2723]/80" : "text-foreground/80"
-                        )}>{step.conceptGained}</p>
+                        <h3 className="text-xl font-bold mb-1">{step.focus}</h3>
+                        <p className="text-foreground/90 font-medium">{step.challenge}</p>
                       </div>
-                    </div>
 
-                    {step.visualization && (
                       <div className="flex items-start gap-2">
-                        <Code2 className="h-4 w-4 text-accent mt-0.5 shrink-0" />
+                        <Lightbulb className="h-4 w-4 text-accent mt-0.5 shrink-0" />
                         <div>
-                          <p className={cn(
-                            "text-sm font-medium mb-1 font-mono",
-                            isCurrentStep ? "text-[#3E2723]/70" : "text-muted-foreground"
-                          )}>Visualization:</p>
-                          <p className={cn(
-                            "text-sm italic font-mono",
-                            isCurrentStep ? "text-[#3E2723]/80" : "text-foreground/80"
-                          )}>{step.visualization}</p>
+                          <p className="text-sm font-medium text-muted-foreground mb-1">Concept Gained:</p>
+                          <p className="text-sm text-foreground/80">{step.conceptGained}</p>
                         </div>
                       </div>
-                    )}
+
+                      {step.visualization && (
+                        <div className="flex items-start gap-2">
+                          <Code2 className="h-4 w-4 text-accent mt-0.5 shrink-0" />
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground mb-1">Visualization:</p>
+                            <p className="text-sm text-foreground/80 italic">{step.visualization}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </OrganicStep>
+                </div>
               )
             })}
           </div>
         </div>
       )}
 
-      {/* Core Skills - Only show in multi-step view */}
-      {!showOnlyCurrentStep && (
-        <OrganicStep isCurrent={false} isCompleted={false} className="p-6">
+      {/* Core Skills - Show only if showing all steps or on first step */}
+      {(!showOnlyCurrentStep || currentStepIndex === 0) && (
+        <div className="rounded-xl border border-border bg-muted p-6">
           <div className="flex items-center gap-3 mb-4">
             <CheckCircle2 className="h-5 w-5 text-success" />
-            <h2 className="text-2xl font-bold font-mono text-[#3E2723]">Core Skills</h2>
+            <h2 className="text-2xl font-bold">Core Skills</h2>
           </div>
-          <ul className="space-y-3">
+          <ul className="space-y-2">
             {coreSkills.map((skill, index) => (
-              <li key={index} className="flex items-start gap-3">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent/10 border border-accent/20 mt-0.5">
-                  <span className="text-sm font-bold text-accent font-mono">{index + 1}</span>
+              <li key={index} className="flex items-center gap-3">
+              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/10">
+                <span className="text-xs font-bold text-accent">{index + 1}</span>
                 </div>
-                <p className="text-base text-[#3E2723]/90 leading-relaxed font-mono">{skill}</p>
+                <p className="text-foreground/90">{skill}</p>
               </li>
             ))}
           </ul>
-        </OrganicStep>
+        </div>
       )}
 
       {/* Integration Project - Show only on the integration project step */}
       {integrationProject && (!showOnlyCurrentStep || (currentStepIndex >= 0 && steps[currentStepIndex]?.focus === 'Integration Project')) && (
-        <OrganicStep isCurrent={true} isCompleted={false} className="p-6">
+        <div className="rounded-xl border-2 border-accent bg-accent/5 p-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/20 border border-accent/30">
               <Code2 className="h-5 w-5 text-accent" />
             </div>
-            <h2 className="text-2xl font-bold font-mono text-[#3E2723]">Integration Project</h2>
+            <h2 className="text-2xl font-bold">Integration Project</h2>
           </div>
           <div className="space-y-3">
-            <h3 className="text-xl font-semibold font-mono text-[#3E2723]">{integrationProject.title}</h3>
-            <p className="text-[#3E2723]/90 leading-relaxed font-mono">
+            <h3 className="text-xl font-semibold">{integrationProject.title}</h3>
+            <p className="text-foreground/90 leading-relaxed">
               {integrationProject.description}
             </p>
           </div>
-        </OrganicStep>
+        </div>
       )}
     </div>
   )

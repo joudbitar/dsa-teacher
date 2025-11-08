@@ -1,11 +1,13 @@
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
-import { colors } from '@/theme/colors'
+import { Target, Heart } from 'lucide-react'
+import { useTheme } from '@/theme/ThemeContext'
 
 export function About() {
+  const { backgroundColor, textColor, secondaryTextColor, accentBlue } = useTheme()
   const themeStyle = {
-    backgroundColor: colors.background.base,
-    color: colors.text.primary,
+    backgroundColor,
+    color: textColor,
     fontFamily: 'JetBrains Mono, monospace',
   }
 
@@ -13,62 +15,68 @@ export function About() {
     <div className="min-h-screen flex flex-col" style={themeStyle}>
       <Navbar />
       <main className="flex-1">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="max-w-4xl mx-auto">
-            <h1 
-              className="text-4xl font-bold mb-6"
-              style={themeStyle}
-            >
-              About DSA Lab
-            </h1>
-            <div 
-              className="prose prose-lg"
-              style={{ 
-                fontFamily: themeStyle.fontFamily,
-                color: colors.text.primary
-              }}
-            >
-              <p className="text-lg text-[#4B463F] mb-8">
-                DSA Lab is a platform designed to help you learn data structures and algorithms through hands-on practice.
+        {/* Hero Section */}
+        <section className="py-16 sm:py-24" style={themeStyle}>
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-4xl mx-auto text-center">
+              <h1 className="text-4xl sm:text-5xl font-bold mb-6" style={themeStyle}>
+                About DSA Lab
+              </h1>
+              <p className="text-xl mb-8" style={{ color: secondaryTextColor, fontFamily: themeStyle.fontFamily }}>
+                Learn data structures and algorithms by building them from scratch.
               </p>
-              
-              <section className="mb-12">
-                <h2 className="text-2xl font-bold mb-4" style={themeStyle}>
-                  Our Mission
-                </h2>
-                <p className="text-[#4B463F] mb-4 leading-relaxed">
-                  We believe that memorizing algorithms isn't enough. You need to understand how and why they work. 
-                  DSA Lab provides real-world coding challenges that help you build the fundamental skills needed 
-                  to become a better engineer.
-                </p>
-              </section>
-
-              <section className="mb-12">
-                <h2 className="text-2xl font-bold mb-4" style={themeStyle}>
-                  How We're Different
-                </h2>
-                <ul className="list-disc list-inside text-[#4B463F] space-y-2 leading-relaxed">
-                  <li>Real GitHub repositories, not browser editors</li>
-                  <li>CLI-first workflow that matches real engineering environments</li>
-                  <li>Structured projects with tests and build systems</li>
-                  <li>Focus on understanding fundamentals, not just solving puzzles</li>
-                </ul>
-              </section>
-
-              <section className="mb-12">
-                <h2 className="text-2xl font-bold mb-4" style={themeStyle}>
-                  Get Started
-                </h2>
-                <p className="text-[#4B463F] mb-4 leading-relaxed">
-                  Ready to start learning? Head over to our challenges page and pick your first challenge. 
-                  Each challenge comes with starter code, tests, and clear instructions to guide you along the way.
-                </p>
-              </section>
             </div>
           </div>
-        </div>
+        </section>
+
+        {/* Mission Section */}
+        <section className="py-12 sm:py-16" style={themeStyle}>
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex items-start gap-4 mb-8">
+                <Target className="h-8 w-8 flex-shrink-0" style={{ color: accentBlue }} />
+                <div>
+                  <h2 className="text-3xl font-bold mb-4" style={themeStyle}>
+                    Our Mission
+                  </h2>
+                  <p className="text-lg mb-4" style={{ color: secondaryTextColor, fontFamily: themeStyle.fontFamily }}>
+                    With AI tools becoming ubiquitous, it's tempting to skip the fundamentals. But if you never built a stack, queue, or hash map yourself, you cap your ceiling.
+                  </p>
+                  <p className="text-lg" style={{ color: secondaryTextColor, fontFamily: themeStyle.fontFamily }}>
+                    DSA Lab bridges that gap by giving you real projects to build in your own environment, with real tests, and real feedback—just like you'd work on the job.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* How We Can Help Section */}
+        <section className="py-12 sm:py-16" style={themeStyle}>
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex items-start gap-4 mb-8">
+                <Heart className="h-8 w-8 flex-shrink-0" style={{ color: accentBlue }} />
+                <div>
+                  <h2 className="text-3xl font-bold mb-4" style={themeStyle}>
+                    How We Can Help
+                  </h2>
+                  <ul className="space-y-3 text-lg list-disc list-inside" style={{ color: secondaryTextColor, fontFamily: themeStyle.fontFamily }}>
+                    <li>Practicing for a technical interview</li>
+                    <li>Learning in conjunction with courses</li>
+                    <li>Interest in the fundamental data structures in computer science</li>
+                  </ul>
+                  <p className="text-lg mt-4 font-bold" style={{ color: secondaryTextColor, fontFamily: themeStyle.fontFamily }}>
+                    DSA Lab will be with you every step of the way.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
       <Footer />
     </div>
   )
 }
+
