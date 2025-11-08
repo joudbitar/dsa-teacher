@@ -1,0 +1,50 @@
+You are testing the DSA Lab to ensure our test independence fixes work correctly.
+
+RUN THIS SCRIPT:
+```bash
+cd /Users/joudbitar/Code/Projects/hackathon
+chmod +x test-modules.sh
+./test-modules.sh
+```
+
+The script will:
+1. Test 6 module/language combinations
+2. Create projects via API
+3. Clone repos
+4. Verify Challenge 1 passes with starter code
+5. Verify Challenge 2 doesn't require size()
+6. Report results
+
+YOUR JOB:
+- Run the script
+- If any tests fail, investigate why
+- Report which specific test files still have size() dependencies
+- Suggest fixes if needed
+
+EXPECTED OUTPUT:
+```
+Testing: queue in java
+✅ Challenge 1: PASSED
+✅ Challenge 2: No size() dependency
+
+Testing: queue in cpp
+✅ Challenge 1: PASSED
+✅ Challenge 2: No size() dependency
+
+... etc ...
+
+SUMMARY
+Total tests: 6
+Passed: 6
+Failed: 0
+🎉 All tests passed!
+```
+
+IF TESTS FAIL:
+Look at the error logs in ~/dsa-testing/ and identify:
+- Which test file is calling size()
+- What line number
+- Report back: "Fix needed: template-dsa-{module}-{lang}/tests/Test0X_{name}.{ext} line Y"
+
+That's it. Simple testing, clear reporting.
+

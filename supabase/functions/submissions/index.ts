@@ -9,6 +9,8 @@ interface TestCase {
 
 interface SubmissionDetails {
   cases: TestCase[];
+  currentChallengeIndex?: number;
+  challengeResult?: TestCase;
 }
 
 interface SubmissionRequest {
@@ -73,18 +75,44 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: 'Failed to create submission' }, 500);
     }
 
-    // Calculate progress
-    const passed = details.cases.filter(c => c.passed).length;
-    const total = details.cases.length;
-    const progress = total > 0 ? Math.round((passed / total) * 100) : 0;
-    const status = progress === 100 ? 'passed' : 'in_progress';
+    // Handle progressive challenge unlocking
+    const currentIndex = details.currentChallengeIndex ?? 0;
+    const challengePassed = details.challengeResult?.passed ?? false;
+    
+    let nextChallengeIndex = currentIndex;
+    let newProgress = 0;
+    let newStatus = 'in_progress';
 
-    // Update project
+    if (challengePassed) {
+      // Increment to next challenge
+      const totalChallenges = details.cases.length;
+      nextChallengeIndex = currentIndex + 1;
+
+      // Calculate progress based on completed challenges
+      newProgress = totalChallenges > 0 
+        ? Math.round((nextChallengeIndex / totalChallenges) * 100) 
+        : 0;
+
+      // Mark as completed if all challenges done
+      if (nextChallengeIndex >= totalChallenges) {
+        newStatus = 'completed';
+        newProgress = 100;
+      }
+    } else {
+      // Challenge not passed, keep same index and calculate progress
+      const totalChallenges = details.cases.length;
+      newProgress = totalChallenges > 0 
+        ? Math.round((currentIndex / totalChallenges) * 100) 
+        : 0;
+    }
+
+    // Update project with new challenge index and progress
     const { error: updateError } = await supabase
       .from('projects')
       .update({
-        progress,
-        status,
+        currentChallengeIndex: nextChallengeIndex,
+        progress: newProgress,
+        status: newStatus,
         updatedAt: new Date().toISOString(),
       })
       .eq('id', projectId);
@@ -98,8 +126,11 @@ Deno.serve(async (req) => {
       id: submission.id,
       createdAt: submission.createdAt,
       projectUpdated: !updateError,
-      progress,
-      status,
+      progress: newProgress,
+      status: newStatus,
+      currentChallengeIndex: nextChallengeIndex,
+      challengeUnlocked: challengePassed && nextChallengeIndex < details.cases.length,
+      allCompleted: nextChallengeIndex >= details.cases.length,
     }, 201);
   } catch (error) {
     console.error('Unexpected error:', error);

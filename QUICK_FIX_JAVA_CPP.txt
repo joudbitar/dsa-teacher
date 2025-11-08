@@ -1,0 +1,60 @@
+🚨 URGENT FIX: Java & C++ Progressive Unlocking
+
+BUG: Maven/G++ compile ALL tests at once → locked tests reference undefined methods → compilation fails → users forced to implement everything.
+
+STATUS: Go ✅ fixed | Java 🔴 broken | C++ 🔴 broken
+
+YOUR TASK: Fix 8 templates (4 Java + 4 C++) using Go's approach: separate test files + compile only unlocked.
+
+═══════════════════════════════════════════════════════════
+
+JAVA FIX (4 templates)
+
+For EACH Java template (stack, queue, binary-search, min-heap):
+
+1. Move tests to separate directory:
+```bash
+cd /Users/joudbitar/Code/Projects/dsa-templates/template-dsa-MODULE-java
+mkdir tests
+mv src/test/java/Test0*.java tests/
+# Keep TestRunner.java in src/test/java/
+```
+
+2. Update TestRunner.java to:
+   - Copy only unlocked tests from tests/ to src/test/java/ before running
+   - Compile & run only those tests
+   - Clean up after
+
+3. Test: `mvn clean test` should compile with empty implementation (no errors from locked tests)
+
+4. Push: `git add -A && git commit -m "Fix Java progressive unlocking" && git push`
+
+═══════════════════════════════════════════════════════════
+
+C++ FIX (4 templates)
+
+For EACH C++ template (stack, queue, binary-search, min-heap):
+
+1. Split monolithic test_MODULE.cpp into:
+```
+tests/test_01_create.cpp
+tests/test_02_push.cpp
+tests/test_03_pop.cpp
+...
+```
+
+2. Update tests/run.sh to:
+   - Read currentChallengeIndex
+   - Compile ONLY unlocked test files
+   - Link with gtest
+
+3. Test: `bash tests/run.sh` should compile with empty implementation
+
+4. Push: `git add -A && git commit -m "Fix C++ progressive unlocking" && git push`
+
+═══════════════════════════════════════════════════════════
+
+START: Java Stack → Test → Push → Next template
+
+GO NOW! Report after each template is done.
+

@@ -18,6 +18,7 @@ export interface DSAReport {
   summary: string;         // Human-readable summary (e.g., "4/5 tests passed")
   pass: boolean;           // Overall pass/fail
   cases: TestCase[];       // Per-sub-challenge results
+  currentChallengeIndex?: number; // Current challenge index (0-based)
 }
 
 /**
@@ -52,6 +53,8 @@ export interface SubmissionRequest {
   summary: string;           // Human-readable summary
   details: {                 // Test case details
     cases: APITestCase[];
+    currentChallengeIndex?: number; // Current challenge index being submitted
+    challengeResult?: TestCase;     // Result of the current challenge
   };
   commitSha?: string;        // Git commit SHA (optional)
 }
@@ -67,5 +70,17 @@ export interface ProjectConfig {
   apiUrl: string;
   testCommand: string;     // Command to run tests (e.g., "node tests/run.js")
   reportFile: string;      // Path to report file (e.g., ".dsa-report.json")
+  currentChallengeIndex?: number; // Current challenge index (0-based), defaults to 0
+}
+
+/**
+ * Validation result for current challenge
+ */
+export interface ChallengeValidationResult {
+  currentChallenge: TestCase;
+  passed: boolean;
+  canProgress: boolean;
+  nextChallengeIndex?: number;
+  message: string;
 }
 
