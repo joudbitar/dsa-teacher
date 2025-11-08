@@ -1,15 +1,44 @@
 // CLI Entry Point
-// Post-kickoff: registers commands and parses argv
 
-// Planned structure:
-// - Parse argv using minimist or commander
-// - Register 'test' and 'submit' commands
-// - Invoke appropriate command handler from commands/
+import { Command } from 'commander';
+import { testCommand } from './commands/test.js';
+import { submitCommand } from './commands/submit.js';
 
-// Example:
-// if (argv._[0] === 'test') {
-//   await testCommand();
-// } else if (argv._[0] === 'submit') {
-//   await submitCommand();
-// }
+const program = new Command();
 
+program
+  .name('dsa')
+  .description('DSA Lab CLI - Test and submit your solutions')
+  .version('0.0.0');
+
+program
+  .command('test')
+  .description('Run tests for the current challenge project')
+  .action(async () => {
+    try {
+      await testCommand();
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : 'Unknown error');
+      process.exit(1);
+    }
+  });
+
+program
+  .command('submit')
+  .description('Submit test results to the DSA Lab dashboard')
+  .action(async () => {
+    try {
+      await submitCommand();
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : 'Unknown error');
+      process.exit(1);
+    }
+  });
+
+// Parse arguments
+program.parse(process.argv);
+
+// If no command provided, show help
+if (process.argv.length === 2) {
+  program.help();
+}
