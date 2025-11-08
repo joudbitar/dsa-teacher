@@ -7,16 +7,18 @@ import { ChallengeSidebar } from '@/components/ChallengeSidebar'
 import { ChallengeInfo } from '@/components/ChallengeInfo'
 import { LanguagePicker } from '@/components/LanguagePicker'
 import { challengeData } from '@/data/challenges'
+import { useTheme } from '@/theme/ThemeContext'
 
 export function ChallengeDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { backgroundColor } = useTheme()
   const [selectedLanguage, setSelectedLanguage] = useState<string | undefined>(undefined)
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0) // Track which step the user is viewing
 
   if (!id || !challengeData[id]) {
     return (
-      <div className="min-h-screen flex flex-col bg-gradient-dev-lab relative">
+      <div className="min-h-screen flex flex-col relative" style={{ backgroundColor }}>
         <Navbar className="relative z-10" />
         <main className="flex-1 relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
@@ -81,7 +83,7 @@ export function ChallengeDetail() {
   const progress = Math.round((timelineSteps.filter(s => s.completed).length / timelineSteps.length) * 100)
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-dev-lab">
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor }}>
       <Navbar className="relative z-10" />
       <main className="flex-1 relative z-10 flex min-h-0">
         {/* Sidebar - Fixed to left on desktop */}

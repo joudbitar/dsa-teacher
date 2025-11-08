@@ -6,6 +6,10 @@ interface ThemeContextType {
   backgroundColor: string
   textColor: string
   borderColor: string
+  secondaryTextColor: string
+  sectionBackgroundColor: string
+  accentBlue: string
+  accentGreen: string
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
@@ -41,6 +45,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const backgroundColor = isDarkMode ? '#171512' : '#F0ECDA'
   const textColor = isDarkMode ? '#F0ECDA' : '#171512'
   const borderColor = isDarkMode ? '#F0ECDA' : '#171512'
+  const secondaryTextColor = isDarkMode ? '#B8B3A8' : '#4B463F' // Lighter in dark mode for readability
+  const sectionBackgroundColor = isDarkMode ? '#1F1B16' : '#E8E0C8' // Slightly different shade for sections
+  
+  // Accent colors stay the same in both modes
+  const accentBlue = '#96BFBD'
+  const accentGreen = '#66A056'
 
   const value: ThemeContextType = {
     isDarkMode,
@@ -48,6 +58,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     backgroundColor,
     textColor,
     borderColor,
+    secondaryTextColor,
+    sectionBackgroundColor,
+    accentBlue,
+    accentGreen,
   }
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>

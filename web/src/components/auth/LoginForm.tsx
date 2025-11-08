@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../../auth/useAuth'
+import { useTheme } from '../../theme/ThemeContext'
 
 interface LoginFormProps {
   onSuccess?: () => void
@@ -12,6 +13,7 @@ export function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProps) {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const { signIn } = useAuth()
+  const { textColor, backgroundColor, borderColor } = useTheme()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -41,7 +43,7 @@ export function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProps) {
           onChange={(e) => setEmail(e.target.value)}
           required
           className="w-full px-3 py-2 border rounded-lg"
-          style={{ borderColor: '#171512' }}
+          style={{ borderColor: borderColor }}
         />
       </div>
       <div>
@@ -55,7 +57,7 @@ export function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProps) {
           onChange={(e) => setPassword(e.target.value)}
           required
           className="w-full px-3 py-2 border rounded-lg"
-          style={{ borderColor: '#171512' }}
+          style={{ borderColor: borderColor }}
         />
       </div>
       {error && (
@@ -66,8 +68,8 @@ export function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProps) {
         disabled={loading}
         className="w-full py-2 px-4 rounded-lg font-semibold transition-colors"
         style={{
-          backgroundColor: '#171512',
-          color: '#F0ECDA',
+          backgroundColor: textColor,
+          color: backgroundColor,
           fontFamily: 'JetBrains Mono, monospace',
         }}
       >
@@ -78,7 +80,7 @@ export function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProps) {
           type="button"
           onClick={onSwitchToSignup}
           className="w-full text-sm text-center"
-          style={{ color: '#171512' }}
+          style={{ color: textColor }}
         >
           Don't have an account? Sign up
         </button>

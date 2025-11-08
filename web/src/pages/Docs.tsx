@@ -1,10 +1,12 @@
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
+import { useTheme } from '@/theme/ThemeContext'
 
 export function Docs() {
+  const { backgroundColor, textColor, secondaryTextColor } = useTheme()
   const themeStyle = {
-    backgroundColor: '#F0ECDA',
-    color: '#171512',
+    backgroundColor,
+    color: textColor,
     fontFamily: 'JetBrains Mono, monospace',
   }
 
@@ -18,7 +20,7 @@ export function Docs() {
               Documentation
             </h1>
             <div className="prose prose-lg" style={{ fontFamily: themeStyle.fontFamily }}>
-              <p className="text-lg text-[#4B463F] mb-8">
+              <p className="text-lg mb-8" style={{ color: secondaryTextColor }}>
                 Welcome to the DSA Lab documentation. Here you'll find guides, tutorials, and reference materials to help you get started.
               </p>
               
@@ -26,7 +28,7 @@ export function Docs() {
                 <h2 className="text-2xl font-bold mb-4" style={themeStyle}>
                   Getting Started
                 </h2>
-                <p className="text-[#4B463F] mb-4">
+                <p className="mb-4" style={{ color: secondaryTextColor }}>
                   Learn how to set up your environment and start your first challenge.
                 </p>
               </section>
@@ -35,7 +37,7 @@ export function Docs() {
                 <h2 className="text-2xl font-bold mb-4" style={themeStyle}>
                   CLI Reference
                 </h2>
-                <p className="text-[#4B463F] mb-4">
+                <p className="mb-4" style={{ color: secondaryTextColor }}>
                   Complete reference for the DSA CLI tool commands and options.
                 </p>
               </section>
@@ -44,7 +46,7 @@ export function Docs() {
                 <h2 className="text-2xl font-bold mb-4" style={themeStyle}>
                   API Reference
                 </h2>
-                <p className="text-[#4B463F] mb-4">
+                <p className="mb-4" style={{ color: secondaryTextColor }}>
                   Documentation for the DSA Lab API endpoints and authentication.
                 </p>
               </section>

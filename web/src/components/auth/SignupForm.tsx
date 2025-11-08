@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../../auth/useAuth'
+import { useTheme } from '../../theme/ThemeContext'
 
 interface SignupFormProps {
   onSuccess?: () => void
@@ -14,6 +15,7 @@ export function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormProps) {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const { signUp } = useAuth()
+  const { textColor, backgroundColor, borderColor, secondaryTextColor } = useTheme()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -51,14 +53,14 @@ export function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormProps) {
         <div className="text-green-600 mb-2">
           ✓ Account created successfully!
         </div>
-        <div className="text-sm text-[#4B463F] mb-4">
+        <div className="text-sm mb-4" style={{ color: secondaryTextColor }}>
           Please check your email to verify your account. Click the confirmation link in the email to activate your account.
         </div>
         {onSwitchToLogin && (
           <button
             onClick={onSwitchToLogin}
             className="text-sm underline"
-            style={{ color: '#171512' }}
+            style={{ color: textColor }}
           >
             Go to login
           </button>
@@ -80,7 +82,7 @@ export function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormProps) {
           onChange={(e) => setEmail(e.target.value)}
           required
           className="w-full px-3 py-2 border rounded-lg"
-          style={{ borderColor: '#171512' }}
+          style={{ borderColor: borderColor }}
         />
       </div>
       <div>
@@ -95,7 +97,7 @@ export function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormProps) {
           required
           minLength={6}
           className="w-full px-3 py-2 border rounded-lg"
-          style={{ borderColor: '#171512' }}
+          style={{ borderColor: borderColor }}
         />
       </div>
       <div>
@@ -110,7 +112,7 @@ export function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormProps) {
           required
           minLength={6}
           className="w-full px-3 py-2 border rounded-lg"
-          style={{ borderColor: '#171512' }}
+          style={{ borderColor: borderColor }}
         />
       </div>
       {error && (
@@ -121,8 +123,8 @@ export function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormProps) {
         disabled={loading}
         className="w-full py-2 px-4 rounded-lg font-semibold transition-colors"
         style={{
-          backgroundColor: '#171512',
-          color: '#F0ECDA',
+          backgroundColor: textColor,
+          color: backgroundColor,
           fontFamily: 'JetBrains Mono, monospace',
         }}
       >
@@ -133,7 +135,7 @@ export function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormProps) {
           type="button"
           onClick={onSwitchToLogin}
           className="w-full text-sm text-center"
-          style={{ color: '#171512' }}
+          style={{ color: textColor }}
         >
           Already have an account? Log in
         </button>

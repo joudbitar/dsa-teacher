@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { X } from 'lucide-react'
 import { LoginForm } from './LoginForm'
 import { SignupForm } from './SignupForm'
+import { useTheme } from '../../theme/ThemeContext'
 
 interface AuthModalProps {
   isOpen: boolean
@@ -11,6 +12,7 @@ interface AuthModalProps {
 
 export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalProps) {
   const [mode, setMode] = useState<'login' | 'signup'>(initialMode)
+  const { backgroundColor, textColor } = useTheme()
 
   if (!isOpen) return null
 
@@ -18,16 +20,16 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div
         className="bg-white rounded-lg p-6 w-full max-w-md relative"
-        style={{ backgroundColor: '#F0ECDA' }}
+        style={{ backgroundColor: backgroundColor }}
       >
         <button
           onClick={onClose}
           className="absolute top-4 right-4"
-          style={{ color: '#171512' }}
+          style={{ color: textColor }}
         >
           <X className="h-5 w-5" />
         </button>
-        <h2 className="text-2xl font-bold mb-4" style={{ color: '#171512' }}>
+        <h2 className="text-2xl font-bold mb-4" style={{ color: textColor }}>
           {mode === 'login' ? 'Log in' : 'Sign up'}
         </h2>
         {mode === 'login' ? (

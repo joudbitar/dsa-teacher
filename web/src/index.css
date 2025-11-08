@@ -104,13 +104,18 @@
   }
   
   /* Dark mode styles */
+  html.dark-mode {
+    background: #171512;
+  }
+  
   html.dark-mode body {
     background: #171512;
     color: #F0ECDA;
   }
   
-  html.dark-mode {
-    background: #171512;
+  /* Ensure all pages respect dark mode */
+  html.dark-mode * {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   }
 }
 
@@ -128,7 +133,7 @@
   }
   
   .bg-gradient-dev-lab {
-    background: #F0ECDA;
+    /* This class is deprecated - use theme context instead */
     position: relative;
   }
   
