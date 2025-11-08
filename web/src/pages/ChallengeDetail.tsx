@@ -9,6 +9,7 @@ import { LanguagePicker } from "@/components/LanguagePicker";
 import { challengeData } from "@/data/challenges";
 import { useTheme } from "@/theme/ThemeContext";
 import { apiClient, Project, Module } from "@/lib/api";
+import { useAuth } from "@/auth/useAuth";
 import {
   saveChallengeProgress,
   markStepCompleted,
@@ -19,6 +20,7 @@ export function ChallengeDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { backgroundColor } = useTheme();
+  const { user, session } = useAuth();
   const [selectedLanguage, setSelectedLanguage] = useState<string | undefined>(
     undefined
   );
@@ -99,7 +101,7 @@ export function ChallengeDetail() {
           setCompletedSteps(completed);
 
           // Set saved repo URL
-          setSavedRepoUrl(project.githubRepoUrl);
+          setSavedRepoUrl(project.githubRepoUrl || undefined);
         } else {
           // Load from localStorage if no API project
           const savedProgress = getChallengeProgress(id);
@@ -241,6 +243,15 @@ export function ChallengeDetail() {
   const handleStartChallenge = async (language: string) => {
     if (!id) return;
 
+    // Check if user is authenticated
+    if (!user || !session) {
+      setProjectError("Please sign in to create a project. Redirecting to login...");
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+      return;
+    }
+
     try {
       setCreatingProject(true);
       setProjectError(null);
@@ -251,23 +262,15 @@ export function ChallengeDetail() {
         language: language.charAt(0).toUpperCase() + language.slice(1), // Capitalize
       });
 
-      // Store the project
-      const newProject: Project = {
-        id: response.id,
-        userId: "", // Not needed on frontend
-        moduleId: id,
-        language,
-        githubRepoUrl: response.githubRepoUrl,
-        status: response.status as any,
-        progress: response.progress,
-        currentChallengeIndex: 0,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      setExistingProject(newProject);
+      // Fetch the full project data to get projectToken
+      const fullProject = await apiClient.getProject(response.id);
 
-      // Set repo URL and show modal
-      setSavedRepoUrl(response.githubRepoUrl);
+      // Store the project
+      setExistingProject(fullProject);
+
+      // Set repo URL and show modal (use response.githubRepoUrl as fallback)
+      const repoUrl = fullProject.githubRepoUrl || response.githubRepoUrl;
+      setSavedRepoUrl(repoUrl || undefined);
       setShowRepoCommand(true);
 
       // Mark language step as completed
@@ -284,14 +287,18 @@ export function ChallengeDetail() {
         lastUpdated: Date.now(),
       });
 
-      // Move to first challenge step
-      setCurrentStepIndex(1);
+      // Don't move to next step yet - wait for user to click "Continue" in the modal
     } catch (error) {
       console.error("Failed to create project:", error);
       let errorMessage = "Failed to create project. Please try again.";
 
       if (error instanceof Error) {
-        if (error.message.includes("rate limit")) {
+        if (error.message.includes("No active session") || error.message.includes("Unauthorized")) {
+          errorMessage = "You must be signed in to create a project. Please sign in and try again.";
+          setTimeout(() => {
+            navigate("/login");
+          }, 2000);
+        } else if (error.message.includes("rate limit")) {
           errorMessage =
             "GitHub API rate limit exceeded. Please try again in a few minutes.";
         } else if (error.message.includes("template")) {
