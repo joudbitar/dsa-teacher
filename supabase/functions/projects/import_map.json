@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "@octokit/rest": "https://esm.sh/@octokit/rest@20.0.2",
+    "@octokit/auth-app": "https://esm.sh/@octokit/auth-app@6.0.2"
+  }
+}

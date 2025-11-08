@@ -8,3 +8,4 @@ dist
 # GitHub App Private Key
 .github/app/private-key.pem
 
+.vercel
