@@ -16,10 +16,15 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: 'Method not allowed' }, 405);
     }
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error('Unexpected error in projects function:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
     return jsonResponse({
       error: 'Internal server error',
-      details: error.message,
+      message: errorMessage,
+      details: errorStack || JSON.stringify(error),
+      hint: 'Check Supabase Edge Function logs for more details. This error occurred before the request could be processed.',
     }, 500);
   }
 });

@@ -31,6 +31,7 @@ interface ChallengeInfoProps {
   projectError?: string | null;
   moduleId?: string; // e.g., 'stack', 'min-heap'
   subchallengeName?: string; // e.g., 'Insert', 'Heapify up'
+  onNewAttempt?: () => void; // Callback to go back to language selection
 }
 
 export function ChallengeInfo({
@@ -48,6 +49,7 @@ export function ChallengeInfo({
   isCreatingProject = false,
   projectError = null,
   moduleId,
+  onNewAttempt,
   subchallengeName,
 }: ChallengeInfoProps) {
   // Step 0 = Choose Language
@@ -130,12 +132,20 @@ export function ChallengeInfo({
           {/* Error Display */}
           {projectError && (
             <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
-              <p className="text-destructive font-mono">{projectError}</p>
+              <div className="space-y-2">
+                <p className="text-destructive font-semibold">Error creating project:</p>
+                <p className="text-destructive whitespace-pre-wrap text-sm">{projectError}</p>
+              </div>
             </div>
           )}
 
           {/* Start Button */}
           <div className="text-center py-4">
+            {githubRepoUrl && (
+              <p className="text-sm text-muted-foreground mb-3">
+                You already have a repository. Click below to create a new attempt with a different repo.
+              </p>
+            )}
             {!selectedLanguage ? (
               <button
                 disabled
@@ -154,6 +164,8 @@ export function ChallengeInfo({
                     <span className="animate-spin">⏳</span>
                     Creating repository...
                   </span>
+                ) : githubRepoUrl ? (
+                  `Create New Attempt with ${getLanguageDisplayName(selectedLanguage)}`
                 ) : (
                   `Start with ${getLanguageDisplayName(selectedLanguage)}`
                 )}
@@ -305,9 +317,18 @@ export function ChallengeInfo({
       {/* GitHub Repo (if available) */}
       {githubRepoUrl && !isLanguageStep && (
         <div className="rounded-xl border border-border bg-muted p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Code2 className="h-5 w-5 text-accent" />
-            <h2 className="text-xl font-bold">Get Started</h2>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <Code2 className="h-5 w-5 text-accent" />
+              <h2 className="text-xl font-bold">Get Started</h2>
+            </div>
+            <button
+              onClick={onNewAttempt}
+              className="px-4 py-2 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 font-medium transition-colors text-sm"
+              title="Create a new repository for another attempt"
+            >
+              + New Attempt
+            </button>
           </div>
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">

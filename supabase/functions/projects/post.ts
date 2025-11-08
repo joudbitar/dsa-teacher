@@ -34,7 +34,11 @@ export async function handlePost(req: Request): Promise<Response> {
 
   if (authError || !user) {
     console.error('Auth error:', authError);
-    return jsonResponse({ error: 'Unauthorized' }, 401);
+    return jsonResponse({ 
+      error: 'Unauthorized',
+      message: authError?.message || 'Authentication failed',
+      hint: 'Make sure you are signed in and your session is valid.'
+    }, 401);
   }
 
   const userId = user.id; // UUID from auth.users
@@ -42,11 +46,27 @@ export async function handlePost(req: Request): Promise<Response> {
   // Use service role client for database operations
   const supabase = getSupabaseClient();
 
-  const body = await req.json();
+  let body;
+  try {
+    body = await req.json();
+  } catch (parseError) {
+    console.error('Failed to parse request body:', parseError);
+    return jsonResponse({
+      error: 'Invalid request body',
+      message: 'Failed to parse JSON body',
+      hint: 'Make sure the request body is valid JSON with moduleId and language fields.'
+    }, 400);
+  }
+  
   let { moduleId, language } = body;
 
   if (!moduleId || !language) {
-    return jsonResponse({ error: 'Missing moduleId or language' }, 400);
+    return jsonResponse({ 
+      error: 'Missing required fields',
+      message: `Missing ${!moduleId ? 'moduleId' : ''}${!moduleId && !language ? ' and ' : ''}${!language ? 'language' : ''}`,
+      hint: 'Request body must include both moduleId and language fields.',
+      received: { moduleId, language }
+    }, 400);
   }
 
   // Normalize language to proper case (e.g., "go" -> "Go", "python" -> "Python")
@@ -91,7 +111,12 @@ export async function handlePost(req: Request): Promise<Response> {
 
   if (dbError) {
     console.error('Database error:', dbError);
-    return jsonResponse({ error: 'Failed to create project' }, 500);
+    return jsonResponse({ 
+      error: 'Failed to create project',
+      message: dbError.message || 'Database error',
+      details: dbError.details || JSON.stringify(dbError),
+      hint: 'Check database connection and schema. Verify that the projects table exists and has the correct structure.'
+    }, 500);
   }
 
   // Authenticate with GitHub App
@@ -109,12 +134,45 @@ export async function handlePost(req: Request): Promise<Response> {
     }
 
     if (!privateKey) {
-      throw new Error('GitHub App private key not configured');
+      console.error('GitHub App private key not configured');
+      console.error('Environment check:', {
+        hasPrivateKey: !!privateKey,
+        hasPrivateKeyPath: !!privateKeyPath,
+        hasAppId: !!Deno.env.get('GITHUB_APP_ID'),
+        hasInstallationId: !!Deno.env.get('GITHUB_APP_INSTALLATION_ID'),
+        hasOrg: !!Deno.env.get('GITHUB_ORG'),
+      });
+      throw new Error('GitHub App private key not configured. Please set GITHUB_APP_PRIVATE_KEY in Supabase Edge Function secrets.');
+    }
+
+    // Fix newlines if they were escaped (common when storing in env vars)
+    // Replace literal \n with actual newlines
+    if (privateKey.includes('\\n') && !privateKey.includes('\n')) {
+      console.log('Converting escaped newlines in private key');
+      privateKey = privateKey.replace(/\\n/g, '\n');
+    }
+
+    // Verify private key format
+    if (!privateKey.includes('-----BEGIN') || !privateKey.includes('-----END')) {
+      console.error('Private key format invalid - missing PEM headers');
+      throw new Error('GitHub App private key format is invalid. It should be in PEM format with -----BEGIN and -----END markers.');
     }
 
     const appId = Deno.env.get('GITHUB_APP_ID');
     const installationId = Deno.env.get('GITHUB_APP_INSTALLATION_ID');
     const configuredOrg = Deno.env.get('GITHUB_ORG');
+
+    // Validate all required environment variables
+    const missingConfig: string[] = [];
+    if (!appId) missingConfig.push('GITHUB_APP_ID');
+    if (!installationId) missingConfig.push('GITHUB_APP_INSTALLATION_ID');
+    if (!configuredOrg) missingConfig.push('GITHUB_ORG');
+
+    if (missingConfig.length > 0) {
+      const errorMsg = `Missing required GitHub App configuration: ${missingConfig.join(', ')}. Please set these in Supabase Edge Function secrets.`;
+      console.error(errorMsg);
+      throw new Error(errorMsg);
+    }
 
     console.log('GitHub Auth Config:', {
       appId: appId ? 'SET' : 'MISSING',
@@ -169,13 +227,31 @@ export async function handlePost(req: Request): Promise<Response> {
     // Create repo from template
     const suffix = languageToSuffix[language];
     const templateRepo = `template-dsa-${moduleId}-${suffix}`;
-    const newRepoName = `${userId}-${moduleId}-${suffix}`;
+    
+    // Generate meaningful repo name from user's email or fallback to userId
+    let repoUsername = userId.split('-')[0]; // Use first segment of UUID as fallback
+    if (user.email) {
+      // Extract username from email (e.g., john.doe@example.com -> john-doe)
+      const emailUsername = user.email.split('@')[0];
+      repoUsername = emailUsername.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+    }
+    
+    // Count existing projects for this user to create unique names (e.g., john-stack-1, john-stack-2)
+    const { count } = await supabase
+      .from('projects')
+      .select('*', { count: 'exact', head: true })
+      .eq('userId', userId)
+      .eq('moduleId', moduleId);
+    
+    const projectNumber = (count || 0) + 1;
+    const newRepoName = `${repoUsername}-${moduleId}-${projectNumber}`;
 
     console.log('Template Request:', {
       template_owner: githubOrg,
       template_repo: templateRepo,
       owner: githubOrg,
       name: newRepoName,
+      generated_from: user.email || userId,
     });
 
     // Verify template exists and is accessible
@@ -285,11 +361,28 @@ export async function handlePost(req: Request): Promise<Response> {
     console.error('GitHub error:', error);
     
     // Delete the project since GitHub provisioning failed
-    await supabase.from('projects').delete().eq('id', project.id);
+    try {
+      await supabase.from('projects').delete().eq('id', project.id);
+    } catch (deleteError) {
+      console.error('Failed to delete project after error:', deleteError);
+    }
     
-    return jsonResponse({
+    // Return more detailed error information
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorDetails = {
       error: 'Failed to create GitHub repository',
-      details: error.message,
-    }, 500);
+      message: errorMessage,
+      hint: errorMessage.includes('private key') 
+        ? 'Check that GITHUB_APP_PRIVATE_KEY is set in Supabase Edge Function secrets'
+        : errorMessage.includes('authentication') || errorMessage.includes('401') || errorMessage.includes('403')
+        ? 'Check GitHub App credentials (App ID, Installation ID, Private Key)'
+        : errorMessage.includes('template')
+        ? 'Verify template repository exists and GitHub App has access'
+        : 'Check Supabase Edge Function logs for more details',
+    };
+    
+    console.error('Error details:', errorDetails);
+    
+    return jsonResponse(errorDetails, 500);
   }
 }
