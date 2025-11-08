@@ -1,5 +1,6 @@
 import { Octokit } from '@octokit/rest';
 import { createAppAuth } from '@octokit/auth-app';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getSupabaseClient } from '../_shared/supabase.ts';
 import { jsonResponse } from '../_shared/cors.ts';
 import {
@@ -11,11 +12,35 @@ import {
 } from './utils.ts';
 
 export async function handlePost(req: Request): Promise<Response> {
-  const userId = req.headers.get('x-user-id');
-  
-  if (!userId) {
-    return jsonResponse({ error: 'Missing x-user-id header' }, 400);
+  // Authenticate using JWT token from Authorization header
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader) {
+    return jsonResponse({ error: 'Unauthorized' }, 401);
   }
+
+  // Create Supabase client with user's JWT token for authentication
+  const supabaseAuth = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+    {
+      global: {
+        headers: { Authorization: authHeader },
+      },
+    }
+  );
+  
+  // Extract user from JWT token
+  const { data: { user }, error: authError } = await supabaseAuth.auth.getUser();
+
+  if (authError || !user) {
+    console.error('Auth error:', authError);
+    return jsonResponse({ error: 'Unauthorized' }, 401);
+  }
+
+  const userId = user.id; // UUID from auth.users
+
+  // Use service role client for database operations
+  const supabase = getSupabaseClient();
 
   const body = await req.json();
   let { moduleId, language } = body;
@@ -47,7 +72,6 @@ export async function handlePost(req: Request): Promise<Response> {
     }, 400);
   }
 
-  const supabase = getSupabaseClient();
   const projectToken = generateToken();
 
   // Insert project into database

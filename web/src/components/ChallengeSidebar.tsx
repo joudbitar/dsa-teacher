@@ -18,9 +18,10 @@ interface ChallengeSidebarProps {
   selectedLanguage?: string
   currentStepIndex?: number
   onStepClick?: (stepIndex: number) => void
+  maxAccessibleStep?: number
 }
 
-export function ChallengeSidebar({ title, subchallenges, progress, time, level, selectedLanguage, currentStepIndex = 0, onStepClick }: ChallengeSidebarProps) {
+export function ChallengeSidebar({ title, subchallenges, progress, time, level, selectedLanguage, currentStepIndex = 0, onStepClick, maxAccessibleStep = 0 }: ChallengeSidebarProps) {
   const isIntermediate = level === 'Intermediate'
   const isAdvanced = level === 'Advanced'
   
@@ -30,7 +31,8 @@ export function ChallengeSidebar({ title, subchallenges, progress, time, level, 
     javascript: 'JavaScript',
     go: 'Go',
     java: 'Java',
-    cpp: 'C++'
+    cpp: 'C++',
+    'c++': 'C++'
   }
 
   return (
@@ -76,26 +78,30 @@ export function ChallengeSidebar({ title, subchallenges, progress, time, level, 
           <div className="space-y-16">
             {subchallenges.map((sub, index) => {
               const isCurrentStep = currentStepIndex === index
-              // Only mark as completed for clickability logic, but don't use it for coloring
-              const isCompleted = index === 0 
-                ? currentStepIndex > 0 
-                : sub.completed
-              const isClickable = sub.completed || index === 0 || (index > 0 && subchallenges[index - 1]?.completed)
-              
+              const isCompleted = sub.completed
+              const isAccessible = index <= maxAccessibleStep
+              const isFutureLocked = !isAccessible
+
               return (
                 <div
                   key={sub.id}
                   className="relative group"
-                  onClick={() => isClickable && onStepClick?.(index)}
+                  onClick={() => isAccessible && onStepClick?.(index)}
                   style={{
-                    cursor: isClickable ? 'pointer' : 'default',
+                    cursor: isAccessible ? 'pointer' : 'not-allowed',
                   }}
+                  aria-disabled={!isAccessible}
+                  title={
+                    isFutureLocked
+                      ? 'Complete previous challenges to unlock'
+                      : undefined
+                  }
                 >
                   {/* Step box */}
                   <OrganicStep
                     isCurrent={isCurrentStep}
                     isCompleted={false}
-                    isClickable={isClickable}
+                    isClickable={isAccessible}
                     shapeVariant={index}
                   >
                     {/* Content without numbers */}
@@ -103,9 +109,11 @@ export function ChallengeSidebar({ title, subchallenges, progress, time, level, 
                       <p className={cn(
                         "text-sm font-medium leading-snug font-mono",
                         isCurrentStep ? "text-[#3E2723]" : "text-foreground",
-                        !isClickable && !isCurrentStep && "opacity-50"
+                        !isAccessible && !isCurrentStep && "opacity-50"
                       )}>
                         {sub.name}
+                        {isFutureLocked && ' 🔒'}
+                        {isCompleted && index <= maxAccessibleStep && ' ✓'}
                       </p>
                       {isCurrentStep && selectedLanguage && index === 0 && (
                         <p className={cn(

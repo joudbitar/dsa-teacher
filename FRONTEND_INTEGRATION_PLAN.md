@@ -4,21 +4,44 @@
 
 This document provides a comprehensive plan to fully integrate the DSA Lab frontend with the backend API, CLI tools, and GitHub repository generation system. The goal is to create a seamless user experience where:
 
-1. **Challenges page** displays language-agnostic challenge cards
-2. **Challenge detail page** allows language selection
-3. **"Start with [Language]" button** triggers API to create GitHub repo
-4. **Modal displays** the clone command with copy functionality
-5. **"Continue to Challenge" button** advances to step-by-step subchallenges
-6. **Project timeline** shows actual subchallenges from module data (not hardcoded steps)
-7. **Real-time progress tracking** syncs between CLI submissions and frontend
+1. **User authenticates** via Supabase Auth (email/password)
+2. **Challenges page** displays language-agnostic challenge cards with real progress from database
+3. **Challenge detail page** allows language selection
+4. **"Start with [Language]" button** triggers API to create GitHub repo
+5. **Modal displays** the clone command with copy functionality
+6. **"Continue to Challenge" button** advances to step-by-step subchallenges
+7. **Project timeline** shows actual subchallenges from module data (not hardcoded steps)
+8. **Real-time progress tracking** syncs between CLI submissions and frontend
 
 ---
 
-## Current State Analysis
+## Current State Analysis (Updated Nov 2025)
 
 ### ✅ What's Working
 
-#### Frontend
+#### Frontend - Authentication & User Management
+
+- **Supabase Auth Integration** (`auth/AuthProvider.tsx`): Complete authentication system with JWT tokens
+  - Email/password sign in and sign up
+  - Session persistence in localStorage
+  - Auto-refresh tokens
+  - Auth state management via React Context
+- **Protected Routes** (`components/auth/ProtectedRoute.tsx`): Routes redirect to `/login` if not authenticated
+- **Auth Pages**:
+  - `/login` - Dedicated login page
+  - `/signup` - Dedicated signup page
+  - `/auth` - Combined auth page with mode toggle
+- **Navbar Integration**: Shows user email, dropdown with sign out and dark/light mode toggle
+- **Auth Forms** (`components/auth/`):
+  - `LoginForm.tsx` - Email/password login
+  - `SignupForm.tsx` - Email/password signup with validation
+  - `AuthModal.tsx` - Modal wrapper (currently unused, using dedicated pages)
+- **Supabase Client** (`lib/supabase.ts`): Configured with environment variables
+  - Uses `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
+  - Auto-refresh tokens and session detection
+- **Theme System** (`theme/ThemeContext.tsx`): Dark/light mode support integrated with auth
+
+#### Frontend - Challenge System
 
 - **Challenge Grid** (`ChallengesGrid.tsx`): Displays all 12 modules with progress tracking via localStorage
 - **Challenge Detail Page** (`ChallengeDetail.tsx`): Language picker, step navigation, progress tracking
@@ -26,10 +49,19 @@ This document provides a comprehensive plan to fully integrate the DSA Lab front
 - **Challenge Data** (`/data/challenges/`): Rich content for each module (description, steps, benefits)
 - **Progress Tracking** (`challengeProgress.ts`): localStorage-based progress with custom events
 - **Modal UX**: Repository creation modal with copy command
+- **Legacy User ID System** (`lib/user.ts`): Anonymous user ID generation (needs migration to Supabase Auth)
 
 #### Backend
 
 - **`POST /projects`** (`supabase/functions/projects/post.ts`): Creates GitHub repo from template, commits `dsa.config.json`
+  - Currently uses `x-user-id` header (needs migration to JWT auth)
+  - Generates project tokens for CLI authentication
+  - Creates repos via GitHub App with Octokit
+  - Validates language/module combinations
+- **`GET /projects`** (`supabase/functions/projects/get.ts`): Fetches user projects
+  - Currently uses `x-user-id` header (needs migration)
+  - Supports filtering by `moduleId` query param
+  - Returns all projects sorted by creation date
 - **`POST /submissions`** (`supabase/functions/submissions/index.ts`): Receives test results, updates project progress
 - **`GET /modules`** (`supabase/functions/modules/index.ts`): Returns available modules
 - **GitHub App Integration**: Authenticated repo creation via Octokit
@@ -41,18 +73,50 @@ This document provides a comprehensive plan to fully integrate the DSA Lab front
 - **`dsa submit`** (`cli/src/commands/submit.ts`): Submits results to API
 - **Auto-unlock Logic**: Test runners (Java, Python, Go, JS) automatically increment `currentChallengeIndex` in `dsa.config.json`
 
-### ❌ What's Missing
+### ❌ What's Missing / Broken
 
-1. **No API calls from frontend** - Currently uses mock data and localStorage only
-2. **No user identification system** - Missing `x-user-id` header generation
-3. **Hardcoded subchallenges** - `ChallengesGrid.tsx` has static arrays instead of API data
-4. **Progress sync gap** - Frontend progress (localStorage) doesn't sync with backend (database)
-5. **No project status checking** - Can't detect if user already has a project for a module
-6. **Missing GET /projects call** - Frontend doesn't fetch existing projects
-7. **Timeline mismatch** - Challenge detail sidebar shows wrong subchallenges (from `steps` not `subchallenges`)
-8. **No error handling** - Missing feedback for API failures, rate limits, GitHub errors
-9. **No loading states** - Button clicks have no loading indicators
-10. **Missing project association** - Created repos aren't linked back to frontend state
+#### Critical Integration Gaps
+
+1. **No API calls from frontend** - Frontend still uses mock data and localStorage only
+   - `ChallengesGrid.tsx` doesn't fetch from `/projects` API
+   - `ChallengeDetail.tsx` doesn't call `POST /projects` or `GET /projects`
+   - No progress syncing with database
+2. **Auth/API mismatch** - Backend expects `x-user-id` header, but frontend has Supabase Auth
+
+   - Backend functions use `req.headers.get('x-user-id')` instead of JWT tokens
+   - Need to migrate backend to use `supabase.auth.getUser()` from JWT
+   - Frontend needs to send `Authorization: Bearer <token>` header
+   - Legacy `lib/user.ts` generates anonymous IDs (should use `user.id` from Supabase Auth)
+
+3. **User ID confusion** - Two separate user identification systems:
+
+   - Old: `lib/user.ts` generates `user_<timestamp>_<random>` strings stored in localStorage
+   - New: Supabase Auth provides UUID from `user.id`
+   - Frontend still uses old system, backend expects old system
+   - Need unified approach using Supabase Auth UUIDs
+
+4. **Database schema mismatch** - `projects.userId` column type unclear
+
+   - Current backend uses TEXT userId (from `x-user-id` header)
+   - Should use UUID referencing `auth.users(id)`
+   - Need migration to enforce foreign key constraint
+
+5. **No API client library** - Frontend lacks structured API client
+   - No centralized API URL configuration
+   - No request/response type definitions
+   - No error handling utilities
+   - Each component would need to duplicate fetch logic
+
+#### Missing Features
+
+6. **Hardcoded subchallenges** - `ChallengesGrid.tsx` has static module array instead of API data
+7. **Progress sync gap** - Frontend progress (localStorage) doesn't sync with backend (database)
+8. **No project status checking** - Can't detect if user already has a project for a module
+9. **Timeline mismatch** - Challenge detail sidebar shows wrong subchallenges (from `steps` not `subchallenges`)
+10. **No error handling** - Missing feedback for API failures, rate limits, GitHub errors
+11. **No loading states** - Button clicks have no loading indicators
+12. **Missing project association** - Created repos aren't linked back to frontend state
+13. **No realtime updates** - Frontend doesn't poll or use Supabase Realtime for progress updates
 
 ---
 
@@ -124,38 +188,108 @@ This document provides a comprehensive plan to fully integrate the DSA Lab front
 
 ## Detailed Implementation Plan
 
-### Phase 1: User Identification & API Client Setup
+### Phase 0: Backend Authentication Migration (PREREQUISITE)
 
-#### 1.1 Create User ID Management
+**CRITICAL**: Before implementing frontend integration, the backend must be updated to use Supabase Auth instead of `x-user-id` headers.
 
-**File**: `web/src/lib/user.ts` (NEW)
+#### 0.1 Update Backend Functions to Use JWT Auth
+
+**Files to modify**:
+
+- `supabase/functions/projects/post.ts`
+- `supabase/functions/projects/get.ts`
+- `supabase/functions/submissions/index.ts`
+
+**Changes needed**:
 
 ```typescript
-// Generate or retrieve anonymous user ID
-export function getUserId(): string {
-  const STORAGE_KEY = "dsa-lab-user-id";
-  let userId = localStorage.getItem(STORAGE_KEY);
-
+// OLD (current):
+export async function handlePost(req: Request): Promise<Response> {
+  const userId = req.headers.get("x-user-id");
   if (!userId) {
-    userId = `user_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-    localStorage.setItem(STORAGE_KEY, userId);
+    return jsonResponse({ error: "Missing x-user-id header" }, 400);
   }
-
-  return userId;
+  // ... use userId
 }
 
-// Clear user ID (for debugging/logout)
-export function clearUserId(): void {
-  localStorage.removeItem("dsa-lab-user-id");
+// NEW (required):
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+export async function handlePost(req: Request): Promise<Response> {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) {
+    return jsonResponse({ error: "Unauthorized" }, 401);
+  }
+
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+    {
+      global: {
+        headers: { Authorization: authHeader },
+      },
+    }
+  );
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return jsonResponse({ error: "Unauthorized" }, 401);
+  }
+
+  const userId = user.id; // UUID from auth.users
+  // ... use userId
 }
 ```
 
-#### 1.2 Create API Client
+#### 0.2 Update Database Schema
+
+**Migration**: `supabase/migrations/004_migrate_to_auth_users.sql`
+
+```sql
+-- Ensure projects.userId is UUID and references auth.users
+ALTER TABLE projects
+  ALTER COLUMN userId TYPE UUID USING userId::UUID,
+  ADD CONSTRAINT fk_projects_user
+    FOREIGN KEY (userId) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+-- Update submissions if needed
+ALTER TABLE submissions
+  ALTER COLUMN userId TYPE UUID USING userId::UUID,
+  ADD CONSTRAINT fk_submissions_user
+    FOREIGN KEY (userId) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+-- Update RLS policies to use auth.uid()
+DROP POLICY IF EXISTS "Users can view own projects" ON projects;
+DROP POLICY IF EXISTS "Users can create own projects" ON projects;
+DROP POLICY IF EXISTS "Users can update own projects" ON projects;
+
+CREATE POLICY "Users can view own projects"
+  ON projects FOR SELECT
+  USING (auth.uid() = userId);
+
+CREATE POLICY "Users can create own projects"
+  ON projects FOR INSERT
+  WITH CHECK (auth.uid() = userId);
+
+CREATE POLICY "Users can update own projects"
+  ON projects FOR UPDATE
+  USING (auth.uid() = userId);
+```
+
+---
+
+### Phase 1: Frontend API Client Setup
+
+#### 1.1 Create API Client with Supabase Auth
 
 **File**: `web/src/lib/api.ts` (NEW)
 
 ```typescript
-import { getUserId } from "./user";
+import { supabase } from "./supabase";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_URL ||
@@ -203,10 +337,18 @@ class ApiClient {
     this.baseUrl = baseUrl;
   }
 
-  private getHeaders(): HeadersInit {
+  private async getHeaders(): Promise<HeadersInit> {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      throw new Error("No active session");
+    }
+
     return {
       "Content-Type": "application/json",
-      "x-user-id": getUserId(),
+      Authorization: `Bearer ${session.access_token}`,
     };
   }
 
@@ -214,7 +356,7 @@ class ApiClient {
   async getModules(): Promise<Module[]> {
     const response = await fetch(`${this.baseUrl}/modules`, {
       method: "GET",
-      headers: this.getHeaders(),
+      headers: await this.getHeaders(),
     });
 
     if (!response.ok) {
@@ -233,7 +375,7 @@ class ApiClient {
 
     const response = await fetch(url.toString(), {
       method: "GET",
-      headers: this.getHeaders(),
+      headers: await this.getHeaders(),
     });
 
     if (!response.ok) {
@@ -249,7 +391,7 @@ class ApiClient {
   ): Promise<CreateProjectResponse> {
     const response = await fetch(`${this.baseUrl}/projects`, {
       method: "POST",
-      headers: this.getHeaders(),
+      headers: await this.getHeaders(),
       body: JSON.stringify(data),
     });
 
@@ -267,7 +409,7 @@ class ApiClient {
   async getProject(projectId: string): Promise<Project> {
     const response = await fetch(`${this.baseUrl}/projects/${projectId}`, {
       method: "GET",
-      headers: this.getHeaders(),
+      headers: await this.getHeaders(),
     });
 
     if (!response.ok) {
@@ -281,13 +423,25 @@ class ApiClient {
 export const apiClient = new ApiClient(API_BASE_URL);
 ```
 
+#### 1.2 Remove Legacy User ID System
+
+**File**: `web/src/lib/user.ts` (DEPRECATE OR DELETE)
+
+This file is no longer needed since we're using Supabase Auth. The `user.id` from `useAuth()` hook should be used instead.
+
+**Migration note**: Any existing localStorage data using `dsa-lab-user-id` will be orphaned. Consider adding a one-time migration to associate old IDs with new auth.users if needed.
+
 #### 1.3 Environment Variables
 
-**File**: `web/.env.local` (NEW)
+**File**: `web/.env.local` (REQUIRED)
 
 ```bash
+VITE_SUPABASE_URL=https://mwlhxwbkuumjxpnvldli.supabase.co
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 VITE_API_URL=https://mwlhxwbkuumjxpnvldli.supabase.co/functions/v1
 ```
+
+**Note**: The Supabase URL and anon key should already be set up from the auth implementation.
 
 ---
 
@@ -1006,145 +1160,293 @@ describe("API Client", () => {
 
 ---
 
-## Implementation Timeline
+## Quick Implementation Checklist
 
-### Week 1: Foundation
+### Step 1: Backend Auth Migration (15-30 minutes)
 
-- Day 1-2: Implement user ID system, API client
-- Day 3-4: Update Challenges page to fetch from API
-- Day 5: Update ChallengesGrid to use API data
+**Critical files to update**:
 
-### Week 2: Core Integration
+1. ✅ `supabase/functions/projects/post.ts` - Change lines 14-17
+2. ✅ `supabase/functions/projects/get.ts` - Change lines 5-8
+3. ✅ `supabase/functions/submissions/index.ts` - Update auth check
+4. ✅ Database migration - Run SQL to add foreign keys
 
-- Day 6-7: Implement project creation flow
-- Day 8-9: Fix timeline/sidebar subchallenges
-- Day 10: Add loading states and error handling
+**Pattern to apply everywhere**:
 
-### Week 3: Polish & Sync
+```typescript
+// DELETE these lines:
+const userId = req.headers.get("x-user-id");
+if (!userId) return jsonResponse({ error: "Missing x-user-id header" }, 400);
 
-- Day 11-12: Implement progress polling
-- Day 13: Add refresh mechanism
-- Day 14: Manual testing and bug fixes
+// ADD these lines instead:
+const authHeader = req.headers.get("Authorization");
+if (!authHeader) return jsonResponse({ error: "Unauthorized" }, 401);
 
-### Week 4: Testing & Deployment
+const supabase = createClient(
+  Deno.env.get("SUPABASE_URL") ?? "",
+  Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+  { global: { headers: { Authorization: authHeader } } }
+);
 
-- Day 15-16: End-to-end testing
-- Day 17: Performance optimization
-- Day 18: Documentation and deployment
+const {
+  data: { user },
+  error: authError,
+} = await supabase.auth.getUser();
+if (authError || !user) return jsonResponse({ error: "Unauthorized" }, 401);
+
+const userId = user.id;
+```
+
+### Step 2: Frontend API Client (10 minutes)
+
+1. ✅ Create `web/src/lib/api.ts` - Copy the full implementation from Phase 1
+2. ✅ Delete `web/src/lib/user.ts` - No longer needed
+
+### Step 3: Wire Up Frontend (30-45 minutes)
+
+1. ✅ Update `web/src/pages/Challenges.tsx` - Fetch from API
+2. ✅ Update `web/src/components/ChallengesGrid.tsx` - Accept props
+3. ✅ Update `web/src/pages/ChallengeDetail.tsx` - Add project creation flow
+4. ✅ Add loading states and error handling
+
+**Total time: ~1-2 hours of focused work**
 
 ---
 
 ## Key Files to Modify
 
+### Backend (Phase 0 - CRITICAL)
+
+| File                                                | Type   | Changes                           |
+| --------------------------------------------------- | ------ | --------------------------------- |
+| `supabase/functions/projects/post.ts`               | MODIFY | Replace `x-user-id` with JWT auth |
+| `supabase/functions/projects/get.ts`                | MODIFY | Replace `x-user-id` with JWT auth |
+| `supabase/functions/submissions/index.ts`           | MODIFY | Replace `x-user-id` with JWT auth |
+| `supabase/migrations/004_migrate_to_auth_users.sql` | NEW    | Foreign keys, RLS policies        |
+
+### Frontend
+
 | File                                      | Type   | Changes                                 |
 | ----------------------------------------- | ------ | --------------------------------------- |
-| `web/src/lib/user.ts`                     | NEW    | User ID management                      |
-| `web/src/lib/api.ts`                      | NEW    | API client with TypeScript types        |
-| `web/.env.local`                          | NEW    | Environment variables                   |
-| `web/src/pages/Challenges.tsx`            | MODIFY | Fetch modules from API                  |
-| `web/src/components/ChallengesGrid.tsx`   | MODIFY | Accept modules prop, fetch progress     |
+| `web/src/lib/api.ts`                      | NEW    | API client using Supabase Auth tokens   |
+| `web/src/lib/user.ts`                     | DELETE | Remove legacy anonymous ID system       |
+| `web/.env.local`                          | UPDATE | Add `VITE_API_URL` if not present       |
+| `web/src/pages/Challenges.tsx`            | MODIFY | Fetch modules and projects from API     |
+| `web/src/components/ChallengesGrid.tsx`   | MODIFY | Accept props, sync with database        |
 | `web/src/pages/ChallengeDetail.tsx`       | MODIFY | Project creation, polling, timeline fix |
 | `web/src/components/ChallengeInfo.tsx`    | MODIFY | Loading states, error display           |
 | `web/src/components/ChallengeSidebar.tsx` | MODIFY | Display correct subchallenges           |
-| `supabase/functions/projects/get.ts`      | NEW    | Implement GET endpoint                  |
-| `supabase/functions/modules/index.ts`     | VERIFY | Ensure subchallenges match test files   |
+
+### Verification
+
+| File                                  | Type   | Changes                               |
+| ------------------------------------- | ------ | ------------------------------------- |
+| `supabase/functions/modules/index.ts` | VERIFY | Ensure subchallenges match test files |
 
 ---
 
-## API Endpoints Required
+## API Endpoints Status
 
 ### ✅ Already Implemented
 
-- `POST /projects` - Create project
-- `POST /submissions` - Submit test results
-- `GET /modules` - List modules
+- `GET /projects` - List user's projects (needs auth migration)
+- `POST /projects` - Create project (needs auth migration)
+- `POST /submissions` - Submit test results (needs auth migration)
+- `GET /modules` - List modules (may need auth)
 
-### ⚠️ Missing (Need Implementation)
+### ⚠️ Needs Auth Migration
 
-- `GET /projects` - List user's projects
-- `GET /projects/:id` - Get single project details
+**All endpoints currently use `x-user-id` header** but need to be updated to use JWT tokens from Supabase Auth.
 
-**Implementation**: Create `supabase/functions/projects/get.ts`
+**Current authentication (OLD)**:
 
 ```typescript
-import { getSupabaseClient } from "../_shared/supabase.ts";
-import { jsonResponse } from "../_shared/cors.ts";
-
-export async function handleGet(req: Request): Promise<Response> {
-  const userId = req.headers.get("x-user-id");
-
-  if (!userId) {
-    return jsonResponse({ error: "Missing x-user-id header" }, 400);
-  }
-
-  const url = new URL(req.url);
-  const moduleId = url.searchParams.get("moduleId");
-
-  const supabase = getSupabaseClient();
-
-  let query = supabase
-    .from("projects")
-    .select("*")
-    .eq("userId", userId)
-    .order("updatedAt", { ascending: false });
-
-  if (moduleId) {
-    query = query.eq("moduleId", moduleId);
-  }
-
-  const { data: projects, error } = await query;
-
-  if (error) {
-    console.error("Database error:", error);
-    return jsonResponse({ error: "Failed to fetch projects" }, 500);
-  }
-
-  return jsonResponse(projects, 200);
+const userId = req.headers.get("x-user-id");
+if (!userId) {
+  return jsonResponse({ error: "Missing x-user-id header" }, 400);
 }
+```
+
+**Required authentication (NEW)**:
+
+```typescript
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const authHeader = req.headers.get("Authorization");
+if (!authHeader) {
+  return jsonResponse({ error: "Unauthorized" }, 401);
+}
+
+const supabase = createClient(
+  Deno.env.get("SUPABASE_URL") ?? "",
+  Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+  {
+    global: {
+      headers: { Authorization: authHeader },
+    },
+  }
+);
+
+const {
+  data: { user },
+  error: authError,
+} = await supabase.auth.getUser();
+
+if (authError || !user) {
+  return jsonResponse({ error: "Unauthorized" }, 401);
+}
+
+const userId = user.id; // UUID from auth.users
+```
+
+### Frontend Request Changes
+
+**Current (OLD)**:
+
+```typescript
+fetch(url, {
+  headers: {
+    "x-user-id": getUserId(), // localStorage-based ID
+  },
+});
+```
+
+**Required (NEW)**:
+
+```typescript
+const {
+  data: { session },
+} = await supabase.auth.getSession();
+
+fetch(url, {
+  headers: {
+    Authorization: `Bearer ${session.access_token}`, // JWT token
+  },
+});
 ```
 
 ---
 
 ## Database Schema Updates
 
-### Add `currentChallengeIndex` Column
+### Migration: Link to auth.users
 
-**Migration**: `supabase/migrations/003_add_current_challenge_index.sql`
+**Migration**: `supabase/migrations/004_migrate_to_auth_users.sql`
 
 ```sql
+-- Ensure projects.userId is UUID and references auth.users
 ALTER TABLE projects
-ADD COLUMN IF NOT EXISTS currentChallengeIndex INTEGER NOT NULL DEFAULT 0;
+  ALTER COLUMN userId TYPE UUID USING userId::UUID,
+  ADD CONSTRAINT fk_projects_user
+    FOREIGN KEY (userId) REFERENCES auth.users(id) ON DELETE CASCADE;
 
-CREATE INDEX IF NOT EXISTS idx_projects_currentChallengeIndex
-ON projects(currentChallengeIndex);
+-- Update submissions if needed
+ALTER TABLE submissions
+  ALTER COLUMN userId TYPE UUID USING userId::UUID,
+  ADD CONSTRAINT fk_submissions_user
+    FOREIGN KEY (userId) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+-- Update RLS policies to use auth.uid()
+DROP POLICY IF EXISTS "Users can view own projects" ON projects;
+DROP POLICY IF EXISTS "Users can create own projects" ON projects;
+DROP POLICY IF EXISTS "Users can update own projects" ON projects;
+
+CREATE POLICY "Users can view own projects"
+  ON projects FOR SELECT
+  USING (auth.uid() = userId);
+
+CREATE POLICY "Users can create own projects"
+  ON projects FOR INSERT
+  WITH CHECK (auth.uid() = userId);
+
+CREATE POLICY "Users can update own projects"
+  ON projects FOR UPDATE
+  USING (auth.uid() = userId);
+
+-- Same for submissions
+DROP POLICY IF EXISTS "Users can view own submissions" ON submissions;
+DROP POLICY IF EXISTS "Users can create own submissions" ON submissions;
+
+CREATE POLICY "Users can view own submissions"
+  ON submissions FOR SELECT
+  USING (auth.uid() = (SELECT userId FROM projects WHERE id = projectId));
+
+CREATE POLICY "Users can create own submissions"
+  ON submissions FOR INSERT
+  WITH CHECK (auth.uid() = (SELECT userId FROM projects WHERE id = projectId));
 ```
 
-### Add `projectToken` Column (Already Exists)
+### Existing Columns (Already Present)
 
-✅ Already added in previous migrations
+✅ `currentChallengeIndex` - Already added in previous migrations
+✅ `projectToken` - Already added in previous migrations
 
 ---
 
 ## Security Considerations
 
-1. **Anonymous User IDs**:
+### Authentication & Authorization
 
-   - Currently using localStorage-based IDs
-   - Future: Migrate to Supabase Auth for proper authentication
+1. **Supabase Auth (✅ Implemented)**:
 
-2. **Project Token**:
+   - Frontend uses email/password authentication via Supabase Auth
+   - JWT tokens stored in localStorage with auto-refresh
+   - Sessions persist across browser sessions
+   - Protected routes redirect unauthenticated users to `/login`
 
+2. **Backend JWT Verification (⚠️ NEEDS IMPLEMENTATION)**:
+
+   - All backend functions must validate JWT tokens
+   - Use `supabase.auth.getUser()` to verify tokens
+   - Extract `user.id` (UUID) from verified token
+   - **CRITICAL**: Do not trust client-provided user IDs
+
+3. **Row Level Security (RLS)**:
+
+   - Enable RLS on all tables (`projects`, `submissions`)
+   - Policies must use `auth.uid()` to verify ownership
+   - Users can only access their own data
+   - Foreign key constraints ensure data integrity
+
+4. **Project Tokens**:
    - Used by CLI to authenticate submissions
-   - Should be kept secret (not exposed in frontend)
+   - Stored in `dsa.config.json` (in user's local repo)
+   - Should be kept secret and never committed to GitHub
+   - Backend validates project token + user ID match
 
-3. **Rate Limiting**:
+### API Security
 
-   - Implement rate limiting on `/projects` endpoint
-   - Prevent abuse of GitHub API
+5. **Rate Limiting**:
 
-4. **CORS**:
+   - Implement rate limiting on all endpoints
+   - Prevent abuse of GitHub API (repo creation)
+   - Consider user-based limits (e.g., max 5 projects per hour)
+   - Use Supabase Edge Functions rate limiting or Cloudflare
+
+6. **CORS**:
+
    - Already configured in `_shared/cors.ts`
-   - Verify allowed origins
+   - Verify allowed origins match deployment URLs
+   - Update for production domains
+
+7. **Environment Variables**:
+   - Never expose `SUPABASE_SERVICE_ROLE_KEY` in frontend
+   - Only use `SUPABASE_ANON_KEY` in client-side code
+   - Validate all env vars are set in Edge Functions
+
+### GitHub Integration Security
+
+8. **GitHub App Permissions**:
+
+   - App has access to create repositories
+   - Limit installation to specific organization
+   - Regularly audit created repositories
+   - Consider webhook verification for submissions
+
+9. **Repository Naming**:
+   - Use authenticated `user.id` in repo names
+   - Prevents collisions and ensures uniqueness
+   - Format: `{userId}-{moduleId}-{language-suffix}`
 
 ---
 
@@ -1171,15 +1473,130 @@ ON projects(currentChallengeIndex);
 
 ---
 
+## Migration Strategy: Anonymous to Authenticated Users
+
+### Current State Problem
+
+**Before authentication was implemented**:
+
+- Frontend generated anonymous IDs: `user_<timestamp>_<random>`
+- Stored in localStorage as `dsa-lab-user-id`
+- Backend expected these IDs in `x-user-id` header
+- No way to recover data if localStorage was cleared
+
+**After authentication implementation**:
+
+- Users now sign up with email/password via Supabase Auth
+- Each user gets a UUID from `auth.users` table
+- Old anonymous IDs are orphaned in localStorage
+- Old projects in database may have TEXT userIds instead of UUIDs
+
+### Migration Options
+
+#### Option 1: Clean Slate (Recommended for Beta/Testing)
+
+**When to use**: If you have minimal users or are in testing phase
+
+1. Clear all existing projects from database
+2. Update schema to enforce UUID foreign keys
+3. Remove `lib/user.ts` completely
+4. Users must sign up and create new projects
+
+**Pros**:
+
+- Clean architecture
+- No legacy data issues
+- Simpler implementation
+
+**Cons**:
+
+- Existing users lose progress
+- Need to communicate change clearly
+
+#### Option 2: Data Migration (For Production)
+
+**When to use**: If you have real users with valuable progress
+
+1. Add a migration UI for existing users:
+
+   - On first login, check localStorage for old `dsa-lab-user-id`
+   - Look up projects with that TEXT userId in database
+   - Offer to migrate those projects to new authenticated user
+   - Update `userId` from TEXT to UUID (their auth.users.id)
+
+2. Implementation:
+
+```typescript
+// In AuthProvider or a migration component
+useEffect(() => {
+  async function migrateOldProjects() {
+    const oldUserId = localStorage.getItem("dsa-lab-user-id");
+    const { user } = await supabase.auth.getUser();
+
+    if (user && oldUserId && oldUserId !== user.id) {
+      // Call migration endpoint
+      await fetch("/migrations/migrate-projects", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ oldUserId }),
+      });
+
+      // Clear old ID
+      localStorage.removeItem("dsa-lab-user-id");
+    }
+  }
+
+  migrateOldProjects();
+}, [user]);
+```
+
+**Pros**:
+
+- Users keep their progress
+- Better user experience
+
+**Cons**:
+
+- More complex implementation
+- Need additional backend endpoint
+- Risk of duplicate projects
+
+#### Option 3: Parallel Systems (Not Recommended)
+
+Support both old and new auth simultaneously. **This is not recommended** as it adds significant complexity and security risks.
+
+### Recommended Approach
+
+**For this project**: Use **Option 1 (Clean Slate)**
+
+Reasons:
+
+1. Project appears to be in development/hackathon phase
+2. Cleaner architecture without legacy baggage
+3. Faster to implement
+4. Auth was just added, likely few real users
+
+**Communication to users**:
+
+- Add a banner: "We've upgraded to secure authentication! Please sign up to continue."
+- Document in README that this is a breaking change
+- Consider exporting project URLs before migration so users can manually track them
+
 ## Future Enhancements
 
-1. **Supabase Realtime**: Replace polling with WebSocket subscriptions
-2. **Authentication**: Migrate from anonymous IDs to Supabase Auth
-3. **Project History**: Show submission timeline with commit links
-4. **Leaderboard**: Track fastest completion times
-5. **AI Hints**: Integrate AI to provide debugging hints
-6. **Mobile App**: React Native version with offline support
-7. **IDE Integration**: VSCode extension for in-editor testing
+1. **Supabase Realtime**: Replace polling with WebSocket subscriptions for live progress updates
+2. **OAuth Providers**: Add GitHub, Google OAuth for easier sign up
+3. **Email Verification**: Enable email confirmation for new accounts
+4. **Password Reset**: Implement forgot password flow
+5. **Project History**: Show submission timeline with commit links
+6. **Leaderboard**: Track fastest completion times per challenge
+7. **AI Hints**: Integrate AI to provide debugging hints based on test failures
+8. **Mobile App**: React Native version with offline support
+9. **IDE Integration**: VSCode extension for in-editor testing
+10. **Social Features**: Share progress, compare solutions with friends
 
 ---
 
@@ -1272,14 +1689,107 @@ apiClient.getModules().then(console.log).catch(console.error);
 
 ## Conclusion
 
-This plan provides a comprehensive roadmap to fully integrate the DSA Lab frontend with the backend API and CLI tools. The phased approach ensures:
+This updated plan provides a comprehensive roadmap to fully integrate the DSA Lab frontend with the backend API and CLI tools, **accounting for the new Supabase Auth implementation**.
 
-1. **Minimal disruption** to existing functionality
-2. **Incremental validation** at each step
-3. **Rollback capability** if issues arise
-4. **Clear success metrics** for measuring progress
+### Key Takeaways
 
-Estimated total implementation time: **3-4 weeks** with 1-2 developers.
+1. **Authentication is already implemented** ✅
+
+   - Supabase Auth with email/password
+   - Protected routes with JWT tokens
+   - Session management and persistence
+
+2. **Critical missing piece**: Backend auth migration 🚨
+
+   - **Phase 0 is mandatory** before frontend integration
+   - Backend must migrate from `x-user-id` headers to JWT verification
+   - Database schema needs foreign key constraints to `auth.users`
+
+3. **Frontend needs API client**:
+
+   - Create `lib/api.ts` with JWT token headers
+   - Remove legacy `lib/user.ts` anonymous ID system
+   - Integrate with existing Supabase client
+
+4. **Migration strategy**: Clean slate approach recommended
+   - Clear existing test data
+   - Enforce proper authentication from day 1
+   - Communicate breaking change to users
+
+### What's Actually Needed (Quick Action Plan)
+
+This is **NOT a multi-week project**. It's 3 straightforward steps that can be done in ~1-2 hours:
+
+**Step 1: Backend Auth (15-30 min)** - Update 3 files with same pattern:
+
+- `supabase/functions/projects/post.ts`
+- `supabase/functions/projects/get.ts`
+- `supabase/functions/submissions/index.ts`
+
+Replace: `req.headers.get('x-user-id')` → JWT verification with `supabase.auth.getUser()`
+
+**Step 2: Frontend API Client (10 min)** - Create 1 file, delete 1 file:
+
+- Create: `web/src/lib/api.ts` (copy from Phase 1 section above)
+- Delete: `web/src/lib/user.ts` (legacy anonymous ID system)
+
+**Step 3: Connect Frontend (30-45 min)** - Update 3 components:
+
+- `Challenges.tsx` - Fetch modules from API
+- `ChallengesGrid.tsx` - Accept props, fetch projects
+- `ChallengeDetail.tsx` - Call create project API
+
+**Total time: ~1-2 hours of find-and-replace + copy-paste**
+
+### Why This Is Quick
+
+- ✅ Auth system already fully implemented
+- ✅ Backend endpoints already exist
+- ✅ Frontend UI already built
+- ✅ Just connecting existing pieces with JWT tokens
+- ✅ Most changes follow the same pattern
+
+---
+
+## Updated Architecture Summary
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Authentication Flow                   │
+└─────────────────────────────────────────────────────────┘
+                           │
+    User → Login/Signup → Supabase Auth → JWT Token
+                           │
+                    Frontend (React)
+                           │
+            ┌──────────────┼──────────────┐
+            │              │              │
+     localStorage    Auth Context    Protected Routes
+     (JWT token)    (user state)    (/challenges, etc)
+                           │
+                    API Client (lib/api.ts)
+                           │
+          Authorization: Bearer <JWT token>
+                           │
+              ┌────────────┼────────────┐
+              │            │            │
+       Supabase Edge Functions (Backend)
+       │            │                  │
+    Projects    Submissions        Modules
+       │            │                  │
+    JWT Auth → supabase.auth.getUser()
+       │            │                  │
+    user.id (UUID from auth.users)
+       │            │                  │
+       └────────────┼──────────────────┘
+                    │
+              Database (PostgreSQL)
+                    │
+        projects (userId → auth.users.id)
+        submissions (via project FK)
+                    │
+              RLS Policies (auth.uid())
+```
 
 ---
 

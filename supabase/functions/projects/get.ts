@@ -1,17 +1,40 @@
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getSupabaseClient } from '../_shared/supabase.ts';
 import { jsonResponse } from '../_shared/cors.ts';
 
 export async function handleGet(req: Request): Promise<Response> {
-  const userId = req.headers.get('x-user-id');
-  
-  if (!userId) {
-    return jsonResponse({ error: 'Missing x-user-id header' }, 400);
+  // Authenticate using JWT token from Authorization header
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader) {
+    return jsonResponse({ error: 'Unauthorized' }, 401);
   }
+
+  // Create Supabase client with user's JWT token for authentication
+  const supabaseAuth = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+    {
+      global: {
+        headers: { Authorization: authHeader },
+      },
+    }
+  );
+  
+  // Extract user from JWT token
+  const { data: { user }, error: authError } = await supabaseAuth.auth.getUser();
+
+  if (authError || !user) {
+    console.error('Auth error:', authError);
+    return jsonResponse({ error: 'Unauthorized' }, 401);
+  }
+
+  const userId = user.id; // UUID from auth.users
+
+  // Use service role client for database operations
+  const supabase = getSupabaseClient();
 
   const url = new URL(req.url);
   const moduleId = url.searchParams.get('moduleId');
-
-  const supabase = getSupabaseClient();
   
   let query = supabase
     .from('projects')

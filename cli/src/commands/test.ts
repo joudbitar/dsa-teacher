@@ -135,7 +135,7 @@ export async function testCommand(cwd: string = process.cwd()): Promise<DSARepor
   const currentIndex = report.currentChallengeIndex || config.currentChallengeIndex || 0;
   const runTests = report.cases.filter(tc => tc.message !== 'Challenge locked');
   const lockedTests = report.cases.filter(tc => tc.message === 'Challenge locked');
-  const currentTest = runTests[runTests.length - 1]; // Last test run is current
+  const currentTest = runTests[currentIndex]; // Test at current index
 
   console.log('');
   console.log(chalk.blue('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
