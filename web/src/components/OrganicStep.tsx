@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils'
 import { ReactNode } from 'react'
+import { useTheme } from '@/theme/ThemeContext'
 
 interface OrganicStepProps {
   children: ReactNode
@@ -18,13 +19,15 @@ export function OrganicStep({
   className,
   shapeVariant = 0
 }: OrganicStepProps) {
-  // Text color hex code for border - using foreground color from theme
-  const textColor = '#171512' // Espresso black from theme
+  const { backgroundColor, textColor, borderColor, sectionBackgroundColor } = useTheme()
   
   // Use padding from className if provided, otherwise default
   const paddingClasses = className?.match(/\b(p|px|py|pt|pb|pl|pr)-\d+\b/)
     ? "" // Use padding from className
     : "px-4 py-3" // Default padding
+  
+  // Card background: use sectionBackgroundColor which adapts to theme
+  const cardBackgroundColor = sectionBackgroundColor
   
   return (
     <div 
@@ -38,10 +41,8 @@ export function OrganicStep({
         className
       )}
       style={{
-        backgroundColor: isCurrent
-          ? '#D4A574' 
-          : '#E5E0CC',
-        borderColor: textColor,
+        backgroundColor: cardBackgroundColor,
+        borderColor: borderColor,
       }}
     >
       {children}

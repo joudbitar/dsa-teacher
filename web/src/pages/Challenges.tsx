@@ -63,8 +63,8 @@ export function Challenges() {
   return (
     <div className="min-h-screen flex flex-col relative" style={{ backgroundColor }}>
       <Navbar className="relative z-10" />
-      <main className="flex-1 relative z-10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main className="flex-1 relative z-10 pb-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 min-h-[calc(100vh-12rem)]">
           <div className="mb-12">
             <h1 className="text-4xl font-bold mb-4">Data Structures & Algorithms Challenges</h1>
             <p className="text-lg text-muted-foreground">
@@ -75,7 +75,7 @@ export function Challenges() {
           <ChallengesGrid modules={modules} />
         </div>
       </main>
-      <Footer className="relative z-10" />
+      <Footer className="relative z-10 mt-auto" />
     </div>
   )
 }
