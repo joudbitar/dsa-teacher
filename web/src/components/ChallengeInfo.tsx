@@ -155,49 +155,26 @@ export function ChallengeInfo({
           {/* Start Button or Existing Repo Info */}
           <div className="py-4">
             {githubRepoUrl ? (
-              /* User already has a repo - show clone instructions */
-              <div className="rounded-xl border border-border bg-card p-6 space-y-4">
-                <div className="flex items-center justify-center gap-2 text-success">
-                  <Check className="h-5 w-5" />
-                  <h3 className="text-lg font-semibold">🎉 Repository Created!</h3>
-                </div>
-                <p className="text-muted-foreground text-sm text-center">
-                  Your project repository has been created. Clone it to get started:
-                </p>
-
-                <div className="bg-muted rounded-lg p-4 font-mono text-sm">
-                  <div className="flex items-center justify-between">
-                    <code className="flex-1 text-foreground">git clone {githubRepoUrl}</code>
-                    <button
-                      onClick={handleCopy}
-                      className="ml-4 px-3 py-1 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors flex items-center gap-2"
-                    >
-                      {copied ? (
-                        <>
-                          <Check className="h-4 w-4" />
-                          Copied!
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="h-4 w-4" />
-                          Copy
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground text-center">
-                    After cloning, run{" "}
-                    <code className="px-2 py-1 rounded bg-muted text-accent">
-                      dsa test
-                    </code>{" "}
-                    to check your progress.
-                  </p>
-                  <p className="text-xs text-muted-foreground text-center pt-2">
-                    Want to start over? Visit the Challenges page and click "Restart" on this module.
-                  </p>
+              /* User already has a repo - show clone command */
+              <div className="bg-muted rounded-lg p-4 font-mono text-sm">
+                <div className="flex items-center justify-between">
+                  <code className="flex-1 text-foreground">git clone {githubRepoUrl}</code>
+                  <button
+                    onClick={handleCopy}
+                    className="ml-4 px-3 py-1 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors flex items-center gap-2"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="h-4 w-4" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-4 w-4" />
+                        Copy
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
             ) : (
