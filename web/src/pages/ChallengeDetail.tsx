@@ -295,8 +295,8 @@ export function ChallengeDetail() {
   ];
 
   // Display step 0 (language selection) until project is created
-  // After that, show the current challenge step
-  const displayStepIndex = isLanguageStepCompleted ? currentStepIndex : 0;
+  // Once project exists (repo created), show the current challenge step
+  const displayStepIndex = existingProject ? currentStepIndex : 0;
 
   const highestCompletedStep =
     completedSteps.length > 0 ? Math.max(...completedSteps) : -1;
