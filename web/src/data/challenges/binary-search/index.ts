@@ -5,16 +5,17 @@ export const binarySearch: ChallengeData = {
   title: 'Binary Search',
   level: 'Beginner',
   summary: 'Find index in a sorted array.',
-  description: 'Binary search is one of the most elegant and efficient search algorithms. Instead of checking every element (O(n)), it repeatedly divides the search space in half, achieving O(log n) time complexity. This algorithm demonstrates the power of divide-and-conquer thinking.',
-  concept: 'Binary search works by comparing the target value to the middle element of a sorted array. If they match, you\'re done. If the target is smaller, search the left half; if larger, search the right half. The key insight is that the array must be sorted, which allows you to eliminate half of the remaining elements with each comparison.',
+  description: 'Binary Search is an efficient algorithm for finding a target value within a sorted array or list. It works by repeatedly dividing the search range in half until the target value is found or the search interval becomes empty. Unlike linear search, which checks every element one by one, binary search eliminates half of the remaining elements with each comparison—making it extremely fast for large, sorted datasets. Binary search works only on sorted data and repeatedly halves the search space until the target is found, giving logarithmic efficiency.',
+  concept: 'Binary search relies on key operations: compare the target value to the middle element of the current range; if the target equals the middle element, return its index (found); if the target is smaller, search in the left half; if the target is larger, search in the right half; continue until the element is found or the range is empty. You can implement binary search in two main ways: (1) Iterative Binary Search—uses a while loop and maintains start/end pointers, (2) Recursive Binary Search—calls itself with updated bounds until the target is found or the range is invalid. Time Complexity: Best Case O(1) (found in first comparison), Average/Worst Case O(log n). Space Complexity: O(1) for iterative, O(log n) for recursive (due to call stack).',
   benefits: [
-    'Master one of the most important algorithms in computer science',
-    'Understand divide-and-conquer problem-solving techniques',
-    'Learn to think in terms of time complexity (O(log n) vs O(n))',
-    'Build intuition for how databases and search engines index data',
-    'Develop skills in handling edge cases and off-by-one errors'
+    'Learn how to design algorithms with logarithmic complexity',
+    'Understand the power of divide-and-conquer problem-solving',
+    'Develop the foundation for search-based algorithms and optimization problems',
+    'Improve reasoning about algorithm performance and runtime efficiency',
+    'Build intuition for recursive thinking and boundary management',
+    'Master one of the most important algorithmic patterns in computer science'
   ],
-  learningOutcome: 'Master one of the most important algorithms in computer science and understand divide-and-conquer problem-solving techniques.',
+  learningOutcome: 'Master binary search and understand how to design algorithms with logarithmic complexity. Learn divide-and-conquer problem-solving techniques and develop the foundation for search-based algorithms, optimization problems, and efficient lookups. Build intuition for recursive thinking, boundary management, and algorithm performance analysis.',
   coreSkills: [
     'Divide-and-conquer thinking',
     'Time complexity analysis',

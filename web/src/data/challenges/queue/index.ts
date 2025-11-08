@@ -5,16 +5,17 @@ export const queue: ChallengeData = {
   title: 'Build a Queue',
   level: 'Beginner',
   summary: 'Circular buffer with enqueue/dequeue.',
-  description: 'A queue is a linear data structure that follows the First-In-First-Out (FIFO) principle. Imagine a line at a coffee shop—the first person in line is the first to be served. Queues are essential for task scheduling, breadth-first search, and any scenario where you need to process items in order.',
-  concept: 'Queues support enqueue (add to rear) and dequeue (remove from front) operations. You can implement them using arrays (with circular buffering for efficiency) or linked lists. The key challenge is maintaining O(1) operations for both enqueue and dequeue, which requires careful pointer management in a circular array implementation.',
+  description: 'A queue is a fundamental linear data structure that follows the First-In-First-Out (FIFO) principle. The first element inserted is the first one removed—just like a line of people waiting at a ticket counter: the person who arrives first is served first. Queues are widely used in computer science for scheduling tasks, managing resources, and handling asynchronous data like I/O buffers, network packets, and process scheduling. Queues ensure fairness and order: the first element to enter is the first to leave, which is critical in real-world systems where order of arrival matters.',
+  concept: 'A queue supports core operations: enqueue (add to rear), dequeue (remove from front), front/peek (view front without removing), size (count elements), and isEmpty (check if empty). Queues can be implemented in several ways: (1) Array-based Queue—uses a fixed-size array with front and rear pointers, requires wrap-around handling (circular queue), (2) Linked-list Queue—uses nodes connected linearly where each node points to the next, offering flexible size and efficient enqueue/dequeue operations, (3) Double-ended Queue (Deque)—supports insertion and removal from both ends. The key challenge is maintaining O(1) operations for both enqueue and dequeue, which requires careful pointer management in a circular array implementation.',
   benefits: [
-    'Learn how operating systems schedule tasks and manage process queues',
-    'Understand breadth-first search algorithms used in graph traversal',
-    'Build systems that need to process requests in order (message queues)',
-    'Develop skills in managing circular arrays and pointer arithmetic',
-    'Gain experience with producer-consumer patterns'
+    'Understand how scheduling systems and resource management work in operating systems',
+    'Learn the foundation of algorithms like breadth-first search (BFS)',
+    'Manage sequential data in networking and message-passing systems',
+    'Gain insight into buffering, throttling, and event-driven architectures',
+    'Build intuition for system design where fairness and order of processing matter',
+    'Develop skills in managing circular arrays and pointer arithmetic'
   ],
-  learningOutcome: 'Understand FIFO data flow, real-world buffering, and how queues drive asynchronous systems (printers, network packets).',
+  learningOutcome: 'Understand FIFO data flow, real-world buffering, and how queues drive asynchronous systems. Master queue operations that enable process scheduling, breadth-first search, request management, and event-driven architectures. Learn to implement both array-based and linked-list queues, and apply queues to solve real-world problems like ticket counter simulation and task scheduling.',
   coreSkills: [
     'FIFO concept',
     'Queue-pointer management',
@@ -25,8 +26,8 @@ export const queue: ChallengeData = {
       step: 1,
       focus: 'Basic Queue',
       challenge: 'Build enqueue/dequeue using array',
-      conceptGained: 'FIFO vs LIFO',
-      visualization: 'People queue animation'
+      conceptGained: 'FIFO vs LIFO - first in, first out principle',
+      visualization: 'People queue animation (ticket counter simulation)'
     },
     {
       step: 2,

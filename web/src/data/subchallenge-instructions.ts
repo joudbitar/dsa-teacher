@@ -496,7 +496,8 @@ export const subchallengeInstructions: Record<string, Record<string, Subchalleng
         'Add element to the end of the internal array',
         'Use append/push to add to the rear',
         'Time complexity: O(1)',
-        'FIFO principle: first in, first out'
+        'FIFO principle: first in, first out',
+        'The first element enqueued will be the first one dequeued'
       ],
       examples: [
         {
@@ -508,17 +509,24 @@ export const subchallengeInstructions: Record<string, Record<string, Subchalleng
           input: 'queue.enqueue(10)',
           output: 'Queue size increases by 1',
           explanation: 'Each enqueue adds one element to the rear'
+        },
+        {
+          input: 'queue.enqueue("Alice")\nqueue.enqueue("Bob")\nqueue.enqueue("Charlie")',
+          output: 'Queue: ["Alice", "Bob", "Charlie"]',
+          explanation: 'Useful for ticket counter simulation: customers join the line in order'
         }
       ],
       hints: [
         'Simply append/push the value to the internal array',
         'The head pointer stays unchanged during enqueue',
-        'New elements always go to the end'
+        'New elements always go to the end',
+        'Think of it like joining a line at a ticket counter'
       ],
       edgeCases: [
         'Enqueueing to empty queue',
         'Enqueueing after dequeue operations',
-        'Enqueueing duplicate values is allowed'
+        'Enqueueing duplicate values is allowed',
+        'Enqueueing after multiple dequeues'
       ]
     },
     'dequeue()': {
@@ -535,8 +543,9 @@ export const subchallengeInstructions: Record<string, Record<string, Subchalleng
       requirements: [
         'Return the element at the head position',
         'Increment the head pointer after returning',
-        'Return None/null if queue is empty',
+        'Return None/null if queue is empty (handle queue underflow)',
         'Time complexity: O(1) (no array shifting required)',
+        'FIFO principle: the first element enqueued is the first one dequeued',
         'Optional: Periodically clean up unused space when head grows large'
       ],
       examples: [
@@ -554,6 +563,11 @@ export const subchallengeInstructions: Record<string, Record<string, Subchalleng
           input: 'empty queue\nqueue.dequeue()',
           output: 'None (or null)',
           explanation: 'Dequeueing from empty queue returns None/null'
+        },
+        {
+          input: 'queue: ["Alice", "Bob", "Charlie"]\nwhile not queue.is_empty():\n    print("Serving:", queue.dequeue())',
+          output: 'Serving: Alice\nServing: Bob\nServing: Charlie',
+          explanation: 'Dequeueing all elements serves them in FIFO order—this is how ticket counters work!'
         }
       ],
       hints: [
@@ -561,6 +575,7 @@ export const subchallengeInstructions: Record<string, Record<string, Subchalleng
         'Get value at items[head]',
         'Increment head by 1',
         'Return the value',
+        'The element removed is always the first one added (FIFO)',
         'Advanced: If head exceeds half the array length, trim the unused front portion'
       ],
       edgeCases: [
