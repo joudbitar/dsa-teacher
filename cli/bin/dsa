@@ -1,0 +1,5 @@
+#!/usr/bin/env node
+
+// Placeholder: Will invoke src/index.js after build
+// Post-kickoff: import('../dist/index.js').then(m => m.main())
+

@@ -1,0 +1,16 @@
+{
+  "name": "dsa-lab",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": [
+    "web",
+    "cli"
+  ],
+  "scripts": {
+    "build": "pnpm --filter ./web build && pnpm --filter ./cli build"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
+

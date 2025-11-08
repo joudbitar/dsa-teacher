@@ -1,0 +1,168 @@
+{
+  "info": {
+    "name": "DSA Lab API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "WEB_URL",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "USER_ID",
+      "value": "test-user-123",
+      "type": "string"
+    },
+    {
+      "key": "PROJECT_TOKEN",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Get Modules",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{WEB_URL}}/api/modules",
+          "host": ["{{WEB_URL}}"],
+          "path": ["api", "modules"]
+        },
+        "description": "Fetch all available challenge modules (public endpoint)"
+      }
+    },
+    {
+      "name": "Get Projects",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-user-id",
+            "value": "{{USER_ID}}",
+            "type": "text",
+            "description": "Anonymous user ID from localStorage"
+          }
+        ],
+        "url": {
+          "raw": "{{WEB_URL}}/api/projects",
+          "host": ["{{WEB_URL}}"],
+          "path": ["api", "projects"]
+        },
+        "description": "Get all projects for the current user"
+      }
+    },
+    {
+      "name": "Get Projects (Filtered by Module)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-user-id",
+            "value": "{{USER_ID}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{WEB_URL}}/api/projects?moduleId=stack",
+          "host": ["{{WEB_URL}}"],
+          "path": ["api", "projects"],
+          "query": [
+            {
+              "key": "moduleId",
+              "value": "stack"
+            }
+          ]
+        },
+        "description": "Get user's project for a specific module"
+      }
+    },
+    {
+      "name": "Create Project",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-user-id",
+            "value": "{{USER_ID}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"moduleId\": \"stack\",\n  \"language\": \"TypeScript\"\n}"
+        },
+        "url": {
+          "raw": "{{WEB_URL}}/api/projects",
+          "host": ["{{WEB_URL}}"],
+          "path": ["api", "projects"]
+        },
+        "description": "Create a new project (generates GitHub repo and projectToken)"
+      }
+    },
+    {
+      "name": "Submit Test Results",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{PROJECT_TOKEN}}",
+            "type": "text",
+            "description": "Project token from dsa.config.json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"projectId\": \"project-uuid-here\",\n  \"details\": {\n    \"moduleId\": \"stack\",\n    \"summary\": \"3/5 tests passed\",\n    \"pass\": false,\n    \"cases\": [\n      {\n        \"subchallengeId\": \"create-class\",\n        \"passed\": true\n      },\n      {\n        \"subchallengeId\": \"push\",\n        \"passed\": true\n      },\n      {\n        \"subchallengeId\": \"pop\",\n        \"passed\": false,\n        \"message\": \"Expected 10, received undefined\"\n      },\n      {\n        \"subchallengeId\": \"peek\",\n        \"passed\": false,\n        \"message\": \"Expected 20, received undefined\"\n      },\n      {\n        \"subchallengeId\": \"size\",\n        \"passed\": true\n      }\n    ]\n  },\n  \"commitSha\": \"abc123def456\"\n}"
+        },
+        "url": {
+          "raw": "{{WEB_URL}}/api/submissions",
+          "host": ["{{WEB_URL}}"],
+          "path": ["api", "submissions"]
+        },
+        "description": "Submit test results from CLI (requires project token)"
+      }
+    },
+    {
+      "name": "Submit Test Results (All Passed)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{PROJECT_TOKEN}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"projectId\": \"project-uuid-here\",\n  \"details\": {\n    \"moduleId\": \"stack\",\n    \"summary\": \"5/5 tests passed\",\n    \"pass\": true,\n    \"cases\": [\n      {\n        \"subchallengeId\": \"create-class\",\n        \"passed\": true\n      },\n      {\n        \"subchallengeId\": \"push\",\n        \"passed\": true\n      },\n      {\n        \"subchallengeId\": \"pop\",\n        \"passed\": true\n      },\n      {\n        \"subchallengeId\": \"peek\",\n        \"passed\": true\n      },\n      {\n        \"subchallengeId\": \"size\",\n        \"passed\": true\n      }\n    ]\n  },\n  \"commitSha\": \"xyz789abc123\"\n}"
+        },
+        "url": {
+          "raw": "{{WEB_URL}}/api/submissions",
+          "host": ["{{WEB_URL}}"],
+          "path": ["api", "submissions"]
+        },
+        "description": "Submit successful test results (100% pass)"
+      }
+    }
+  ]
+}
