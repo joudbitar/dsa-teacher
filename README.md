@@ -18,13 +18,15 @@ Think of it like LeetCode but instead of coding in a browser, you:
 
 ```
 dsa-lab/
-├── web/         → React dashboard (shows challenges, tracks progress)
-├── cli/         → The `dsa` command (test & submit from terminal)
-├── api/         → Backend endpoints (creates repos, records submissions)
-├── infra/       → Config files (challenge data, API specs)
-├── supabase/    → Database setup (stores projects & submissions)
-├── docs/        → Detailed specs (read these to understand the flow)
-└── .github/     → CI stuff
+├── web/                → React dashboard (shows challenges, tracks progress)
+├── cli/                → The `dsa` command (test & submit from terminal)
+├── supabase/
+│   ├── functions/      → Edge Functions (API endpoints)
+│   ├── init.sql        → Database schema
+│   └── config.toml     → Supabase config
+├── infra/              → Config files (challenge data, API specs)
+├── docs/               → Detailed specs (read these to understand the flow)
+└── .github/            → CI stuff
 ```
 
 ## How It Actually Works
@@ -97,7 +99,7 @@ dsa test  # in a challenge repo
 
 - **Web:** React app, shows challenges, tracks your progress
 - **CLI:** Node.js tool, runs tests, sends results to API
-- **API:** Serverless functions on Vercel, handles repo creation & submissions
+- **API:** Supabase Edge Functions (Deno runtime), handles repo creation & submissions
 - **Database:** Supabase (Postgres), stores projects & submissions
 - **Auth:** Super simple for MVP (just a UUID in localStorage)
 
@@ -105,10 +107,10 @@ dsa test  # in a challenge repo
 
 Pick what interests you:
 
-- **Backend/API** → Implement `/api/*.ts` handlers, set up GitHub App, Supabase setup
+- **Backend/API** → Implement Supabase Edge Functions in `supabase/functions/`, set up GitHub App
 - **Frontend** → Build React components in `web/`, make it look good
 - **CLI** → Make `dsa test` and `dsa submit` work in `cli/src/`
-- **DevOps** → Deploy to Vercel, set up environment variables, CI/CD
+- **DevOps** → Deploy functions, set up environment variables, CI/CD
 
 Everyone should understand the whole flow though!
 
