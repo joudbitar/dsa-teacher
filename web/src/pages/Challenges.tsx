@@ -7,8 +7,6 @@ import { apiClient, Module, fetchUserProjects, type Project } from '@/lib/api'
 import { useAuth } from '@/auth/useAuth'
 import { Link, useLocation } from 'react-router-dom'
 import { challengeData } from '@/data/challenges'
-import { fetchUserProjects, type Project } from '@/lib/api'
-import { useAuth } from '@/auth/useAuth'
 import { ArrowRight, Layers, Search, Minus, Code2, CheckCircle2 } from 'lucide-react'
 
 // Helper function to convert hex to rgba
@@ -32,7 +30,6 @@ export function Challenges() {
   const { backgroundColor, textColor, borderColor, secondaryTextColor, accentGreen } = useTheme()
   const location = useLocation()
   const { user } = useAuth()
-<<<<<<< HEAD
   const [modules, setModules] = useState<Module[]>([])
   const [modulesLoading, setModulesLoading] = useState(true)
   const [modulesError, setModulesError] = useState<string | null>(null)
@@ -80,34 +77,6 @@ export function Challenges() {
 
     loadProjects()
 
-=======
-  const [projects, setProjects] = useState<Project[]>([])
-  const [loading, setLoading] = useState(true)
-
-  // Fetch projects from API
-  useEffect(() => {
-    const loadProjects = async () => {
-      if (!user) {
-        setProjects([])
-        setLoading(false)
-        return
-      }
-
-      setLoading(true)
-      try {
-        const fetchedProjects = await fetchUserProjects()
-        setProjects(fetchedProjects)
-      } catch (error) {
-        console.error('Error loading projects:', error)
-        setProjects([])
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadProjects()
-
->>>>>>> 9c03a4a (feat: Add Your Library section with CLI-driven progress tracking)
     // Poll for updates every 10 seconds to catch CLI submissions
     const interval = setInterval(loadProjects, 10000)
 
@@ -292,11 +261,7 @@ export function Challenges() {
               </div>
             </div>
 
-<<<<<<< HEAD
             {projectsLoading ? (
-=======
-            {loading ? (
->>>>>>> 9c03a4a (feat: Add Your Library section with CLI-driven progress tracking)
               <div className="py-6">
                 <p 
                   className="text-lg font-mono"
