@@ -84,7 +84,7 @@ export function ChallengeDetail() {
           // User has existing projects, but always start at language selection
           // so they can choose to continue or create a new attempt
           const project = projects[0];
-
+          
           // Store the existing project info but don't auto-navigate
           setExistingProject(project);
           setSelectedLanguage(project.language.toLowerCase());
@@ -95,7 +95,7 @@ export function ChallengeDetail() {
           const stepIndex =
             project.currentChallengeIndex === 0
               ? 0 // Stay on setup/language selection - repo created but not working on challenges yet
-              : project.currentChallengeIndex + 1; // +1 for "Choose Language" step
+            : project.currentChallengeIndex + 1; // +1 for "Choose Language" step
           setCurrentStepIndex(stepIndex);
 
           // Mark completed steps based on currentChallengeIndex
@@ -221,17 +221,17 @@ export function ChallengeDetail() {
                 moduleData?.subchallenges?.[
                   updatedProject.currentChallengeIndex
                 ];
-
+              
               // Check if this is the last step
               const isLastStep =
                 updatedProject.currentChallengeIndex >=
                 (moduleData?.subchallenges?.length || 0);
-
+              
               // Create a temporary toast notification
               const toast = document.createElement("div");
               toast.className =
                 "fixed top-20 right-4 bg-success text-success-foreground px-6 py-3 rounded-lg shadow-lg z-50 animate-in slide-in-from-right";
-
+              
               if (isLastStep) {
                 toast.innerHTML = `
                   <div class="flex items-center gap-2">
@@ -251,7 +251,7 @@ export function ChallengeDetail() {
                   }</div>
                 `;
               }
-
+              
               document.body.appendChild(toast);
 
               // Remove after 4 seconds
@@ -261,7 +261,7 @@ export function ChallengeDetail() {
                 setTimeout(() => toast.remove(), 300);
               }, 4000);
             }
-
+            
             hasShownInitialState = true;
           } else {
             // Same state, mark as shown
@@ -300,7 +300,7 @@ export function ChallengeDetail() {
 
   const highestCompletedStep =
     completedSteps.length > 0 ? Math.max(...completedSteps) : -1;
-
+  
   // Max accessible step is based on backend's currentChallengeIndex
   // currentChallengeIndex = 0 means working on first challenge (step 1) - user can access it
   // currentChallengeIndex = 1 means working on second challenge (step 2), etc.
@@ -381,7 +381,7 @@ export function ChallengeDetail() {
           error.message.includes("private key") ||
           error.message.includes("not configured")
         ) {
-          errorMessage =
+          errorMessage = 
             "GitHub App is not properly configured. Please contact support.\n\n" +
             "The backend needs GitHub App credentials to create repositories.";
         } else if (
@@ -389,7 +389,7 @@ export function ChallengeDetail() {
           error.message.includes("401") ||
           error.message.includes("403")
         ) {
-          errorMessage =
+          errorMessage = 
             "GitHub authentication failed. Please contact support.\n\n" +
             "The GitHub App credentials may be incorrect or expired.";
         } else {
