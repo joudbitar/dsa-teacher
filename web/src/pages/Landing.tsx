@@ -1,30 +1,32 @@
 import { Navbar } from '@/components/Navbar'
-import { HeroLeft } from '@/components/HeroLeft'
-import { HeroRight } from '@/components/HeroRight'
-import { CalculatorMetaphor } from '@/components/CalculatorMetaphor'
-import { StreakSection } from '@/components/StreakSection'
 import { Footer } from '@/components/Footer'
+import { colors } from '@/theme/colors'
 
 export function Landing() {
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-dev-lab relative">
-      <Navbar className="relative z-10" />
-      <main className="flex-1 relative z-10">
-        {/* Hero Section - Split Layout */}
-        <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-32">
-          <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[600px]">
-            <HeroLeft />
-            <HeroRight />
-          </div>
+    <div 
+      className="min-h-screen flex flex-col" 
+      style={{ 
+        backgroundColor: colors.background.base, 
+        color: colors.text.primary 
+      }}
+    >
+      <Navbar />
+      <main className="flex-1 flex items-center justify-center">
+        {/* Hero Section */}
+        <section className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 
+            className="text-5xl sm:text-6xl lg:text-7xl font-bold" 
+            style={{ 
+              fontFamily: 'JetBrains Mono, monospace',
+              color: colors.text.primary
+            }}
+          >
+            Stop memorizing, start learning.
+          </h1>
         </section>
-
-        {/* Calculator Metaphor */}
-        <CalculatorMetaphor />
-
-        {/* Streak Section */}
-        <StreakSection />
       </main>
-      <Footer className="relative z-10" />
+      <Footer />
     </div>
   )
 }
