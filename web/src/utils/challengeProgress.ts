@@ -104,3 +104,22 @@ export function getAllChallengeProgress(): Record<string, number> {
   return progress
 }
 
+/**
+ * Clear all progress for a specific challenge (used when restarting a module)
+ */
+export function clearChallengeProgress(challengeId: string): void {
+  try {
+    const key = `${STORAGE_KEY_PREFIX}${challengeId}`
+    localStorage.removeItem(key)
+    
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new CustomEvent('challenge-progress-cleared', {
+      detail: { challengeId }
+    }))
+    
+    console.log(`Cleared local progress for challenge: ${challengeId}`)
+  } catch (error) {
+    console.error('Error clearing challenge progress from localStorage:', error)
+  }
+}
+

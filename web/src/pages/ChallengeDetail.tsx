@@ -90,20 +90,33 @@ export function ChallengeDetail() {
           // Store the existing project info but don't auto-navigate
           setExistingProject(project);
           setSelectedLanguage(project.language.toLowerCase());
+
+          // Set progress from project
+          // If currentChallengeIndex = 0 (just created), keep on step 0 (setup)
+          // Otherwise, show the current challenge step
+          const stepIndex =
+            project.currentChallengeIndex === 0
+              ? 0 // Stay on setup/language selection - repo created but not working on challenges yet
+            : project.currentChallengeIndex + 1; // +1 for "Choose Language" step
+          setCurrentStepIndex(stepIndex);
+
+          // Mark completed steps based on currentChallengeIndex
+          // Step 0 is only complete when user moves to first challenge (currentChallengeIndex >= 1)
+          const completed =
+            project.currentChallengeIndex === 0
+              ? [] // No steps completed - still on setup
+              : Array.from({ length: project.currentChallengeIndex + 1 }, (_, i) => i);
+          setCompletedSteps(completed);
+
+          // Set saved repo URL
           setSavedRepoUrl(project.githubRepoUrl);
-          
-          // Always start at step 0 (language selection) when entering a challenge
-          // This allows users to see their existing repo and choose to create a new one
+        } else {
+          // No project exists - ensure we start fresh (don't load stale localStorage)
+          // If user just restarted, localStorage should already be cleared
+          // But check again to be safe
+          setSelectedLanguage(undefined);
           setCurrentStepIndex(0);
           setCompletedSteps([]);
-        } else {
-          // Load from localStorage if no API project
-          const savedProgress = getChallengeProgress(id);
-          if (savedProgress) {
-            setSelectedLanguage(savedProgress.selectedLanguage);
-            setCurrentStepIndex(savedProgress.currentStepIndex || 0);
-            setCompletedSteps(savedProgress.completedSteps || []);
-          }
         }
       } catch (error) {
         console.error("Failed to check existing project:", error);
@@ -120,6 +133,30 @@ export function ChallengeDetail() {
     }
 
     loadData();
+  }, [id]);
+
+  // Listen for module restart events
+  useEffect(() => {
+    const handleRestart = (event: CustomEvent) => {
+      if (event.detail?.moduleId === id) {
+        // Module was restarted - clear state and reload
+        setExistingProject(null);
+        setSelectedLanguage(undefined);
+        setCurrentStepIndex(0);
+        setCompletedSteps([]);
+        setSavedRepoUrl(undefined);
+      }
+    };
+
+    window.addEventListener(
+      "challenge-restarted",
+      handleRestart as EventListener
+    );
+    return () =>
+      window.removeEventListener(
+        "challenge-restarted",
+        handleRestart as EventListener
+      );
   }, [id]);
 
   // Poll for progress updates when user has an existing project
@@ -145,12 +182,14 @@ export function ChallengeDetail() {
               `🎉 Progress detected! Moving from challenge ${existingProject.currentChallengeIndex} to ${updatedProject.currentChallengeIndex}`
             );
 
-            const isRealProgress = hasShownInitialState && 
-              updatedProject.currentChallengeIndex > existingProject.currentChallengeIndex;
+            const isRealProgress =
+              hasShownInitialState &&
+              updatedProject.currentChallengeIndex >
+                existingProject.currentChallengeIndex;
 
             setExistingProject(updatedProject);
 
-            // Update steps
+            // Update steps - challenge was completed, advance to next
             const newIndex = updatedProject.currentChallengeIndex + 1; // +1 for "Choose Language"
             setCurrentStepIndex(newIndex);
 
@@ -177,12 +216,18 @@ export function ChallengeDetail() {
             // Show success notification ONLY for real progress (not initial load)
             if (isRealProgress) {
               const previousStepName =
-                moduleData?.subchallenges?.[existingProject.currentChallengeIndex];
+                moduleData?.subchallenges?.[
+                  existingProject.currentChallengeIndex
+                ];
               const nextStepName =
-                moduleData?.subchallenges?.[updatedProject.currentChallengeIndex];
+                moduleData?.subchallenges?.[
+                  updatedProject.currentChallengeIndex
+                ];
               
               // Check if this is the last step
-              const isLastStep = updatedProject.currentChallengeIndex >= (moduleData?.subchallenges?.length || 0);
+              const isLastStep =
+                updatedProject.currentChallengeIndex >=
+                (moduleData?.subchallenges?.length || 0);
               
               // Create a temporary toast notification
               const toast = document.createElement("div");
@@ -203,7 +248,9 @@ export function ChallengeDetail() {
                     <span class="text-xl">✅</span>
                     <span class="font-semibold">Step completed!</span>
                   </div>
-                  <div class="text-sm mt-1">Moving to: ${nextStepName || 'Next step'}</div>
+                  <div class="text-sm mt-1">Moving to: ${
+                    nextStepName || "Next step"
+                  }</div>
                 `;
               }
               
@@ -250,17 +297,33 @@ export function ChallengeDetail() {
   ];
 
   // Display step 0 (language selection) until project is created
-  // After that, show the current challenge step
-  const displayStepIndex = isLanguageStepCompleted ? currentStepIndex : 0;
+  // Once project exists (repo created), show the current challenge step
+  const displayStepIndex = existingProject ? currentStepIndex : 0;
 
   const highestCompletedStep =
     completedSteps.length > 0 ? Math.max(...completedSteps) : -1;
-  const maxAccessibleStep = isLanguageStepCompleted
-    ? Math.min(
-        timelineSteps.length - 1,
-        Math.max(displayStepIndex, highestCompletedStep + 1)
-      )
+  
+  // Max accessible step is based on backend's currentChallengeIndex
+  // currentChallengeIndex = 0 means working on first challenge (step 1) - user can access it
+  // currentChallengeIndex = 1 means working on second challenge (step 2), etc.
+  // Once a project exists, user can always access the current challenge they're working on
+  const maxAccessibleStep = existingProject
+    ? existingProject.currentChallengeIndex + 1 // Can access current challenge
+    : isLanguageStepCompleted
+    ? 1
     : 0;
+
+  // Debug logging
+  console.log("ChallengeDetail Debug:", {
+    existingProject: existingProject ? {
+      id: existingProject.id,
+      currentChallengeIndex: existingProject.currentChallengeIndex,
+    } : null,
+    currentStepIndex,
+    maxAccessibleStep,
+    completedSteps,
+    isLanguageStepCompleted,
+  });
 
   // Handle project creation when language is selected
   const handleStartChallenge = async (language: string) => {
@@ -296,21 +359,21 @@ export function ChallengeDetail() {
       setSavedRepoUrl(repoUrl || undefined);
       setShowRepoCommand(true);
 
-      // Mark language step as completed
-      if (!completedSteps.includes(0)) {
-        markStepCompleted(id, 0);
-        setCompletedSteps((prev) => [...prev, 0]);
-      }
+      // Don't mark step 0 as completed yet - user needs to actually start working on challenges
+      // Step 0 represents the setup phase and should only complete when they move to challenge 1
 
       // Save to localStorage
       saveChallengeProgress(id, {
-        completedSteps: [0],
+        completedSteps: [], // No steps completed yet - just created repo
         currentStepIndex: 0,
         selectedLanguage: language,
         lastUpdated: Date.now(),
       });
 
-      // Don't move to next step yet - wait for user to click "Continue" in the modal
+      // Stay on language step - user will see repo instructions
+      // They stay here until they complete the first challenge (currentChallengeIndex becomes 1)
+      setCurrentStepIndex(0);
+      setCompletedSteps([]); // Keep step 0 uncompleted
     } catch (error) {
       console.error("Failed to create project:", error);
       console.error("Error details:", {
@@ -334,11 +397,18 @@ export function ChallengeDetail() {
             "Template repository not found. Please contact support.";
         } else if (error.message.includes("already exists")) {
           errorMessage = "You already have a project for this module.";
-        } else if (error.message.includes("private key") || error.message.includes("not configured")) {
+        } else if (
+          error.message.includes("private key") ||
+          error.message.includes("not configured")
+        ) {
           errorMessage = 
             "GitHub App is not properly configured. Please contact support.\n\n" +
             "The backend needs GitHub App credentials to create repositories.";
-        } else if (error.message.includes("authentication") || error.message.includes("401") || error.message.includes("403")) {
+        } else if (
+          error.message.includes("authentication") ||
+          error.message.includes("401") ||
+          error.message.includes("403")
+        ) {
           errorMessage = 
             "GitHub authentication failed. Please contact support.\n\n" +
             "The GitHub App credentials may be incorrect or expired.";
@@ -366,7 +436,24 @@ export function ChallengeDetail() {
   // Continue to challenge after viewing repo modal
   const handleContinueToChallenge = () => {
     setShowRepoCommand(false);
+    
+    // Move to first challenge (step 1)
     setCurrentStepIndex(1);
+    
+    // Mark step 0 (language selection) as completed
+    if (!completedSteps.includes(0)) {
+      setCompletedSteps([0]);
+      
+      // Save to localStorage
+      if (id) {
+        saveChallengeProgress(id, {
+          completedSteps: [0],
+          currentStepIndex: 1,
+          selectedLanguage,
+          lastUpdated: Date.now(),
+        });
+      }
+    }
   };
 
   const handleStepClick = (stepIndex: number) => {

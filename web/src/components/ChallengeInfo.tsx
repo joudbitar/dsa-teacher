@@ -1,9 +1,12 @@
+import React from "react";
 import {
   Code2,
   Lightbulb,
   Target,
   CheckCircle2,
   AlertCircle,
+  Check,
+  Copy,
 } from "lucide-react";
 import { ChallengeSteps } from "./ChallengeSteps";
 import { ChallengeData } from "@/data/challenges/types";
@@ -52,6 +55,7 @@ export function ChallengeInfo({
   onNewAttempt,
   subchallengeName,
 }: ChallengeInfoProps) {
+  const [copied, setCopied] = React.useState(false);
   // Step 0 = Choose Language
   // Step 1+ = Challenge steps
   const isLanguageStep = currentStepIndex === 0;
@@ -76,6 +80,15 @@ export function ChallengeInfo({
       "c++": "C++",
     };
     return displayNames[lang.toLowerCase()] || lang;
+  };
+
+  // Copy to clipboard handler
+  const handleCopy = async () => {
+    if (githubRepoUrl) {
+      await navigator.clipboard.writeText(`git clone ${githubRepoUrl}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   return (
@@ -139,13 +152,49 @@ export function ChallengeInfo({
             </div>
           )}
 
-          {/* Start Button */}
-          <div className="text-center py-4">
-            {githubRepoUrl && (
-              <p className="text-sm text-muted-foreground mb-3">
-                You already have a repository. Click below to create a new attempt with a different repo.
-              </p>
-            )}
+          {/* Start Button or Existing Repo Info */}
+          <div className="py-4">
+            {githubRepoUrl ? (
+              /* User already has a repo - show clone instructions */
+              <div className="rounded-xl border border-border bg-card p-6 space-y-4 text-center">
+                <h2 className="text-2xl font-bold">🎉 Repository Created!</h2>
+                <p className="text-muted-foreground">
+                  Your project repository has been created. Clone it to get started:
+                </p>
+
+                <div className="bg-muted rounded-lg p-4 font-mono text-sm">
+                  <div className="flex items-center justify-between">
+                    <code className="flex-1 text-foreground">git clone {githubRepoUrl}</code>
+                    <button
+                      onClick={handleCopy}
+                      className="ml-4 px-3 py-1 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors flex items-center gap-2"
+                    >
+                      {copied ? (
+                        <>
+                          <Check className="h-4 w-4" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-4 w-4" />
+                          Copy
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <p className="text-sm text-muted-foreground">
+                  After cloning, run{" "}
+                  <code className="px-2 py-1 rounded bg-muted text-accent">
+                    dsa test
+                  </code>{" "}
+                  to check your progress.
+                </p>
+              </div>
+            ) : (
+              /* No repo yet - show start button */
+              <>
             {!selectedLanguage ? (
               <button
                 disabled
@@ -164,12 +213,12 @@ export function ChallengeInfo({
                     <span className="animate-spin">⏳</span>
                     Creating repository...
                   </span>
-                ) : githubRepoUrl ? (
-                  `Create New Attempt with ${getLanguageDisplayName(selectedLanguage)}`
                 ) : (
                   `Start with ${getLanguageDisplayName(selectedLanguage)}`
                 )}
               </button>
+                )}
+              </>
             )}
           </div>
         </>
@@ -316,35 +365,41 @@ export function ChallengeInfo({
 
       {/* GitHub Repo (if available) */}
       {githubRepoUrl && !isLanguageStep && (
-        <div className="rounded-xl border border-border bg-muted p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <Code2 className="h-5 w-5 text-accent" />
-              <h2 className="text-xl font-bold">Get Started</h2>
+        <div className="rounded-xl border border-border bg-card p-6 space-y-4 text-center">
+          <h2 className="text-2xl font-bold">🎉 Repository Created!</h2>
+          <p className="text-muted-foreground">
+            Your project repository has been created. Clone it to get started:
+          </p>
+
+          <div className="bg-muted rounded-lg p-4 font-mono text-sm">
+            <div className="flex items-center justify-between">
+              <code className="flex-1 text-foreground">git clone {githubRepoUrl}</code>
+              <button
+                onClick={handleCopy}
+                className="ml-4 px-3 py-1 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors flex items-center gap-2"
+              >
+                {copied ? (
+                  <>
+                    <Check className="h-4 w-4" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-4 w-4" />
+                    Copy
+                  </>
+                )}
+              </button>
             </div>
-            <button
-              onClick={onNewAttempt}
-              className="px-4 py-2 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 font-medium transition-colors text-sm"
-              title="Create a new repository for another attempt"
-            >
-              + New Attempt
-            </button>
           </div>
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Clone your repository and start building:
-            </p>
-            <div className="rounded-lg border border-border bg-muted/50 p-4 font-mono text-sm">
-              <code className="text-foreground">git clone {githubRepoUrl}</code>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Then run{" "}
-              <code className="px-2 py-1 rounded bg-muted text-accent">
-                dsa test
-              </code>{" "}
-              to check your progress.
-            </p>
-          </div>
+
+          <p className="text-sm text-muted-foreground">
+            After cloning, run{" "}
+            <code className="px-2 py-1 rounded bg-muted text-accent">
+              dsa test
+            </code>{" "}
+            to check your progress.
+          </p>
         </div>
       )}
     </div>

@@ -1,13 +1,23 @@
-import { useState, useEffect, useMemo } from 'react'
-import { Navbar } from '@/components/Navbar'
-import { Footer } from '@/components/Footer'
-import { ChallengesGrid } from '@/components/ChallengesGrid'
-import { useTheme } from '@/theme/ThemeContext'
-import { apiClient, Module, fetchUserProjects, type Project } from '@/lib/api'
-import { useAuth } from '@/auth/useAuth'
-import { Link, useLocation } from 'react-router-dom'
-import { challengeData } from '@/data/challenges'
-import { ArrowRight, Layers, Search, Minus, Code2, CheckCircle2 } from 'lucide-react'
+import { useState, useEffect, useMemo } from "react";
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
+import { ChallengesGrid } from "@/components/ChallengesGrid";
+import { useTheme } from "@/theme/ThemeContext";
+import { fetchUserProjects, apiClient, type Project } from "@/lib/api";
+import { useAuth } from "@/auth/useAuth";
+import { Link, useLocation } from "react-router-dom";
+import { challengeData } from "@/data/challenges";
+import { clearChallengeProgress } from "@/utils/challengeProgress";
+import {
+  ArrowRight,
+  Layers,
+  Search,
+  Minus,
+  Code2,
+  CheckCircle2,
+  RotateCcw,
+  X,
+} from "lucide-react";
 
 // Helper function to convert hex to rgba
 function hexToRgba(hex: string, alpha: number) {
@@ -27,32 +37,48 @@ const iconMap: Record<string, any> = {
 };
 
 export function Challenges() {
-  const { backgroundColor, textColor, borderColor, secondaryTextColor, accentGreen } = useTheme()
-  const location = useLocation()
-  const { user } = useAuth()
-  const [modules, setModules] = useState<Module[]>([])
-  const [modulesLoading, setModulesLoading] = useState(true)
-  const [modulesError, setModulesError] = useState<string | null>(null)
-  const [projects, setProjects] = useState<Project[]>([])
-  const [projectsLoading, setProjectsLoading] = useState(true)
+  const {
+    backgroundColor,
+    textColor,
+    borderColor,
+    secondaryTextColor,
+    accentGreen,
+  } = useTheme();
+  const location = useLocation();
+  const { user } = useAuth();
+  const [modules, setModules] = useState<any[]>([]);
+  const [modulesLoading, setModulesLoading] = useState(true);
+  const [modulesError, setModulesError] = useState<string | null>(null);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [projectsLoading, setProjectsLoading] = useState(true);
+  const [restartingProjectId, setRestartingProjectId] = useState<string | null>(
+    null
+  );
+  const [showRestartConfirm, setShowRestartConfirm] = useState(false);
+  const [projectToRestart, setProjectToRestart] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
 
   // Load modules for ChallengesGrid
   useEffect(() => {
     async function loadModules() {
       try {
-        setModulesLoading(true)
-        const data = await apiClient.getModules()
-        setModules(data)
+        setModulesLoading(true);
+        const data = await apiClient.getModules();
+        setModules(data);
       } catch (err) {
-        console.error('Failed to load modules:', err)
-        setModulesError(err instanceof Error ? err.message : 'Failed to load modules')
+        console.error("Failed to load modules:", err);
+        setModulesError(
+          err instanceof Error ? err.message : "Failed to load modules"
+        );
       } finally {
-        setModulesLoading(false)
+        setModulesLoading(false);
       }
     }
 
-    loadModules()
-  }, [])
+    loadModules();
+  }, []);
 
   // Fetch projects from API for Your Library section
   useEffect(() => {
@@ -82,6 +108,67 @@ export function Challenges() {
 
     return () => clearInterval(interval)
   }, [user, location.pathname])
+
+  // Handle restart module
+  const handleRestartClick = (projectId: string, moduleTitle: string) => {
+    setProjectToRestart({ id: projectId, title: moduleTitle });
+    setShowRestartConfirm(true);
+  };
+
+  const handleRestartConfirm = async () => {
+    if (!projectToRestart) return;
+
+    setRestartingProjectId(projectToRestart.id);
+    setShowRestartConfirm(false);
+
+    try {
+      // Find the module ID for this project before deleting
+      const projectToDelete = projects.find((p) => p.id === projectToRestart.id);
+      const moduleId = projectToDelete?.moduleId;
+
+      // Delete the project from database
+      await apiClient.deleteProject(projectToRestart.id);
+
+      // Clear localStorage checkmarks and progress for this module
+      if (moduleId) {
+        clearChallengeProgress(moduleId);
+        
+        // Also dispatch event to notify ChallengeDetail page to refresh
+        window.dispatchEvent(new CustomEvent('challenge-restarted', {
+          detail: { moduleId }
+        }));
+      }
+
+      // Remove the project from state
+      setProjects(projects.filter((p) => p.id !== projectToRestart.id));
+
+      // Show success message (optional - could add a toast notification)
+      console.log(`Successfully restarted module: ${projectToRestart.title}`);
+    } catch (error) {
+      console.error("Error restarting module:", error);
+      alert("Failed to restart module. Please try again.");
+    } finally {
+      setRestartingProjectId(null);
+      setProjectToRestart(null);
+    }
+  };
+
+  const handleRestartCancel = () => {
+    setShowRestartConfirm(false);
+    setProjectToRestart(null);
+  };
+
+  // Handle escape key to close modal
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && showRestartConfirm) {
+        handleRestartCancel();
+      }
+    };
+
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [showRestartConfirm]);
 
   // Calculate challenge statistics and collect all library challenges from database projects
   const { libraryChallenges, inProgressCount, completedCount } = useMemo(() => {
@@ -136,7 +223,8 @@ export function Challenges() {
           ? ("in-progress" as const)
           : ("in-progress" as const);
 
-      if (status === "in-progress" && progressPercentage > 0) {
+      if (status === "in-progress") {
+        // Show all in-progress projects, even if progress is 0% (just created repo)
         inProgress++;
         challenges.push({
           id: project.moduleId,
@@ -282,9 +370,8 @@ export function Challenges() {
                   const isAdvanced = challenge.level === "Advanced";
 
                   return (
-                    <Link
+                    <div
                       key={challenge.id}
-                      to={`/challenges/${challenge.id}`}
                       className="group relative rounded-lg border-2 p-4 transition-all hover:shadow-lg hover:-translate-y-1"
                       style={{
                         backgroundColor: backgroundColor,
@@ -401,12 +488,43 @@ export function Challenges() {
                         </p>
                       )}
 
-                      {/* Arrow Icon */}
-                      <ArrowRight
-                        className="absolute bottom-4 right-4 h-4 w-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all"
-                        style={{ color: secondaryTextColor }}
-                      />
-                    </Link>
+                      {/* Action Buttons */}
+                      <div
+                        className="flex items-center justify-between mt-4 pt-3 border-t"
+                        style={{ borderColor: borderColor }}
+                      >
+                        <Link
+                          to={`/challenges/${challenge.id}`}
+                          className="flex items-center gap-1.5 text-sm font-mono transition-opacity hover:opacity-70"
+                          style={{ color: textColor }}
+                        >
+                          View Details
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </Link>
+
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleRestartClick(
+                              challenge.project.id,
+                              challenge.title
+                            );
+                          }}
+                          disabled={
+                            restartingProjectId === challenge.project.id
+                          }
+                          className="flex items-center gap-1.5 text-sm font-mono transition-opacity hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
+                          style={{ color: secondaryTextColor }}
+                          title="Restart this module and create a new repository"
+                        >
+                          <RotateCcw className="h-3.5 w-3.5" />
+                          {restartingProjectId === challenge.project.id
+                            ? "Restarting..."
+                            : "Restart"}
+                        </button>
+                      </div>
+                    </div>
                   );
                 })}
               </div>
@@ -442,6 +560,87 @@ export function Challenges() {
         </div>
       </main>
       <Footer className="relative z-10 mt-auto" />
+
+      {/* Restart Confirmation Modal */}
+      {showRestartConfirm && projectToRestart && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={handleRestartCancel}
+        >
+          <div
+            className="rounded-lg border-2 p-6 max-w-md w-full shadow-xl"
+            style={{
+              backgroundColor: backgroundColor,
+              borderColor: borderColor,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between mb-4">
+              <h3
+                className="text-xl font-bold font-mono"
+                style={{ color: textColor }}
+              >
+                Restart Module?
+              </h3>
+              <button
+                onClick={handleRestartCancel}
+                className="transition-opacity hover:opacity-70"
+                style={{ color: secondaryTextColor }}
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <p
+              className="text-base font-mono mb-4"
+              style={{ color: textColor }}
+            >
+              Are you sure you want to restart{" "}
+              <strong>{projectToRestart.title}</strong>?
+            </p>
+
+            <p
+              className="text-sm font-mono mb-6"
+              style={{ color: secondaryTextColor }}
+            >
+              This will:
+            </p>
+            <ul
+              className="text-sm font-mono mb-6 space-y-2 list-disc list-inside"
+              style={{ color: secondaryTextColor }}
+            >
+              <li>Reset your progress to 0%</li>
+              <li>Remove this project from your library</li>
+              <li>Allow you to create a new repository</li>
+              <li>Your old repository will remain in GitHub</li>
+            </ul>
+
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={handleRestartCancel}
+                className="px-4 py-2 rounded border-2 font-mono text-sm transition-opacity hover:opacity-70"
+                style={{
+                  borderColor: borderColor,
+                  color: textColor,
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRestartConfirm}
+                className="px-4 py-2 rounded border-2 font-mono text-sm transition-opacity hover:opacity-70"
+                style={{
+                  backgroundColor: "#B91C1C",
+                  borderColor: "#B91C1C",
+                  color: backgroundColor,
+                }}
+              >
+                Restart Module
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
