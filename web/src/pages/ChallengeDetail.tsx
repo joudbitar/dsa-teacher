@@ -92,9 +92,10 @@ export function ChallengeDetail() {
           // Set progress from project
           // If currentChallengeIndex = 0 (just created), keep on step 0 (setup)
           // Otherwise, show the current challenge step
-          const stepIndex = project.currentChallengeIndex === 0 
-            ? 0  // Stay on setup/language selection
-            : project.currentChallengeIndex + 1; // +1 for "Choose Language" step
+          const stepIndex =
+            project.currentChallengeIndex === 0
+              ? 0 // Stay on setup/language selection
+              : project.currentChallengeIndex + 1; // +1 for "Choose Language" step
           setCurrentStepIndex(stepIndex);
 
           // Mark completed steps based on currentChallengeIndex
