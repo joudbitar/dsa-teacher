@@ -4,7 +4,7 @@ The DSA Lab command-line interface for testing and submitting solutions locally.
 
 ## Status
 
-Currently contains **only** placeholder files and comments. No application logic.
+✅ **Fully implemented and functional!** All commands are working.
 
 ## Commands
 
@@ -31,8 +31,27 @@ Submits test results to the DSA Lab API and updates dashboard.
 5. POST results to /api/submissions
 6. Display confirmation message with link to dashboard
 
-## Installation (Post-Kickoff)
+## Installation
 
+⚠️ **Note:** Installation currently requires manual steps. See `INSTALLATION.md` for details.
+
+**Current Manual Installation:**
+```bash
+# 1. Set up pnpm (if not already done)
+pnpm setup
+source ~/.zshrc  # or restart terminal
+
+# 2. Link CLI globally
+cd cli
+pnpm link --global
+
+# 3. Verify
+dsa --version
+```
+
+**TODO:** Create automated installation script. See `TODO_INSTALLATION.md` for details.
+
+**Future (After Publishing):**
 ```bash
 pnpm install -g @dsa/cli
 ```
