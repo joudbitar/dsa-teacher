@@ -73,20 +73,92 @@ export async function handlePost(req: Request): Promise<Response> {
       throw new Error('GitHub App private key not configured');
     }
 
+    const appId = Deno.env.get('GITHUB_APP_ID');
+    const installationId = Deno.env.get('GITHUB_APP_INSTALLATION_ID');
+    const configuredOrg = Deno.env.get('GITHUB_ORG');
+
+    console.log('GitHub Auth Config:', {
+      appId: appId ? 'SET' : 'MISSING',
+      installationId: installationId ? 'SET' : 'MISSING',
+      configuredOrg: configuredOrg,
+      hasPrivateKey: !!privateKey,
+      privateKeyPrefix: privateKey?.substring(0, 30) + '...',
+    });
+
     const octokit = new Octokit({
       authStrategy: createAppAuth,
       auth: {
-        appId: Deno.env.get('GITHUB_APP_ID'),
+        appId,
         privateKey,
-        installationId: Deno.env.get('GITHUB_APP_INSTALLATION_ID'),
+        installationId,
       },
     });
+
+    // Verify authentication and get actual installation account
+    console.log('Verifying GitHub App authentication...');
+    let githubOrg: string;
+    try {
+      const { data: installation } = await octokit.apps.getInstallation({
+        installation_id: parseInt(installationId!),
+      });
+      githubOrg = installation.account?.login || configuredOrg!;
+      console.log('✓ Authentication verified.');
+      console.log(`  Installation account: ${githubOrg}`);
+      console.log(`  Configured org: ${configuredOrg}`);
+      
+      if (githubOrg !== configuredOrg) {
+        console.warn(`⚠️  WARNING: App is installed on "${githubOrg}" but GITHUB_ORG is set to "${configuredOrg}"`);
+        console.warn(`⚠️  Using actual installation account: ${githubOrg}`);
+      }
+    } catch (authError) {
+      console.error('✗ Authentication failed:', authError);
+      throw new Error(`GitHub App authentication failed: ${authError.message}`);
+    }
+
+    // Check accessible repos
+    console.log('Checking accessible repositories...');
+    try {
+      const { data: reposData } = await octokit.apps.listReposAccessibleToInstallation();
+      console.log(`✓ App has access to ${reposData.total_count} repositories`);
+      if (reposData.repositories?.length > 0) {
+        console.log('Sample repos:', reposData.repositories.slice(0, 5).map(r => r.full_name));
+      }
+    } catch (repoError) {
+      console.error('✗ Failed to list accessible repos:', repoError);
+    }
 
     // Create repo from template
     const suffix = languageToSuffix[language];
     const templateRepo = `template-dsa-${moduleId}-${suffix}`;
     const newRepoName = `${userId}-${moduleId}-${suffix}`;
-    const githubOrg = Deno.env.get('GITHUB_ORG');
+
+    console.log('Template Request:', {
+      template_owner: githubOrg,
+      template_repo: templateRepo,
+      owner: githubOrg,
+      name: newRepoName,
+    });
+
+    // Verify template exists and is accessible
+    console.log(`Verifying template repository: ${githubOrg}/${templateRepo}...`);
+    try {
+      const { data: template } = await octokit.repos.get({
+        owner: githubOrg!,
+        repo: templateRepo,
+      });
+      console.log('✓ Template found:', {
+        name: template.name,
+        is_template: template.is_template,
+        visibility: template.visibility || (template.private ? 'private' : 'public'),
+      });
+
+      if (!template.is_template) {
+        throw new Error(`Repository ${githubOrg}/${templateRepo} exists but is not marked as a template`);
+      }
+    } catch (templateError) {
+      console.error('✗ Template verification failed:', templateError);
+      throw new Error(`Template repository ${githubOrg}/${templateRepo} not accessible: ${templateError.message}`);
+    }
 
     console.log(`Creating repo: ${githubOrg}/${newRepoName} from template: ${templateRepo}`);
 
@@ -99,10 +171,19 @@ export async function handlePost(req: Request): Promise<Response> {
       description: `DSA Lab: ${moduleId} challenge in ${language}`,
     });
 
-    console.log(`Repo created: ${repo.html_url}`);
+    console.log(`✓ Repo created: ${repo.html_url}`);
 
     // Wait a bit for repo to be ready
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 3000));
+
+    // Get the default branch
+    console.log(`Getting default branch for ${newRepoName}...`);
+    const { data: repoData } = await octokit.repos.get({
+      owner: githubOrg!,
+      repo: newRepoName,
+    });
+    const defaultBranch = repoData.default_branch;
+    console.log(`Default branch: ${defaultBranch}`);
 
     // Commit dsa.config.json
     const configContent = {
@@ -110,13 +191,30 @@ export async function handlePost(req: Request): Promise<Response> {
       projectToken: project.projectToken,
       moduleId,
       language,
+      apiUrl: 'https://mwlhxwbkuumjxpnvldli.supabase.co/functions/v1',
       testCommand: getTestCommand(language),
       reportFile: '.dsa-report.json',
     };
 
     const encodedContent = btoa(JSON.stringify(configContent, null, 2));
 
-    console.log(`Committing dsa.config.json to ${newRepoName}`);
+    console.log(`Committing dsa.config.json to ${newRepoName} on branch ${defaultBranch}`);
+
+    // Check if file already exists and get its SHA
+    let fileSha: string | undefined;
+    try {
+      const { data: existingFile } = await octokit.repos.getContent({
+        owner: githubOrg!,
+        repo: newRepoName,
+        path: 'dsa.config.json',
+      });
+      if ('sha' in existingFile) {
+        fileSha = existingFile.sha;
+        console.log(`Found existing dsa.config.json with SHA: ${fileSha}`);
+      }
+    } catch (error) {
+      console.log('No existing dsa.config.json found, will create new file');
+    }
 
     await octokit.repos.createOrUpdateFileContents({
       owner: githubOrg!,
@@ -124,6 +222,8 @@ export async function handlePost(req: Request): Promise<Response> {
       path: 'dsa.config.json',
       message: 'Configure DSA Lab project',
       content: encodedContent,
+      branch: defaultBranch,
+      ...(fileSha && { sha: fileSha }),
     });
 
     console.log('Config committed successfully');

@@ -35,12 +35,25 @@ export interface TestReport {
 }
 
 /**
+ * Test case format expected by API
+ */
+export interface APITestCase {
+  id: string;                // Subchallenge ID
+  passed: boolean;           // true/false
+  message?: string;          // Optional error message
+}
+
+/**
  * Request payload for POST /api/submissions
  */
 export interface SubmissionRequest {
   projectId: string;
-  details: DSAReport;      // The full DSA report from test runner
-  commitSha?: string;      // Git commit SHA (optional)
+  result: 'pass' | 'fail';   // Overall pass/fail status
+  summary: string;           // Human-readable summary
+  details: {                 // Test case details
+    cases: APITestCase[];
+  };
+  commitSha?: string;        // Git commit SHA (optional)
 }
 
 /**
