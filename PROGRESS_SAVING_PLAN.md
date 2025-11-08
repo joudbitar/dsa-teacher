@@ -1,225 +1,178 @@
-# Plan: Save User Progress in ChallengeDetail
+# Progress Saving Plan
 
-## Problem Statement
-Currently, when a user begins a challenge in ChallengeDetail, their progress (language selection, current step, completed steps) is not saved to localStorage. When they leave the page, the progress is lost and "Your Library" doesn't update to show the in-progress challenge.
+## Overview
 
-## Root Cause Analysis
+This document outlines how user progress is tracked and saved in the DSA Lab application. Progress is primarily updated through CLI submissions, not through web app interactions.
 
-### Current State (ChallengeDetail.tsx)
-1. **Uses local state only**: `useState` for `selectedLanguage` and `currentStepIndex`
-2. **No persistence**: Progress is not loaded from localStorage on mount
-3. **No saving**: Progress is not saved when:
-   - Language is selected
-   - Step is changed
-   - User navigates away
-4. **Utility functions exist but unused**: `saveChallengeProgress`, `getChallengeProgress`, `markStepCompleted` are available but not called
+## Current Implementation
 
-### Expected Behavior
-- Progress should persist across page navigations
-- "Your Library" should show challenges with any progress (>0%)
-- Progress should update in real-time when user makes changes
+### Data Flow
 
-## Implementation Plan
+1. **CLI Submission** (`dsa submit` command)
+   - User completes a challenge step in their local environment
+   - Runs `dsa test` to verify the solution
+   - Runs `dsa submit` to submit results to the API
+   - CLI sends submission to `/submissions` endpoint with:
+     - `projectId`: The project UUID
+     - `result`: "pass" or "fail"
+     - `summary`: Challenge description
+     - `details`: Full test results including all test cases and `currentChallengeIndex`
+     - `commitSha`: Optional git commit SHA
 
-### Phase 1: Load Existing Progress on Mount
-**File**: `web/src/pages/ChallengeDetail.tsx`
+2. **Backend Processing** (`supabase/functions/submissions/index.ts`)
+   - Receives submission via POST `/submissions`
+   - Authenticates using `projectToken` from Authorization header
+   - Creates a new submission record in `submissions` table
+   - Updates the `projects` table with:
+     - `currentChallengeIndex`: Incremented if challenge passed
+     - `progress`: Recalculated as percentage (0-100)
+     - `status`: "in_progress" or "completed"
+     - `updatedAt`: Current timestamp
 
-**Changes**:
-1. Import progress utilities:
-   ```typescript
-   import { getChallengeProgress, saveChallengeProgress, markStepCompleted } from '@/utils/challengeProgress'
-   ```
+3. **Web App Display** (`web/src/pages/Challenges.tsx`)
+   - Fetches user projects from `/projects` API endpoint
+   - Polls for updates every 10 seconds to catch CLI submissions
+   - Displays projects in "Your Library" section with:
+     - Status badges (In Progress/Completed)
+     - Progress counters (X/Y tasks)
+     - Progress bars showing completion percentage
+     - Last updated timestamp
 
-2. Load progress on component mount:
-   ```typescript
-   useEffect(() => {
-     if (!id) return
-     const savedProgress = getChallengeProgress(id)
-     if (savedProgress) {
-       setSelectedLanguage(savedProgress.selectedLanguage)
-       setCurrentStepIndex(savedProgress.currentStepIndex || 0)
-     }
-   }, [id])
-   ```
+### Database Schema
 
-**Why**: Restore user's previous state when they return to the challenge
+**projects table:**
+- `id`: UUID (primary key)
+- `userId`: TEXT (user identifier)
+- `moduleId`: TEXT (challenge module ID, e.g., "stack", "queue")
+- `language`: TEXT (programming language)
+- `status`: TEXT ("not_started" | "in_progress" | "completed")
+- `progress`: INTEGER (0-100 percentage)
+- `currentChallengeIndex`: INTEGER (0-based index of current challenge)
+- `projectToken`: TEXT (unique token for CLI authentication)
+- `githubRepoUrl`: TEXT (GitHub repository URL)
+- `createdAt`: TIMESTAMP
+- `updatedAt`: TIMESTAMP
 
----
+**submissions table:**
+- `id`: UUID (primary key)
+- `projectId`: UUID (foreign key to projects)
+- `result`: TEXT ("pass" | "fail")
+- `summary`: TEXT (submission summary)
+- `details`: JSONB (full test results)
+- `commitSha`: TEXT (optional git commit SHA)
+- `createdAt`: TIMESTAMP
 
-### Phase 2: Save Progress When Language is Selected
-**File**: `web/src/pages/ChallengeDetail.tsx`
+### Progress Calculation
 
-**Changes**:
-1. Update `handleLanguageSelect` to save progress:
-   ```typescript
-   const handleLanguageSelect = (language: string | undefined) => {
-     setSelectedLanguage(language)
-     if (language) {
-       setCurrentStepIndex(1)
-     } else {
-       setCurrentStepIndex(0)
-     }
-     
-     // Save progress
-     if (id) {
-       const currentProgress = getChallengeProgress(id) || {
-         completedSteps: [],
-         currentStepIndex: language ? 1 : 0,
-         selectedLanguage: undefined,
-         lastUpdated: Date.now()
-       }
-       
-       saveChallengeProgress(id, {
-         ...currentProgress,
-         selectedLanguage: language,
-         currentStepIndex: language ? 1 : 0,
-         lastUpdated: Date.now()
-       })
-       
-       // Mark step 0 (Choose Language) as completed if language selected
-       if (language) {
-         markStepCompleted(id, 0)
-       }
-     }
-   }
-   ```
+Progress is calculated based on `currentChallengeIndex` and total number of challenges:
 
-**Why**: When user selects a language, this is the first step (step 0) and should be saved as progress
+```typescript
+// Total challenges = length of subchallenges array
+const totalChallenges = details.cases.length
 
----
+// Progress percentage
+progress = (currentChallengeIndex / totalChallenges) * 100
 
-### Phase 3: Save Progress When Step Changes
-**File**: `web/src/pages/ChallengeDetail.tsx`
+// Status determination
+if (currentChallengeIndex >= totalChallenges) {
+  status = 'completed'
+  progress = 100
+} else if (currentChallengeIndex > 0) {
+  status = 'in_progress'
+} else {
+  status = 'not_started'
+}
+```
 
-**Changes**:
-1. Update `handleStepClick` to save current step:
-   ```typescript
-   const handleStepClick = (stepIndex: number) => {
-     if (stepIndex === 0 || timelineSteps[stepIndex]?.completed || (stepIndex === 1 && isLanguageSelected)) {
-       setCurrentStepIndex(stepIndex)
-       
-       // Save current step
-       if (id) {
-         const currentProgress = getChallengeProgress(id) || {
-           completedSteps: [],
-           currentStepIndex: 0,
-           selectedLanguage: undefined,
-           lastUpdated: Date.now()
-         }
-         
-         saveChallengeProgress(id, {
-           ...currentProgress,
-           currentStepIndex: stepIndex,
-           lastUpdated: Date.now()
-         })
-       }
-     }
-   }
-   ```
+### Task Counting
 
-**Why**: Track which step the user is currently viewing
+For display purposes, we count implementation tasks (excluding setup steps):
 
----
+- **Excluded from task count:**
+  - "Choose Language" (index 0)
+  - "Create class" or "Create node" (index 1)
 
-### Phase 4: Save Progress on Component Unmount
-**File**: `web/src/pages/ChallengeDetail.tsx`
+- **Included in task count:**
+  - All other subchallenges (index 2+)
 
-**Changes**:
-1. Add cleanup effect to save progress when leaving:
-   ```typescript
-   useEffect(() => {
-     return () => {
-       // Save progress when component unmounts (user navigates away)
-       if (id) {
-         const currentProgress = getChallengeProgress(id) || {
-           completedSteps: [],
-           currentStepIndex: 0,
-           selectedLanguage: undefined,
-           lastUpdated: Date.now()
-         }
-         
-         saveChallengeProgress(id, {
-           ...currentProgress,
-           selectedLanguage: selectedLanguage,
-           currentStepIndex: currentStepIndex,
-           lastUpdated: Date.now()
-         })
-       }
-     }
-   }, [id, selectedLanguage, currentStepIndex])
-   ```
+- **Completed tasks calculation:**
+  ```typescript
+  completedTasks = Math.max(0, currentChallengeIndex - 2)
+  ```
 
-**Why**: Ensure progress is saved even if user navigates away without explicit actions
+## Key Points
 
----
+1. **Progress is CLI-driven**: Progress updates only happen when users submit via CLI, not when interacting with the web app
+2. **Real-time updates**: Web app polls every 10 seconds to refresh progress from database
+3. **Single source of truth**: Database is the authoritative source for progress; localStorage is not used for progress tracking
+4. **Authentication**: Projects are fetched using Supabase auth session (user ID from JWT token)
 
-### Phase 5: Mark Steps as Completed (Future Enhancement)
-**Note**: This phase depends on how step completion is determined (test results, manual marking, etc.)
+## Future Enhancements
 
-**Potential Implementation**:
-1. When a step's tests pass (via submission API), call `markStepCompleted(challengeId, stepIndex)`
-2. Update `timelineSteps` to check completed steps from saved progress:
-   ```typescript
-   const savedProgress = getChallengeProgress(id)
-   const completedSteps = savedProgress?.completedSteps || []
-   
-   const timelineSteps = [
-     {
-       id: `${id}-0`,
-       name: 'Choose Language',
-       completed: completedSteps.includes(0) || isLanguageSelected
-     },
-     ...challenge.steps.map((step, index) => ({
-       id: `${id}-${index + 1}`,
-       name: step.focus,
-       completed: completedSteps.includes(index + 1)
-     }))
-   ]
-   ```
+### Potential Improvements
 
-**Why**: Show which steps are actually completed, not just which language is selected
+1. **Real-time Subscriptions**
+   - Use Supabase Realtime to subscribe to `projects` table changes
+   - Eliminate need for polling
+   - Instant updates when CLI submissions occur
 
----
+2. **Progress Sync**
+   - Add ability to sync progress from multiple devices
+   - Store progress in database instead of localStorage
 
-## Testing Checklist
+3. **Progress History**
+   - Track progress over time
+   - Show progress graphs/charts
+   - Identify learning patterns
 
-- [ ] **Test 1**: Select language → Navigate away → Return → Language should still be selected
-- [ ] **Test 2**: Select language → Check "Your Library" → Challenge should appear in "In Progress"
-- [ ] **Test 3**: Select language → Change step → Navigate away → Return → Should be on same step
-- [ ] **Test 4**: Start challenge → Complete step 0 (language) → Progress should be > 0%
-- [ ] **Test 5**: Multiple challenges → Each should maintain independent progress
-- [ ] **Test 6**: Clear browser data → Progress should be reset (expected behavior)
-- [ ] **Test 7**: Progress updates should trigger "Your Library" refresh (via event)
+4. **Offline Support**
+   - Cache progress locally
+   - Sync when connection restored
 
-## Implementation Order
+5. **Progress Validation**
+   - Verify progress consistency
+   - Handle edge cases (e.g., skipped challenges)
+   - Recalculate progress if needed
 
-1. **Phase 1** (Load on mount) - Foundation
-2. **Phase 2** (Save language) - Critical for "Your Library" to show challenges
-3. **Phase 3** (Save step) - User experience
-4. **Phase 4** (Save on unmount) - Safety net
-5. **Phase 5** (Mark completed) - Future enhancement
+## API Endpoints
 
-## Additional Considerations
+### GET /projects
+- **Headers**: `x-user-id` (user identifier)
+- **Query Params**: `moduleId` (optional filter)
+- **Response**: Array of Project objects
+- **Auth**: Uses Supabase session user ID
 
-### Edge Cases
-- What if localStorage is full? (Handle gracefully with try-catch)
-- What if user has multiple tabs open? (Event system handles this)
-- What if challenge data structure changes? (Version the progress data)
+### POST /submissions
+- **Headers**: `Authorization: Bearer <projectToken>`
+- **Body**: SubmissionRequest with projectId, result, summary, details, commitSha
+- **Response**: Submission object with updated project info
+- **Auth**: Uses projectToken for authentication
 
-### Performance
-- Progress saving is synchronous (localStorage) - should be fast
-- Consider debouncing if saving on every step change becomes an issue
+## Testing
 
-### User Experience
-- Progress should save immediately (no delay)
-- "Your Library" should update automatically (via event system)
-- No loading states needed (localStorage is instant)
+To test progress updates:
 
-## Success Criteria
+1. Create a project via web app or API
+2. Clone the GitHub repository
+3. Complete a challenge step locally
+4. Run `dsa submit` in the CLI
+5. Check web app "Your Library" section (should update within 10 seconds)
 
-✅ User selects language → Progress saved → "Your Library" shows challenge
-✅ User navigates away → Returns → Progress restored
-✅ User changes step → Progress saved → Returns to same step
-✅ Multiple challenges maintain independent progress
-✅ "Your Library" updates in real-time when progress changes
+## Troubleshooting
 
+### Progress not updating in web app
+- Check browser console for API errors
+- Verify user is authenticated
+- Check network tab for `/projects` requests
+- Verify project exists in database
+- Check `currentChallengeIndex` value in database
+
+### Progress calculation incorrect
+- Verify `currentChallengeIndex` is being updated correctly
+- Check total challenges count matches subchallenges array
+- Verify progress percentage calculation in backend
+
+### Authentication issues
+- Ensure Supabase environment variables are set
+- Verify user session is valid
+- Check API endpoint authentication logic

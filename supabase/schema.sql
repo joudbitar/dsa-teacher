@@ -11,6 +11,7 @@
 --   githubRepoUrl TEXT NOT NULL,
 --   status TEXT NOT NULL DEFAULT 'in_progress',
 --   progress INTEGER NOT NULL DEFAULT 0,
+--   currentChallengeIndex INTEGER NOT NULL DEFAULT 0,
 --   createdAt TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 --   updatedAt TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 --   UNIQUE(userId, moduleId)

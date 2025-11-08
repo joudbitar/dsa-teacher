@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS projects (
   githubRepoUrl TEXT,
   status TEXT NOT NULL DEFAULT 'not_started',
   progress INTEGER NOT NULL DEFAULT 0,
+  currentChallengeIndex INTEGER NOT NULL DEFAULT 0,
   projectToken TEXT NOT NULL UNIQUE,
   createdAt TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updatedAt TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
