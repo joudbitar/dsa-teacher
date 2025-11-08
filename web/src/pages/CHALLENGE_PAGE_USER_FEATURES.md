@@ -6,11 +6,6 @@ The Challenges page (`/challenges`) provides users with a comprehensive interfac
 
 ## Page Layout
 
-### Header Section
-- **Title**: "Data Structures & Algorithms Challenges"
-- **Subtitle**: "Pick a challenge and start building. Each module comes with tests, starter code, and clear goals."
-- **Theme Support**: Full dark mode compatibility
-
 ### Challenge Organization
 - **In Progress Section**: Displays challenges with progress > 0% and < 100%
 - **All Challenges Section**: Displays challenges with 0% or 100% progress
@@ -18,7 +13,26 @@ The Challenges page (`/challenges`) provides users with a comprehensive interfac
 
 ## User Features
 
-### 1. Challenge Filtering
+### 1. Your Learning
+
+#### Current Project Display
+- **Location**: Top of the challenges page, above challenge sections
+- **Purpose**: Shows the user's active learning project and progress
+- **Display Elements**:
+  - **Challenge Title**: Name of the current challenge being worked on
+  - **Progress Meter**: Visual progress indicator showing completion
+  - **Task Counter**: Displays completed tasks vs total tasks (e.g., "2/4 tasks")
+  - **Progress Calculation**: Based on number of implementation steps/test cases
+    - Example: Stack has 4 implementations (push, pop, peek, size) = 4 total tasks
+    - Progress shown as "X/4 tasks" where X is number of completed implementations
+
+#### Progress Tracking
+- **Task-Based Progress**: Progress is calculated based on completed implementation steps
+- **Visual Progress Bar**: Shows percentage completion visually
+- **Real-Time Updates**: Updates automatically when user completes tasks
+- **Multiple Projects**: If user has multiple in-progress challenges, shows the most recent one
+
+### 2. Challenge Filtering
 
 #### Difficulty Filter
 - **Location**: Horizontal filter bar on the right side of section headings
