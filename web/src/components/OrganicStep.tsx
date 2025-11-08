@@ -13,13 +13,13 @@ interface OrganicStepProps {
 
 export function OrganicStep({ 
   children, 
-  isCurrent = false, 
-  isCompleted = false,
-  isClickable = true,
+  isCurrent: _isCurrent = false, 
+  isCompleted: _isCompleted = false,
+  isClickable: _isClickable = true,
   className,
-  shapeVariant = 0
+  shapeVariant: _shapeVariant = 0
 }: OrganicStepProps) {
-  const { backgroundColor, textColor, borderColor, sectionBackgroundColor } = useTheme()
+  const { sectionBackgroundColor, borderColor } = useTheme()
   
   // Use padding from className if provided, otherwise default
   const paddingClasses = className?.match(/\b(p|px|py|pt|pb|pl|pr)-\d+\b/)

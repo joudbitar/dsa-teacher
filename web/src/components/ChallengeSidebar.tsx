@@ -1,4 +1,3 @@
-import { Check, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { OrganicStep } from "./OrganicStep";
 import { TurtleProgress } from "./TurtleProgress";

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Code2, X, Check, History, Globe } from 'lucide-react'
+import { Code2, X, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SiTypescript, SiPython, SiGo, SiCplusplus } from 'react-icons/si'
 import { FaJava } from 'react-icons/fa'
@@ -518,7 +518,7 @@ interface LanguagePickerProps {
   dataStructureId?: string // e.g., 'stack', 'queue', 'binary-search', etc.
 }
 
-export function LanguagePicker({ selectedLanguage, onSelect, dataStructureId = 'stack' }: LanguagePickerProps) {
+export function LanguagePicker({ selectedLanguage, onSelect, dataStructureId: _dataStructureId = 'stack' }: LanguagePickerProps) {
   const handleLanguageClick = (langId: string) => {
     if (selectedLanguage === langId) {
       onSelect(undefined)

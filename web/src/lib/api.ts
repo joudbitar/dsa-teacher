@@ -168,6 +168,23 @@ class ApiClient {
 
     return response.json()
   }
+
+  // DELETE /projects/:id (restart a module by deleting the project)
+  async deleteProject(projectId: string): Promise<{ success: boolean; message: string }> {
+    const response = await fetch(`${this.baseUrl}/projects/${projectId}`, {
+      method: 'DELETE',
+      headers: await this.getHeaders(),
+    })
+
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ error: response.statusText }))
+      throw new Error(error.error || 'Failed to delete project')
+    }
+
+    return response.json()
+  }
 }
 
 export const apiClient = new ApiClient(API_BASE_URL)

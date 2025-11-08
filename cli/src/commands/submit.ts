@@ -35,13 +35,23 @@ export async function submitCommand(cwd: string = process.cwd()): Promise<void> 
 
   // 4. Validate current challenge (progressive unlock)
   const currentIndex = report.currentChallengeIndex || config.currentChallengeIndex || 0;
-  const runTests = report.cases.filter(tc => tc.message !== 'Challenge locked');
-  const currentChallenge = runTests[currentIndex]; // Get test at current index
+  
+  // Use the full cases array, not a filtered one - index should match database
+  const currentChallenge = report.cases[currentIndex];
 
   if (!currentChallenge) {
     console.log(chalk.yellow('⚠️  All challenges completed! Nothing to submit.'));
     console.log('');
     process.exit(0);
+  }
+
+  // Check if challenge is locked (shouldn't happen with proper flow, but safety check)
+  if (currentChallenge.message === 'Challenge locked') {
+    console.log('');
+    console.log(chalk.yellow('⚠️  This challenge is still locked.'));
+    console.log(chalk.gray('   Complete previous challenges first.'));
+    console.log('');
+    process.exit(1);
   }
 
   if (!currentChallenge.passed) {

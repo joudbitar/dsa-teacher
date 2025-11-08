@@ -92,6 +92,75 @@ export async function handlePost(req: Request): Promise<Response> {
     }, 400);
   }
 
+  // Check if project already exists
+  const { data: existingProjects } = await supabase
+    .from('projects')
+    .select('*')
+    .eq('userId', userId)
+    .eq('moduleId', moduleId);
+
+  if (existingProjects && existingProjects.length > 0) {
+    const existingProject = existingProjects[0];
+    
+    // If GitHub repo URL exists, verify it's accessible before returning
+    if (existingProject.githubRepoUrl) {
+      console.log('Found existing project with GitHub repo:', existingProject.githubRepoUrl);
+      
+      // Try to verify the repo exists and is accessible (at least publicly visible)
+      // Extract owner and repo name from URL
+      const urlMatch = existingProject.githubRepoUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
+      if (urlMatch) {
+        const [, owner, repoName] = urlMatch;
+        
+        try {
+          // Quick check if repo is accessible via GitHub API (public repos don't need auth)
+          const checkResponse = await fetch(`https://api.github.com/repos/${owner}/${repoName}`, {
+            headers: { 'User-Agent': 'DSA-Lab' }
+          });
+          
+          if (checkResponse.ok) {
+            console.log('✓ Existing repo is accessible, returning existing project');
+            return jsonResponse({
+              id: existingProject.id,
+              githubRepoUrl: existingProject.githubRepoUrl,
+              status: existingProject.status,
+              progress: existingProject.progress,
+            }, 200);
+          } else if (checkResponse.status === 404 || checkResponse.status === 403) {
+            console.log('✗ Existing repo is not accessible (404/403), will delete and recreate');
+            await supabase
+              .from('projects')
+              .delete()
+              .eq('id', existingProject.id);
+          }
+        } catch (error) {
+          console.log('Failed to verify repo accessibility:', error);
+          // If verification fails, assume repo is fine and return it
+          return jsonResponse({
+            id: existingProject.id,
+            githubRepoUrl: existingProject.githubRepoUrl,
+            status: existingProject.status,
+            progress: existingProject.progress,
+          }, 200);
+        }
+      } else {
+        // If URL doesn't match expected format, delete and recreate
+        console.log('Invalid GitHub URL format, deleting and retrying...');
+        await supabase
+          .from('projects')
+          .delete()
+          .eq('id', existingProject.id);
+      }
+    } else {
+      // If GitHub repo failed previously, delete the broken record and continue
+      console.log('Found broken project record (no GitHub URL), deleting and retrying...');
+      await supabase
+        .from('projects')
+        .delete()
+        .eq('id', existingProject.id);
+    }
+  }
+
   const projectToken = generateToken();
 
   // Insert project into database
@@ -275,21 +344,79 @@ export async function handlePost(req: Request): Promise<Response> {
       throw new Error(`Template repository ${githubOrg}/${templateRepo} not accessible: ${templateError.message}`);
     }
 
-    console.log(`Creating repo: ${githubOrg}/${newRepoName} from template: ${templateRepo}`);
+    // Check if repo already exists
+    console.log(`Checking if repo already exists: ${githubOrg}/${newRepoName}...`);
+    let repo;
+    let repoAlreadyExisted = false;
+    
+    try {
+      const { data: existingRepo } = await octokit.repos.get({
+        owner: githubOrg!,
+        repo: newRepoName,
+      });
+      
+      console.log(`⚠️  Repo already exists: ${existingRepo.html_url}`);
+      console.log(`  This might be from a previous session. Deleting to ensure fresh start...`);
+      
+      // Delete the old repo to ensure we start fresh from the latest template
+      try {
+        await octokit.repos.delete({
+          owner: githubOrg!,
+          repo: newRepoName,
+        });
+        console.log(`  ✓ Old repo deleted, will create fresh from template`);
+        
+        // Wait a moment for GitHub to process the deletion
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      } catch (deleteError) {
+        console.error(`  ✗ Failed to delete old repo:`, deleteError);
+        console.log(`  Will try to use existing repo...`);
+        
+        // If deletion fails, make it public and reuse it
+        if (existingRepo.private) {
+          console.log(`  Converting repo to public...`);
+          await octokit.repos.update({
+            owner: githubOrg!,
+            repo: newRepoName,
+            private: false,
+          });
+          console.log(`  ✓ Repo is now public`);
+        }
+        
+        repo = existingRepo;
+        repoAlreadyExisted = true;
+      }
+    } catch (notFoundError) {
+      // Repo doesn't exist, good - we'll create it fresh
+      console.log(`✓ No existing repo found, will create fresh`);
+    }
+    
+    // Create repo from template if we deleted the old one or it never existed
+    if (!repoAlreadyExisted) {
+      console.log(`Creating: ${githubOrg}/${newRepoName} from template: ${templateRepo}`);
+      
+      try {
+        const { data: newRepo } = await octokit.repos.createUsingTemplate({
+          template_owner: githubOrg!,
+          template_repo: templateRepo,
+          owner: githubOrg!,
+          name: newRepoName,
+          private: false, // Make public so users can clone without being collaborators
+          description: `DSA Lab: ${moduleId} challenge in ${language}`,
+        });
+        
+        repo = newRepo;
+        console.log(`✓ Repo created: ${repo.html_url}`);
+      } catch (createError) {
+        console.error('Failed to create repo from template:', createError);
+        throw new Error(`Could not create repository: ${createError.message}`);
+      }
+    }
 
-    const { data: repo } = await octokit.repos.createUsingTemplate({
-      template_owner: githubOrg!,
-      template_repo: templateRepo,
-      owner: githubOrg!,
-      name: newRepoName,
-      private: true,
-      description: `DSA Lab: ${moduleId} challenge in ${language}`,
-    });
-
-    console.log(`✓ Repo created: ${repo.html_url}`);
-
-    // Wait a bit for repo to be ready
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    // Wait a bit for repo to be ready (only for new repos)
+    if (!repoAlreadyExisted) {
+      await new Promise(resolve => setTimeout(resolve, 3000));
+    }
 
     // Get the default branch
     console.log(`Getting default branch for ${newRepoName}...`);

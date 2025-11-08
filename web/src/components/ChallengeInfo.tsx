@@ -1,9 +1,12 @@
+import React from "react";
 import {
   Code2,
   Lightbulb,
   Target,
   CheckCircle2,
   AlertCircle,
+  Check,
+  Copy,
 } from "lucide-react";
 import { ChallengeSteps } from "./ChallengeSteps";
 import { ChallengeData } from "@/data/challenges/types";
@@ -49,9 +52,10 @@ export function ChallengeInfo({
   isCreatingProject = false,
   projectError = null,
   moduleId,
-  onNewAttempt,
+  onNewAttempt: _onNewAttempt,
   subchallengeName,
 }: ChallengeInfoProps) {
+  const [copied, setCopied] = React.useState(false);
   // Step 0 = Choose Language
   // Step 1+ = Challenge steps
   const isLanguageStep = currentStepIndex === 0;
@@ -76,6 +80,118 @@ export function ChallengeInfo({
       "c++": "C++",
     };
     return displayNames[lang.toLowerCase()] || lang;
+  };
+
+  // Helper to get stack example code for selected language
+  const getStackExample = (lang: string): string => {
+    const examples: Record<string, string> = {
+      python: `# Example: Reverse a string using stack
+def reverse_string(s):
+    stack = []
+    
+    # Push all characters onto the stack
+    for char in s:
+        stack.append(char)
+    
+    reversed_str = ""
+    # Pop all characters from the stack
+    while stack:
+        reversed_str += stack.pop()
+    
+    return reversed_str
+
+
+# Usage
+result = reverse_string("STACK")
+print(result)  # Output: KCATS`,
+      
+      java: `// Example: Reverse a string using stack
+import java.util.Stack;
+
+public class StackExample {
+    public static String reverseString(String s) {
+        Stack<Character> stack = new Stack<>();
+        
+        // Push all characters onto the stack
+        for (char c : s.toCharArray()) {
+            stack.push(c);
+        }
+        
+        StringBuilder reversed = new StringBuilder();
+        // Pop all characters from the stack
+        while (!stack.isEmpty()) {
+            reversed.append(stack.pop());
+        }
+        
+        return reversed.toString();
+    }
+    
+    public static void main(String[] args) {
+        String result = reverseString("STACK");
+        System.out.println(result);  // Output: KCATS
+    }
+}`,
+      
+      javascript: `// Example: Reverse a string using stack
+function reverseString(s) {
+    const stack = [];
+    
+    // Push all characters onto the stack
+    for (let char of s) {
+        stack.push(char);
+    }
+    
+    let reversed = "";
+    // Pop all characters from the stack
+    while (stack.length > 0) {
+        reversed += stack.pop();
+    }
+    
+    return reversed;
+}
+
+
+// Usage
+const result = reverseString("STACK");
+console.log(result);  // Output: KCATS`,
+      
+      typescript: `// Example: Reverse a string using stack
+function reverseString(s: string): string {
+    const stack: string[] = [];
+    
+    // Push all characters onto the stack
+    for (const char of s) {
+        stack.push(char);
+    }
+    
+    let reversed = "";
+    // Pop all characters from the stack
+    while (stack.length > 0) {
+        const char = stack.pop();
+        if (char) {
+            reversed += char;
+        }
+    }
+    
+    return reversed;
+}
+
+
+// Usage
+const result = reverseString("STACK");
+console.log(result);  // Output: KCATS`,
+    };
+    
+    return examples[lang.toLowerCase()] || examples.javascript;
+  };
+
+  // Copy to clipboard handler
+  const handleCopy = async () => {
+    if (githubRepoUrl) {
+      await navigator.clipboard.writeText(`git clone ${githubRepoUrl}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   return (
@@ -129,6 +245,38 @@ export function ChallengeInfo({
             </ul>
           </div>
 
+          {/* Code Example - Stack Usage */}
+          {moduleId === 'stack' && (
+            <div className="rounded-xl border border-border bg-muted p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
+                  <Code2 className="h-5 w-5 text-accent" />
+                </div>
+                <h2 className="text-2xl font-bold">Example: Using a Stack</h2>
+              </div>
+              <p className="text-foreground/90 mb-4">
+                Here's how to use a stack to reverse a string. Select a language to see the example:
+              </p>
+              {selectedLanguage ? (
+                <div className="space-y-4">
+                  <div className="bg-background rounded-lg border border-border p-4 overflow-x-auto">
+                    <pre className="text-sm font-mono text-foreground whitespace-pre">
+                      <code>{getStackExample(selectedLanguage)}</code>
+                    </pre>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    This example demonstrates the LIFO principle: characters are pushed onto the stack,
+                    then popped in reverse order to create the reversed string.
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-background rounded-lg border border-border p-4 text-center text-muted-foreground">
+                  <p>Select a language above to see a code example</p>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Error Display */}
           {projectError && (
             <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
@@ -139,13 +287,49 @@ export function ChallengeInfo({
             </div>
           )}
 
-          {/* Start Button */}
-          <div className="text-center py-4">
-            {githubRepoUrl && (
-              <p className="text-sm text-muted-foreground mb-3">
-                You already have a repository. Click below to create a new attempt with a different repo.
-              </p>
-            )}
+          {/* Start Button or Existing Repo Info */}
+          <div className="py-4">
+            {githubRepoUrl ? (
+              /* User already has a repo - show clone instructions */
+              <div className="rounded-xl border border-border bg-card p-6 space-y-4 text-center">
+                <h2 className="text-2xl font-bold">🎉 Repository Created!</h2>
+                <p className="text-muted-foreground">
+                  Your project repository has been created. Clone it to get started:
+                </p>
+
+                <div className="bg-muted rounded-lg p-4 font-mono text-sm">
+                  <div className="flex items-center justify-between">
+                    <code className="flex-1 text-foreground">git clone {githubRepoUrl}</code>
+                    <button
+                      onClick={handleCopy}
+                      className="ml-4 px-3 py-1 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors flex items-center gap-2"
+                    >
+                      {copied ? (
+                        <>
+                          <Check className="h-4 w-4" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-4 w-4" />
+                          Copy
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <p className="text-sm text-muted-foreground">
+                  After cloning, run{" "}
+                  <code className="px-2 py-1 rounded bg-muted text-accent">
+                    dsa test
+                  </code>{" "}
+                  to check your progress.
+                </p>
+              </div>
+            ) : (
+              /* No repo yet - show start button */
+              <>
             {!selectedLanguage ? (
               <button
                 disabled
@@ -164,12 +348,12 @@ export function ChallengeInfo({
                     <span className="animate-spin">⏳</span>
                     Creating repository...
                   </span>
-                ) : githubRepoUrl ? (
-                  `Create New Attempt with ${getLanguageDisplayName(selectedLanguage)}`
                 ) : (
                   `Start with ${getLanguageDisplayName(selectedLanguage)}`
                 )}
               </button>
+                )}
+              </>
             )}
           </div>
         </>
@@ -316,35 +500,41 @@ export function ChallengeInfo({
 
       {/* GitHub Repo (if available) */}
       {githubRepoUrl && !isLanguageStep && (
-        <div className="rounded-xl border border-border bg-muted p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <Code2 className="h-5 w-5 text-accent" />
-              <h2 className="text-xl font-bold">Get Started</h2>
+        <div className="rounded-xl border border-border bg-card p-6 space-y-4 text-center">
+          <h2 className="text-2xl font-bold">🎉 Repository Created!</h2>
+          <p className="text-muted-foreground">
+            Your project repository has been created. Clone it to get started:
+          </p>
+
+          <div className="bg-muted rounded-lg p-4 font-mono text-sm">
+            <div className="flex items-center justify-between">
+              <code className="flex-1 text-foreground">git clone {githubRepoUrl}</code>
+              <button
+                onClick={handleCopy}
+                className="ml-4 px-3 py-1 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors flex items-center gap-2"
+              >
+                {copied ? (
+                  <>
+                    <Check className="h-4 w-4" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-4 w-4" />
+                    Copy
+                  </>
+                )}
+              </button>
             </div>
-            <button
-              onClick={onNewAttempt}
-              className="px-4 py-2 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 font-medium transition-colors text-sm"
-              title="Create a new repository for another attempt"
-            >
-              + New Attempt
-            </button>
           </div>
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Clone your repository and start building:
-            </p>
-            <div className="rounded-lg border border-border bg-muted/50 p-4 font-mono text-sm">
-              <code className="text-foreground">git clone {githubRepoUrl}</code>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Then run{" "}
-              <code className="px-2 py-1 rounded bg-muted text-accent">
-                dsa test
-              </code>{" "}
-              to check your progress.
-            </p>
-          </div>
+
+          <p className="text-sm text-muted-foreground">
+            After cloning, run{" "}
+            <code className="px-2 py-1 rounded bg-muted text-accent">
+              dsa test
+            </code>{" "}
+            to check your progress.
+          </p>
         </div>
       )}
     </div>
