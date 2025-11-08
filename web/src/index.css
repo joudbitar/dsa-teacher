@@ -1,0 +1,186 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Dark, classy theme */
+    /* Sophisticated dark gray with elegant accents */
+    
+    /* Background: Dark charcoal gray */
+    --background: 220 13% 9%;
+    /* Text: Light for contrast */
+    --foreground: 0 0% 98%;
+    
+    /* Cards: Slightly lighter dark gray */
+    --card: 220 13% 12%;
+    --card-foreground: 0 0% 98%;
+    
+    /* Popover */
+    --popover: 220 13% 12%;
+    --popover-foreground: 0 0% 98%;
+    
+    /* Primary: Electric Cyan (#22D3EE) - Highlights, borders, cursor */
+    --primary: 188 94% 57%;
+    --primary-foreground: 220 13% 9%;
+    
+    /* Secondary: Deep blue-gray */
+    --secondary: 217 33% 25%;
+    --secondary-foreground: 0 0% 98%;
+    
+    /* Muted: Dark gray for subtle backgrounds */
+    --muted: 220 13% 18%;
+    --muted-foreground: 215 20% 65%;
+    
+    /* Accent: Warm Amber (#F59E0B) - CTA, stands out */
+    --accent: 38 92% 50%;
+    --accent-foreground: 220 13% 9%;
+    
+    /* Success: Vivid Green (#22C55E) - Progress, mastery */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
+    
+    /* Warning: Amber for attention */
+    --warning: 38 92% 50%;
+    --warning-foreground: 220 13% 9%;
+    
+    /* Destructive: Red for errors */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    
+    /* Borders: Subtle dark gray */
+    --border: 220 13% 20%;
+    --input: 220 13% 20%;
+    
+    /* Ring: Electric cyan for focus */
+    --ring: 188 94% 57%;
+    
+    --radius: 0.75rem;
+  }
+
+  /* Dark, classy theme */
+  .dark {
+    --background: 220 13% 9%;
+    --foreground: 0 0% 98%;
+    --card: 220 13% 12%;
+    --card-foreground: 0 0% 98%;
+    --popover: 220 13% 12%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 188 94% 57%;
+    --primary-foreground: 220 13% 9%;
+    --secondary: 217 33% 25%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 220 13% 18%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 38 92% 50%;
+    --accent-foreground: 220 13% 9%;
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 220 13% 9%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 13% 20%;
+    --input: 220 13% 20%;
+    --ring: 188 94% 57%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    background: 
+      linear-gradient(135deg, 
+        hsl(220, 13%, 9%) 0%, 
+        hsl(220, 13%, 11%) 50%, 
+        hsl(220, 15%, 9%) 100%);
+    min-height: 100vh;
+    position: relative;
+  }
+  
+  body::before,
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    width: 300px;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  body::before {
+    left: 0;
+    background: linear-gradient(to right, 
+      rgba(0, 0, 0, 0.3) 0%, 
+      transparent 100%);
+  }
+  
+  body::after {
+    right: 0;
+    background: linear-gradient(to left, 
+      rgba(0, 0, 0, 0.3) 0%, 
+      transparent 100%);
+  }
+}
+
+@layer utilities {
+  .glow-cyan {
+    box-shadow: 0 0 20px rgba(34, 211, 238, 0.3), 0 0 40px rgba(34, 211, 238, 0.1);
+  }
+  
+  .glow-green {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.3), 0 0 40px rgba(34, 197, 94, 0.1);
+  }
+  
+  .text-glow-cyan {
+    text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+  }
+  
+  .bg-gradient-dev-lab {
+    background: 
+      linear-gradient(135deg, 
+        hsl(220, 13%, 9%) 0%, 
+        hsl(220, 13%, 11%) 50%, 
+        hsl(220, 15%, 9%) 100%);
+    position: relative;
+  }
+  
+  .bg-gradient-dev-lab::before,
+  .bg-gradient-dev-lab::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 300px;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  .bg-gradient-dev-lab::before {
+    left: 0;
+    background: linear-gradient(to right, 
+      rgba(0, 0, 0, 0.3) 0%, 
+      transparent 100%);
+  }
+  
+  .bg-gradient-dev-lab::after {
+    right: 0;
+    background: linear-gradient(to left, 
+      rgba(0, 0, 0, 0.3) 0%, 
+      transparent 100%);
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
