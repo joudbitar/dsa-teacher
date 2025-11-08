@@ -82,7 +82,7 @@ export function ChallengeSteps({ steps, learningOutcome, coreSkills, integration
         <div className="space-y-6">
           <h2 className="text-2xl font-bold">Step-by-Step Progression</h2>
           <div className="space-y-4">
-            {displaySteps.map((step, index) => {
+            {displaySteps.map((step) => {
               const originalIndex = steps.findIndex(s => s.step === step.step)
               const isCurrentStep = originalIndex === currentStepIndex
               

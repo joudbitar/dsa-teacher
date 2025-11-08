@@ -100,6 +100,17 @@
     background: #F0ECDA;
     min-height: 100vh;
     position: relative;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  
+  /* Dark mode styles */
+  html.dark-mode body {
+    background: #171512;
+    color: #F0ECDA;
+  }
+  
+  html.dark-mode {
+    background: #171512;
   }
 }
 

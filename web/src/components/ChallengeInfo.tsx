@@ -29,14 +29,14 @@ export function ChallengeInfo({
   githubRepoUrl,
   challengeData,
   currentStepIndex = 0,
-  timelineSteps = []
+  timelineSteps: _timelineSteps = [] // Reserved for future use
 }: ChallengeInfoProps) {
   // Step 0 = Choose Language
   // Step 1+ = Challenge steps
   const isLanguageStep = currentStepIndex === 0
   const challengeStepIndex = currentStepIndex > 0 ? currentStepIndex - 1 : -1
   const currentStep = challengeData?.steps[challengeStepIndex]
-  const currentTimelineStep = timelineSteps[currentStepIndex]
+  // const currentTimelineStep = timelineSteps[currentStepIndex] // Reserved for future use
 
   return (
     <div className="flex-1 space-y-8">

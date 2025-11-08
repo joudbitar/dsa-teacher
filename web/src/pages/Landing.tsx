@@ -173,7 +173,7 @@ export function Landing() {
                 Learn data structures and algorithms by building them from scratch.
               </p>
               <Link
-                to="/challenges"
+                to="/auth?mode=signup"
                 className="inline-flex items-center justify-center rounded-lg px-8 py-4 text-lg font-bold transition-all hover:opacity-90 hover:scale-105"
                 style={{ 
                   backgroundColor: '#66A056', 
@@ -374,7 +374,7 @@ export function Landing() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Link
-                  to="/challenges"
+                  to="/auth?mode=signup"
                   className="inline-flex items-center justify-center rounded-lg px-8 py-4 text-lg font-bold transition-all hover:opacity-90 hover:scale-105"
                   style={{ 
                     backgroundColor: '#171512', 
