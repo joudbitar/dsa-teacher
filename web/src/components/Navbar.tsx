@@ -5,14 +5,13 @@ import { colors } from '@/theme/colors'
 export function Navbar({ className }: { className?: string }) {
   return (
     <nav 
-      className={`sticky top-0 z-50 border-b ${className || ''}`}
+      className={`sticky top-0 z-50 ${className || ''}`}
       style={{ 
-        backgroundColor: colors.background.base,
-        borderColor: colors.border.divider
+        backgroundColor: colors.background.base
       }}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
+        <div className="relative flex h-16 items-center justify-between">
           {/* Left: Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <div 
@@ -34,9 +33,9 @@ export function Navbar({ className }: { className?: string }) {
               DSA Lab
             </span>
           </Link>
-
+          
           {/* Center: Navigation Links */}
-          <div className="flex items-center space-x-6">
+          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-6">
             <Link
               to="/about"
               className="text-sm font-medium transition-colors hover:opacity-70"
@@ -57,8 +56,18 @@ export function Navbar({ className }: { className?: string }) {
             >
               Challenges
             </Link>
+            <Link
+              to="/docs"
+              className="text-sm font-medium transition-colors hover:opacity-70"
+              style={{ 
+                color: colors.text.primary,
+                fontFamily: 'JetBrains Mono, monospace'
+              }}
+            >
+              Docs
+            </Link>
           </div>
-
+          
           {/* Right: Auth Buttons */}
           <div className="flex items-center gap-3">
             <button
@@ -75,8 +84,8 @@ export function Navbar({ className }: { className?: string }) {
               to="/challenges"
               className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-bold transition-colors hover:opacity-90"
               style={{ 
-                backgroundColor: colors.accent.primary, 
-                color: '#FFFFFF',
+                backgroundColor: colors.text.primary, 
+                color: colors.background.base,
                 fontFamily: 'JetBrains Mono, monospace'
               }}
             >
@@ -88,4 +97,3 @@ export function Navbar({ className }: { className?: string }) {
     </nav>
   )
 }
-
