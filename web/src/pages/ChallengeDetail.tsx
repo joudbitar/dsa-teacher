@@ -81,19 +81,21 @@ export function ChallengeDetail() {
         const projects = await apiClient.getProjects(id);
 
         if (projects.length > 0) {
-          // User has existing projects, but always start at language selection
-          // so they can choose to continue or create a new attempt
+          // Get the most recent project (or filter by selected language if available)
           const project = projects[0];
           
           // Store the existing project info but don't auto-navigate
           setExistingProject(project);
           setSelectedLanguage(project.language.toLowerCase());
-          setSavedRepoUrl(project.githubRepoUrl);
+          setSavedRepoUrl(project.githubRepoUrl || undefined);
           
           // Always start at step 0 (language selection) when entering a challenge
           // This allows users to see their existing repo and choose to create a new one
           setCurrentStepIndex(0);
           setCompletedSteps([]);
+          
+          // Note: If user selects a different language and clicks "Start",
+          // it will create a NEW project for that language
         } else {
           // Load from localStorage if no API project
           const savedProgress = getChallengeProgress(id);
@@ -267,6 +269,14 @@ export function ChallengeDetail() {
     try {
       setCreatingProject(true);
       setProjectError(null);
+      
+      // Clear old project info if switching languages
+      if (existingProject && existingProject.language.toLowerCase() !== language.toLowerCase()) {
+        setExistingProject(null);
+        setSavedRepoUrl(undefined);
+        setCurrentStepIndex(0);
+        setCompletedSteps([]);
+      }
 
       // Call API to create project
       const response = await apiClient.createProject({
@@ -284,6 +294,7 @@ export function ChallengeDetail() {
         status: response.status as any,
         progress: response.progress,
         currentChallengeIndex: 0,
+        projectToken: "", // Not exposed to frontend for security
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
