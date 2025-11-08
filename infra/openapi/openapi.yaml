@@ -5,13 +5,13 @@ info:
   description: API for DSA Lab challenge platform
 
 servers:
-  - url: https://dsa-lab.vercel.app
+  - url: https://mwlhxwbkuumjxpnvldli.supabase.co/functions/v1
     description: Production
-  - url: http://localhost:3000
+  - url: http://localhost:54321/functions/v1
     description: Local development
 
 paths:
-  /api/modules:
+  /modules:
     get:
       summary: Get available challenge modules
       responses:
@@ -24,7 +24,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/Module"
 
-  /api/projects:
+  /projects:
     get:
       summary: Get user's projects
       parameters:
@@ -72,7 +72,7 @@ paths:
         "202":
           description: Project created but config commit failed (needs_config status)
 
-  /api/submissions:
+  /submissions:
     post:
       summary: Submit test results
       security:

@@ -3,6 +3,21 @@ import { Footer } from '@/components/Footer'
 import { colors } from '@/theme/colors'
 
 export function Landing() {
+  const [currentChallenge, setCurrentChallenge] = useState(0)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentChallenge((prev) => (prev + 1) % challenges.length)
+    }, 3000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const themeStyle = {
+    backgroundColor: '#F0ECDA',
+    color: '#171512',
+    fontFamily: 'JetBrains Mono, monospace',
+  }
+
   return (
     <div 
       className="min-h-screen flex flex-col" 
