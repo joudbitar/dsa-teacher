@@ -12,7 +12,6 @@ import { apiClient, Project, Module } from "@/lib/api";
 import { useAuth } from "@/auth/useAuth";
 import {
   saveChallengeProgress,
-  markStepCompleted,
   getChallengeProgress,
 } from "@/utils/challengeProgress";
 
@@ -109,7 +108,7 @@ export function ChallengeDetail() {
           setCompletedSteps(completed);
 
           // Set saved repo URL
-          setSavedRepoUrl(project.githubRepoUrl);
+          setSavedRepoUrl(project.githubRepoUrl || undefined);
         } else {
           // No project exists - ensure we start fresh (don't load stale localStorage)
           // If user just restarted, localStorage should already be cleared
@@ -215,10 +214,6 @@ export function ChallengeDetail() {
 
             // Show success notification ONLY for real progress (not initial load)
             if (isRealProgress) {
-              const previousStepName =
-                moduleData?.subchallenges?.[
-                  existingProject.currentChallengeIndex
-                ];
               const nextStepName =
                 moduleData?.subchallenges?.[
                   updatedProject.currentChallengeIndex
@@ -299,9 +294,6 @@ export function ChallengeDetail() {
   // Display step 0 (language selection) until project is created
   // Once project exists (repo created), show the current challenge step
   const displayStepIndex = existingProject ? currentStepIndex : 0;
-
-  const highestCompletedStep =
-    completedSteps.length > 0 ? Math.max(...completedSteps) : -1;
   
   // Max accessible step is based on backend's currentChallengeIndex
   // currentChallengeIndex = 0 means working on first challenge (step 1) - user can access it

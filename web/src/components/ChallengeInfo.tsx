@@ -52,7 +52,7 @@ export function ChallengeInfo({
   isCreatingProject = false,
   projectError = null,
   moduleId,
-  onNewAttempt,
+  onNewAttempt: _onNewAttempt,
   subchallengeName,
 }: ChallengeInfoProps) {
   const [copied, setCopied] = React.useState(false);
