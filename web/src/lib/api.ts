@@ -110,10 +110,46 @@ class ApiClient {
     })
 
     if (!response.ok) {
-      const error = await response
-        .json()
-        .catch(() => ({ error: response.statusText }))
-      throw new Error(error.error || 'Failed to create project')
+      let error: any;
+      const contentType = response.headers.get('content-type');
+      
+      try {
+        if (contentType && contentType.includes('application/json')) {
+          error = await response.json();
+        } else {
+          const text = await response.text();
+          error = { error: response.statusText, message: text || response.statusText };
+        }
+      } catch (parseError) {
+        console.error('Failed to parse error response:', parseError);
+        error = { error: response.statusText, message: `HTTP ${response.status}: ${response.statusText}` };
+      }
+      
+      // Log the full error for debugging
+      console.error('API Error Response:', {
+        status: response.status,
+        statusText: response.statusText,
+        error,
+      });
+      
+      // Create a more descriptive error message
+      let errorMessage = error.error || error.message || 'Failed to create project';
+      
+      // Include hint if available
+      if (error.hint) {
+        errorMessage += `\n\nHint: ${error.hint}`;
+      }
+      
+      // Include details if available
+      if (error.details && error.details !== errorMessage) {
+        errorMessage += `\n\nDetails: ${error.details}`;
+      }
+      
+      const apiError = new Error(errorMessage);
+      // Attach original error data for debugging
+      (apiError as any).status = response.status;
+      (apiError as any).originalError = error;
+      throw apiError;
     }
 
     return response.json()

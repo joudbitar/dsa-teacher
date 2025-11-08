@@ -81,11 +81,12 @@ export function ChallengeDetail() {
         const projects = await apiClient.getProjects(id);
 
         if (projects.length > 0) {
-          // User has already started this module
+          // User has existing projects, but always start at language selection
+          // so they can choose to continue or create a new attempt
           const project = projects[0];
-          setExistingProject(project);
 
-          // Auto-select the language they chose
+          // Store the existing project info but don't auto-navigate
+          setExistingProject(project);
           setSelectedLanguage(project.language.toLowerCase());
 
           // Set progress from project
@@ -143,13 +144,23 @@ export function ChallengeDetail() {
       }
     };
 
-    window.addEventListener('challenge-restarted', handleRestart as EventListener);
-    return () => window.removeEventListener('challenge-restarted', handleRestart as EventListener);
+    window.addEventListener(
+      "challenge-restarted",
+      handleRestart as EventListener
+    );
+    return () =>
+      window.removeEventListener(
+        "challenge-restarted",
+        handleRestart as EventListener
+      );
   }, [id]);
 
   // Poll for progress updates when user has an existing project
   useEffect(() => {
     if (!existingProject) return;
+
+    // Track if we've shown initial state to avoid false notifications
+    let hasShownInitialState = false;
 
     const pollInterval = setInterval(async () => {
       try {
@@ -166,6 +177,11 @@ export function ChallengeDetail() {
             console.log(
               `🎉 Progress detected! Moving from challenge ${existingProject.currentChallengeIndex} to ${updatedProject.currentChallengeIndex}`
             );
+
+            const isRealProgress =
+              hasShownInitialState &&
+              updatedProject.currentChallengeIndex >
+                existingProject.currentChallengeIndex;
 
             setExistingProject(updatedProject);
 
@@ -193,21 +209,47 @@ export function ChallengeDetail() {
             // Scroll to top of main content to show new step
             window.scrollTo({ top: 0, behavior: "smooth" });
 
-            // Show success notification
-            const subchallengeName =
-              moduleData?.subchallenges?.[updatedProject.currentChallengeIndex];
-            if (subchallengeName) {
+            // Show success notification ONLY for real progress (not initial load)
+            if (isRealProgress) {
+              const previousStepName =
+                moduleData?.subchallenges?.[
+                  existingProject.currentChallengeIndex
+                ];
+              const nextStepName =
+                moduleData?.subchallenges?.[
+                  updatedProject.currentChallengeIndex
+                ];
+
+              // Check if this is the last step
+              const isLastStep =
+                updatedProject.currentChallengeIndex >=
+                (moduleData?.subchallenges?.length || 0);
+
               // Create a temporary toast notification
               const toast = document.createElement("div");
               toast.className =
                 "fixed top-20 right-4 bg-success text-success-foreground px-6 py-3 rounded-lg shadow-lg z-50 animate-in slide-in-from-right";
-              toast.innerHTML = `
-                <div class="flex items-center gap-2">
-                  <span class="text-xl">✅</span>
-                  <span class="font-semibold">Challenge completed!</span>
-                </div>
-                <div class="text-sm mt-1">Moving to: ${subchallengeName}</div>
-              `;
+
+              if (isLastStep) {
+                toast.innerHTML = `
+                  <div class="flex items-center gap-2">
+                    <span class="text-xl">🎉</span>
+                    <span class="font-semibold">Challenge Complete!</span>
+                  </div>
+                  <div class="text-sm mt-1">Congratulations! You finished all steps!</div>
+                `;
+              } else {
+                toast.innerHTML = `
+                  <div class="flex items-center gap-2">
+                    <span class="text-xl">✅</span>
+                    <span class="font-semibold">Step completed!</span>
+                  </div>
+                  <div class="text-sm mt-1">Moving to: ${
+                    nextStepName || "Next step"
+                  }</div>
+                `;
+              }
+
               document.body.appendChild(toast);
 
               // Remove after 4 seconds
@@ -217,6 +259,11 @@ export function ChallengeDetail() {
                 setTimeout(() => toast.remove(), 300);
               }, 4000);
             }
+
+            hasShownInitialState = true;
+          } else {
+            // Same state, mark as shown
+            hasShownInitialState = true;
           }
         }
       } catch (error) {
@@ -251,17 +298,19 @@ export function ChallengeDetail() {
 
   const highestCompletedStep =
     completedSteps.length > 0 ? Math.max(...completedSteps) : -1;
-  
+
   // Max accessible step is based on backend's currentChallengeIndex
   // currentChallengeIndex = 0 means working on first challenge (step 1)
   // currentChallengeIndex = 1 means working on second challenge (step 2), etc.
   // HOWEVER: When project is first created (currentChallengeIndex = 0 and still on step 0),
   // keep user on setup screen until they explicitly continue
   const maxAccessibleStep = existingProject
-    ? (existingProject.currentChallengeIndex === 0 && currentStepIndex === 0
-        ? 0  // Just setup step - user hasn't cloned repo yet
-        : existingProject.currentChallengeIndex + 1)  // Normal progression
-    : (isLanguageStepCompleted ? 1 : 0);
+    ? existingProject.currentChallengeIndex === 0 && currentStepIndex === 0
+      ? 0 // Just setup step - user hasn't cloned repo yet
+      : existingProject.currentChallengeIndex + 1 // Normal progression
+    : isLanguageStepCompleted
+    ? 1
+    : 0;
 
   // Handle project creation when language is selected
   const handleStartChallenge = async (language: string) => {
@@ -315,6 +364,11 @@ export function ChallengeDetail() {
       setCurrentStepIndex(0);
     } catch (error) {
       console.error("Failed to create project:", error);
+      console.error("Error details:", {
+        message: error instanceof Error ? error.message : String(error),
+        status: (error as any)?.status,
+        originalError: (error as any)?.originalError,
+      });
       let errorMessage = "Failed to create project. Please try again.";
 
       if (error instanceof Error) {
@@ -326,7 +380,23 @@ export function ChallengeDetail() {
             "Template repository not found. Please contact support.";
         } else if (error.message.includes("already exists")) {
           errorMessage = "You already have a project for this module.";
+        } else if (
+          error.message.includes("private key") ||
+          error.message.includes("not configured")
+        ) {
+          errorMessage =
+            "GitHub App is not properly configured. Please contact support.\n\n" +
+            "The backend needs GitHub App credentials to create repositories.";
+        } else if (
+          error.message.includes("authentication") ||
+          error.message.includes("401") ||
+          error.message.includes("403")
+        ) {
+          errorMessage =
+            "GitHub authentication failed. Please contact support.\n\n" +
+            "The GitHub App credentials may be incorrect or expired.";
         } else {
+          // Use the full error message which may include hints
           errorMessage = error.message;
         }
       }
@@ -381,6 +451,15 @@ export function ChallengeDetail() {
   const handleCancelStepNavigate = () => {
     setPendingStepIndex(null);
     setShowStepWarning(false);
+  };
+
+  const handleNewAttempt = () => {
+    // Reset to language selection step to allow creating a new project
+    setCurrentStepIndex(0);
+    setCompletedSteps([]);
+    // Optionally clear existing project so they start fresh
+    // setExistingProject(null);
+    // setSavedRepoUrl(null);
   };
 
   const progress = Math.round(
@@ -542,6 +621,7 @@ export function ChallengeDetail() {
                 timelineSteps={timelineSteps}
                 selectedLanguage={selectedLanguage}
                 onStartChallenge={handleStartChallenge}
+                onNewAttempt={handleNewAttempt}
                 isCreatingProject={creatingProject}
                 projectError={projectError}
                 moduleId={id}
