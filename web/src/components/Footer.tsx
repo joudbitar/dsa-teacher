@@ -1,8 +1,15 @@
 import { Code2, Github } from 'lucide-react'
+import { colors } from '@/theme/colors'
 
 export function Footer({ className }: { className?: string }) {
   return (
-    <footer className={`border-t border-border/40 bg-background/95 backdrop-blur-sm ${className || ''}`}>
+    <footer 
+      className={`border-t ${className || ''}`}
+      style={{
+        backgroundColor: colors.background.base,
+        borderColor: colors.border.divider
+      }}
+    >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>

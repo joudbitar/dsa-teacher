@@ -100,6 +100,29 @@
     background: #F0ECDA;
     min-height: 100vh;
     position: relative;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  
+  /* Use Monaspace for code elements - especially on challenges page */
+  code, pre {
+    font-family: 'Monaspace', 'JetBrains Mono', monospace;
+  }
+  
+  /* Use Monaspace for code on challenges page */
+  .challenges-page code,
+  .challenges-page pre,
+  .challenges-page .font-mono {
+    font-family: 'Monaspace', 'JetBrains Mono', monospace;
+  }
+  
+  /* Apply JetBrains Mono to challenges and datastructures pages */
+  .challenges-page, .datastructures-page {
+    font-family: 'JetBrains Mono', monospace;
+  }
+  
+  /* Default font-mono uses JetBrains Mono */
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
   }
 }
 
@@ -128,6 +151,204 @@
   
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+  
+  @keyframes milkShine {
+    0% {
+      transform: translateX(-100%);
+    }
+    50% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+  
+  @keyframes milkFlow {
+    0% {
+      transform: translateY(-30%);
+      opacity: 0;
+    }
+    5% {
+      opacity: 1;
+    }
+    95% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(130%);
+      opacity: 0;
+    }
+  }
+  
+  @keyframes checkAppear {
+    0% {
+      transform: scale(0) rotate(-180deg);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.2) rotate(0deg);
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes checkIconPop {
+    0% {
+      transform: scale(0) rotate(-180deg);
+      opacity: 0;
+    }
+    60% {
+      transform: scale(1.3) rotate(10deg);
+      opacity: 1;
+    }
+    80% {
+      transform: scale(0.9) rotate(-5deg);
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+  }
+
+  /* Natural paper/wood texture containers with irregular shapes */
+  .natural-container {
+    position: relative;
+    background: 
+      /* Paper texture base */
+      linear-gradient(45deg, rgba(251, 248, 243, 0.9) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(251, 248, 243, 0.9) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, rgba(251, 248, 243, 0.9) 75%),
+      linear-gradient(-45deg, transparent 75%, rgba(251, 248, 243, 0.9) 75%),
+      /* Wood grain texture */
+      radial-gradient(circle at 25% 35%, rgba(210, 180, 140, 0.15) 0%, transparent 40%),
+      radial-gradient(circle at 75% 65%, rgba(222, 184, 135, 0.12) 0%, transparent 45%),
+      radial-gradient(circle at 50% 50%, rgba(139, 119, 101, 0.08) 0%, transparent 60%),
+      /* Base color - warm paper tone */
+      linear-gradient(135deg, rgba(253, 245, 230, 0.95) 0%, rgba(250, 240, 220, 0.9) 100%);
+    background-size: 
+      4px 4px,
+      4px 4px,
+      4px 4px,
+      4px 4px,
+      100% 100%,
+      100% 100%,
+      100% 100%,
+      100% 100%;
+    background-position: 0 0, 0 2px, 2px -2px, -2px 0px, 0 0, 0 0, 0 0, 0 0;
+    box-shadow: 
+      0 2px 4px rgba(0, 0, 0, 0.12),
+      0 0 0 0.5px rgba(139, 119, 101, 0.15),
+      inset 0 1px 1px rgba(255, 255, 255, 0.4),
+      inset 0 -1px 1px rgba(139, 119, 101, 0.05);
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.15));
+  }
+
+  /* Irregular border shapes - paper-like edges */
+  .natural-container-1 {
+    clip-path: polygon(
+      2% 0%, 
+      98% 1%, 
+      100% 5%, 
+      99% 98%, 
+      96% 100%, 
+      3% 99%, 
+      0% 97%, 
+      1% 3%
+    );
+  }
+
+  .natural-container-2 {
+    clip-path: polygon(
+      0% 2%, 
+      98% 0%, 
+      100% 4%, 
+      99% 96%, 
+      97% 100%, 
+      2% 98%, 
+      1% 95%, 
+      0% 4%
+    );
+  }
+
+  .natural-container-3 {
+    clip-path: polygon(
+      1% 1%, 
+      99% 2%, 
+      100% 6%, 
+      98% 99%, 
+      95% 100%, 
+      4% 97%, 
+      2% 94%, 
+      0% 5%
+    );
+  }
+
+  .natural-container-4 {
+    clip-path: polygon(
+      0% 3%, 
+      97% 1%, 
+      100% 5%, 
+      99% 97%, 
+      96% 100%, 
+      3% 98%, 
+      1% 96%, 
+      0% 6%
+    );
+  }
+
+  .natural-container-5 {
+    clip-path: polygon(
+      2% 0%, 
+      99% 1%, 
+      100% 4%, 
+      98% 98%, 
+      95% 100%, 
+      2% 99%, 
+      0% 97%, 
+      1% 3%
+    );
+  }
+
+  .natural-container-6 {
+    clip-path: polygon(
+      1% 2%, 
+      98% 0%, 
+      100% 3%, 
+      99% 97%, 
+      97% 100%, 
+      4% 98%, 
+      2% 96%, 
+      0% 4%
+    );
+  }
+
+  /* Natural step shapes - using SVG clipPath for organic branch-like shapes */
+  .natural-step-1 {
+    clip-path: url(#organic-branch-1);
+  }
+
+  .natural-step-2 {
+    clip-path: url(#organic-branch-2);
+  }
+
+  .natural-step-3 {
+    clip-path: url(#organic-branch-3);
+  }
+
+  .natural-step-4 {
+    clip-path: url(#organic-branch-4);
+  }
+
+  .natural-step-5 {
+    clip-path: url(#organic-branch-5);
+  }
+
+  .natural-step-6 {
+    clip-path: url(#organic-branch-6);
   }
 }
 
