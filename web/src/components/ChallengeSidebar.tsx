@@ -1,4 +1,3 @@
-import { Check, Circle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { OrganicStep } from './OrganicStep'
 import { TurtleProgress } from './TurtleProgress'
@@ -76,10 +75,6 @@ export function ChallengeSidebar({ title, subchallenges, progress, time, level, 
           <div className="space-y-16">
             {subchallenges.map((sub, index) => {
               const isCurrentStep = currentStepIndex === index
-              // Only mark as completed for clickability logic, but don't use it for coloring
-              const isCompleted = index === 0 
-                ? currentStepIndex > 0 
-                : sub.completed
               const isClickable = sub.completed || index === 0 || (index > 0 && subchallenges[index - 1]?.completed)
               
               return (
@@ -99,23 +94,23 @@ export function ChallengeSidebar({ title, subchallenges, progress, time, level, 
                     shapeVariant={index}
                   >
                     {/* Content without numbers */}
-                    <div className="flex-1 min-w-0">
-                      <p className={cn(
+                      <div className="flex-1 min-w-0">
+                        <p className={cn(
                         "text-sm font-medium leading-snug font-mono",
                         isCurrentStep ? "text-[#3E2723]" : "text-foreground",
-                        !isClickable && !isCurrentStep && "opacity-50"
-                      )}>
-                        {sub.name}
-                      </p>
-                      {isCurrentStep && selectedLanguage && index === 0 && (
-                        <p className={cn(
+                          !isClickable && !isCurrentStep && "opacity-50"
+                        )}>
+                          {sub.name}
+                        </p>
+                        {isCurrentStep && selectedLanguage && index === 0 && (
+                          <p className={cn(
                           "text-xs mt-0.5 font-mono",
                           "text-[#5D4037]/80"
-                        )}>
-                          {languageNames[selectedLanguage]} selected
-                        </p>
-                      )}
-                    </div>
+                          )}>
+                            {languageNames[selectedLanguage]} selected
+                          </p>
+                        )}
+                      </div>
                   </OrganicStep>
                   
                 </div>

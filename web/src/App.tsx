@@ -4,6 +4,9 @@ import { Challenges } from './pages/Challenges'
 import { ChallengeDetail } from './pages/ChallengeDetail'
 import { Docs } from './pages/Docs'
 import { About } from './pages/About'
+import { GettingStarted } from './pages/GettingStarted'
+import { CLIReference } from './pages/CLIReference'
+import { APIReference } from './pages/APIReference'
 import { OrganicClipPaths } from './components/OrganicShapes'
 
 function App() {
@@ -16,6 +19,9 @@ function App() {
         <Route path="/challenges" element={<Challenges />} />
         <Route path="/challenges/:id" element={<ChallengeDetail />} />
         <Route path="/docs" element={<Docs />} />
+        <Route path="/docs/getting-started" element={<GettingStarted />} />
+        <Route path="/docs/cli-reference" element={<CLIReference />} />
+        <Route path="/docs/api-reference" element={<APIReference />} />
       </Routes>
     </BrowserRouter>
   )

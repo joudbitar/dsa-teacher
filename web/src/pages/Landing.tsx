@@ -159,7 +159,7 @@ export function Landing() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left: Text Content */}
             <div className="text-center lg:text-left">
-              <h1 
+          <h1 
                 className="text-5xl sm:text-6xl lg:text-7xl mb-6 font-bold leading-tight"
                 style={themeStyle}
               >
@@ -389,12 +389,12 @@ export function Landing() {
                 <Link
                   to="/about"
                   className="inline-flex items-center justify-center rounded-lg border-2 px-8 py-4 text-lg font-semibold transition-all hover:opacity-80"
-                  style={{ 
+            style={{ 
                     borderColor: '#171512',
                     color: '#171512',
                     fontFamily: themeStyle.fontFamily
-                  }}
-                >
+            }}
+          >
                   Learn More
                 </Link>
               </div>

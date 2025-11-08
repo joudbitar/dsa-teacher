@@ -5,6 +5,7 @@ export interface ChallengeStep {
   challenge: string
   conceptGained: string
   visualization?: string
+  content?: string // Detailed markdown content for the step
 }
 
 // Challenge data interface

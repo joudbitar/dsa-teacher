@@ -13,10 +13,10 @@ interface OrganicStepProps {
 export function OrganicStep({ 
   children, 
   isCurrent = false, 
-  isCompleted = false,
-  isClickable = true,
+  isCompleted: _isCompleted = false,
+  isClickable: _isClickable = true,
   className,
-  shapeVariant = 0
+  shapeVariant: _shapeVariant = 0
 }: OrganicStepProps) {
   // Text color hex code for border - using foreground color from theme
   const textColor = '#171512' // Espresso black from theme

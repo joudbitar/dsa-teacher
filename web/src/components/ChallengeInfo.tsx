@@ -1,4 +1,5 @@
-import { Code2, Lightbulb, Target, CheckCircle2, Copy, Check } from 'lucide-react'
+import { useState } from 'react'
+import { Code2, Lightbulb, Target, CheckCircle2, Copy, Check, Terminal, X } from 'lucide-react'
 import { ChallengeSteps } from './ChallengeSteps'
 import { ChallengeData } from '@/data/challenges/types'
 import { OrganicStep } from './OrganicStep'
@@ -67,7 +68,7 @@ export function ChallengeInfo({
   const isLanguageStep = currentStepIndex === 0
   const challengeStepIndex = currentStepIndex > 0 ? currentStepIndex - 1 : -1
   const currentStep = challengeData?.steps[challengeStepIndex]
-  const currentTimelineStep = timelineSteps[currentStepIndex]
+  const [showTerminalGuide, setShowTerminalGuide] = useState(false)
 
   return (
     <div className="flex-1 space-y-6">
@@ -162,11 +163,99 @@ export function ChallengeInfo({
                   ))}
                 </ul>
               </OrganicStep>
+
+              {/* Open Terminal Button - Only on step 1 */}
+              <OrganicStep isCurrent={false} isCompleted={false} className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
+                      <Terminal className="h-5 w-5 text-accent" />
+                    </div>
+                    <h2 className="text-2xl font-bold font-mono text-[#3E2723]">Ready to Code?</h2>
+                  </div>
+                  <button
+                    onClick={() => setShowTerminalGuide(true)}
+                    className="px-4 py-2 rounded-lg bg-accent text-white hover:bg-accent/90 font-medium font-mono transition-colors"
+                  >
+                    Open Terminal Guide
+                  </button>
+                </div>
+                <p className="text-base text-[#3E2723]/90 leading-relaxed font-mono">
+                  Need help opening your terminal? Click the button above to see instructions for your operating system.
+                </p>
+              </OrganicStep>
+
+              {/* Terminal Guide Modal */}
+              {showTerminalGuide && (
+                <div 
+                  className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4" 
+                  onClick={() => setShowTerminalGuide(false)}
+                  style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+                >
+                  <div 
+                    className="rounded-lg border-2 p-6 max-w-2xl w-full shadow-xl"
+                    style={{ 
+                      backgroundColor: '#E5E0CC',
+                      borderColor: '#171512'
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <Terminal className="h-6 w-6" style={{ color: '#7F5539' }} />
+                        <h2 className="text-2xl font-bold font-mono" style={{ color: '#3E2723' }}>How to Open Your Terminal</h2>
+                      </div>
+                      <button
+                        onClick={() => setShowTerminalGuide(false)}
+                        className="p-2 rounded-lg hover:opacity-70 transition-opacity"
+                        style={{ color: '#3E2723' }}
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    </div>
+                    <div className="space-y-4 font-mono">
+                      <div>
+                        <h3 className="text-lg font-bold mb-2" style={{ color: '#3E2723' }}>macOS</h3>
+                        <p className="text-base" style={{ color: '#3E2723' }}>
+                          Press <code className="px-1.5 py-0.5 rounded text-sm font-medium" style={{ color: '#7F5539', backgroundColor: 'transparent' }}>Command + Space</code> to open Spotlight, then type "Terminal" and press Enter. Or go to Applications → Utilities → Terminal.
+                        </p>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold mb-2" style={{ color: '#3E2723' }}>Windows</h3>
+                        <p className="text-base" style={{ color: '#3E2723' }}>
+                          Press <code className="px-1.5 py-0.5 rounded text-sm font-medium" style={{ color: '#7F5539', backgroundColor: 'transparent' }}>Windows + R</code>, type "cmd" and press Enter. Or search for "Command Prompt" or "PowerShell" in the Start menu.
+                        </p>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold mb-2" style={{ color: '#3E2723' }}>Linux</h3>
+                        <p className="text-base" style={{ color: '#3E2723' }}>
+                          Press <code className="px-1.5 py-0.5 rounded text-sm font-medium" style={{ color: '#7F5539', backgroundColor: 'transparent' }}>Ctrl + Alt + T</code> or search for "Terminal" in your applications menu.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </>
           )}
 
+          {/* Congratulations message - Show when moving to step 2 (Dynamic Stack) */}
+          {challengeStepIndex === 1 && (
+            <OrganicStep isCurrent={false} isCompleted={false} className="p-6">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10 border border-success/20">
+                  <CheckCircle2 className="h-5 w-5 text-success" />
+                </div>
+                <h2 className="text-2xl font-bold font-mono text-[#3E2723]">Congratulations!</h2>
+              </div>
+              <p className="text-base text-[#3E2723]/90 leading-relaxed font-mono">
+                You've completed the Basic Stack step. Your stack can now push, pop, peek, and track its size. Ready to make it dynamic?
+              </p>
+            </OrganicStep>
+          )}
+
           {/* Learning Outcome - Always show at top of step */}
-          <OrganicStep isCurrent={true} isCompleted={false} className="p-6">
+          <OrganicStep isCurrent={false} isCompleted={false} className="p-6">
             <div className="flex items-center gap-3 mb-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/20 border border-accent/30">
                 <Target className="h-5 w-5 text-accent" />
@@ -178,15 +267,14 @@ export function ChallengeInfo({
             </p>
           </OrganicStep>
 
-          <ChallengeSteps
-            steps={challengeData.steps}
-            learningOutcome={challengeData.learningOutcome}
-            coreSkills={challengeData.coreSkills}
-            integrationProject={challengeData.integrationProject}
-            currentStepIndex={challengeStepIndex}
-            showOnlyCurrentStep={true}
-            onNextStep={onNextStep}
-          />
+        <ChallengeSteps
+          steps={challengeData.steps}
+          learningOutcome={challengeData.learningOutcome}
+          coreSkills={challengeData.coreSkills}
+          integrationProject={challengeData.integrationProject}
+          currentStepIndex={challengeStepIndex}
+          showOnlyCurrentStep={true}
+        />
 
           {/* Core Skills - Show for each step */}
           <OrganicStep isCurrent={false} isCompleted={false} className="p-6">

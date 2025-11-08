@@ -1,6 +1,6 @@
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { ArrowLeft, History, Globe, X, Copy, Check, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, X, Copy, Check, CheckCircle2 } from 'lucide-react'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { ChallengeSidebar } from '@/components/ChallengeSidebar'

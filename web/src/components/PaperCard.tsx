@@ -42,6 +42,7 @@ export function PaperCard({ children, title, className, variant = 'default' }: P
         <h3 className="text-xl font-bold mb-4">{title}</h3>
       )}
       {children}
+      </div>
     </div>
   )
 }

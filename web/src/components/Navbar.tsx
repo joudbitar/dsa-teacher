@@ -33,7 +33,7 @@ export function Navbar({ className }: { className?: string }) {
               DSA Lab
             </span>
           </Link>
-          
+
           {/* Center: Navigation Links */}
           <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-6">
             <Link
@@ -67,7 +67,7 @@ export function Navbar({ className }: { className?: string }) {
               Docs
             </Link>
           </div>
-          
+
           {/* Right: Auth Buttons */}
           <div className="flex items-center gap-3">
             <button

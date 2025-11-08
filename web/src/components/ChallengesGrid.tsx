@@ -197,7 +197,7 @@ export function ChallengesGrid() {
             >
               <OrganicStep
                 isCurrent={false}
-                isCompleted={module.progress === 100}
+                isCompleted={progress === 100}
                 className="p-6 h-full"
               >
                 {/* Icon and Title */}
