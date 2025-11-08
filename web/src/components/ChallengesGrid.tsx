@@ -179,13 +179,13 @@ export function ChallengesGrid() {
                 {module.subchallenges.slice(0, 3).map((sub, i) => (
                   <span
                     key={i}
-                    className="text-xs px-2 py-1 rounded-full bg-muted border border-border text-muted-foreground"
+                    className="text-xs px-2 py-1 rounded-full bg-primary text-primary-foreground font-medium"
                   >
                     {sub}
                   </span>
                 ))}
                 {module.subchallenges.length > 3 && (
-                  <span className="text-xs px-2 py-1 rounded-full bg-muted border border-border text-muted-foreground">
+                  <span className="text-xs px-2 py-1 rounded-full bg-primary text-primary-foreground font-medium">
                     +{module.subchallenges.length - 3} more
                   </span>
                 )}
