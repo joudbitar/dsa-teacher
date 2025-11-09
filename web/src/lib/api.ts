@@ -1,8 +1,10 @@
 import { supabase } from './supabase'
 
+const DEFAULT_API_BASE_URL = 'http://localhost:54321/functions/v1'
+
 const API_BASE_URL =
   import.meta.env.VITE_API_URL ||
-  'https://mwlhxwbkuumjxpnvldli.supabase.co/functions/v1'
+  DEFAULT_API_BASE_URL
 
 export interface Module {
   id: string

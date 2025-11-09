@@ -8,33 +8,49 @@ The `dsa` command-line interface helps you run challenge tests locally and submi
 
 ### 1.1 Prerequisites
 
-- Node.js ≥ 18.x
-- pnpm ≥ 8.x (`npm install -g pnpm`)
+- Node.js ≥ 18.x (includes npm)
 - Git (for capturing commit SHAs used during submission)
+- pnpm ≥ 8.x (`npm install -g pnpm`) — only required when installing from source
 
 Verify with:
 
 ```bash
 node --version
-pnpm --version
 git --version
+pnpm --version   # optional; needed for local builds
 ```
 
-### 1.2 Recommended Installation (macOS/Linux)
+### 1.2 Recommended Installation (npm)
+
+```bash
+npm install -g @dsa/cli
+```
+
+This downloads the published package, installs it globally, and adds the `dsa` command to your PATH. Confirm the installation with `dsa --version`.
+
+To update later on:
+
+```bash
+npm update -g @dsa/cli
+```
+
+To remove it:
+
+```bash
+npm uninstall -g @dsa/cli
+```
+
+### 1.3 Install from source (contributors)
+
+If you need to test unpublished changes locally, link the CLI from the repo.
+
+#### macOS / Linux / WSL
 
 ```bash
 ./cli/scripts/install.sh
 ```
 
-This script:
-
-1. Verifies Node.js and pnpm availability.
-2. Installs CLI dependencies via pnpm.
-3. Builds the TypeScript sources.
-4. Links the CLI globally so `dsa` is on your PATH.
-5. Runs `dsa --version` as a smoke test.
-
-### 1.3 Windows PowerShell
+#### Windows PowerShell
 
 ```powershell
 cd cli
@@ -54,7 +70,7 @@ pnpm link --global
 
 Re-run `pnpm build` after pulling CLI code changes. If `dsa` disappears, link it again with `pnpm link --global`.
 
-### 1.5 Uninstall
+### 1.5 Uninstall (local link)
 
 ```bash
 pnpm unlink --global @dsa/cli

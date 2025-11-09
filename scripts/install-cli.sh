@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+
+# Remote installer for the DSA Lab CLI without relying on npm publishes.
+# Usage (replace <org> with your GitHub org or user):
+#   curl -fsSL https://raw.githubusercontent.com/<org>/dsa-lab/main/scripts/install-cli.sh | bash
+#
+# Environment variables:
+#   DSA_CLI_REPO    Git clone URL (default: https://github.com/<org>/dsa-lab)
+#   DSA_CLI_REF     Git ref to install (default: main). Supports branches or tags.
+#   DSA_CLI_HOME    Installation directory (default: ~/.local/share/dsa-cli)
+#   DSA_CLI_BIN     Directory for the executable symlink (default: ~/.local/bin)
+
+set -euo pipefail
+
+info()  { printf '\033[0;34m[INFO]\033[0m %s\n' "$*"; }
+warn()  { printf '\033[0;33m[WARN]\033[0m %s\n' "$*" >&2; }
+error() { printf '\033[0;31m[ERROR]\033[0m %s\n' "$*" >&2; exit 1; }
+
+REPO_URL_DEFAULT="https://github.com/<org>/dsa-lab"
+REPO_URL="${DSA_CLI_REPO:-$REPO_URL_DEFAULT}"
+REPO_REF="${DSA_CLI_REF:-main}"
+INSTALL_DIR="${DSA_CLI_HOME:-$HOME/.local/share/dsa-cli}"
+BIN_DIR="${DSA_CLI_BIN:-$HOME/.local/bin}"
+
+if [[ "$REPO_URL" == *"<org>"* ]]; then
+  error "Set DSA_CLI_REPO to your GitHub repository URL (e.g., https://github.com/acme/dsa-lab)."
+fi
+
+ARCHIVE_URL="${REPO_URL}/archive/refs/heads/${REPO_REF}.tar.gz"
+if [[ "$REPO_REF" == refs/tags/* ]]; then
+  ARCHIVE_URL="${REPO_URL}/archive/${REPO_REF}.tar.gz"
+elif [[ "$REPO_REF" == v* ]]; then
+  # Allow passing a tag like v0.1.0
+  ARCHIVE_URL="${REPO_URL}/archive/refs/tags/${REPO_REF}.tar.gz"
+fi
+
+command -v curl >/dev/null 2>&1 || error "curl is required"
+command -v tar >/dev/null 2>&1 || error "tar is required"
+command -v node >/dev/null 2>&1 || error "Node.js 18+ is required"
+
+NODE_MAJOR=$(node -p "process.versions.node.split('.')[0]")
+if (( NODE_MAJOR < 18 )); then
+  error "Node.js 18 or newer is required (found $(node --version))"
+fi
+
+if ! command -v corepack >/dev/null 2>&1; then
+  warn "corepack not found; attempting to enable via Node.js (>=16.10 ships with it)"
+  if command -v npm >/dev/null 2>&1; then
+    npm i -g corepack || warn "Failed to install corepack globally"
+  fi
+fi
+
+command -v corepack >/dev/null 2>&1 || error "corepack is required (ships with modern Node.js)"
+
+info "Ensuring pnpm is available via corepack..."
+corepack prepare pnpm@latest --activate >/dev/null 2>&1 || corepack enable pnpm
+
+TMP_DIR="$(mktemp -d)"
+cleanup() {
+  rm -rf "$TMP_DIR"
+}
+trap cleanup EXIT
+
+info "Downloading CLI source from ${ARCHIVE_URL}..."
+curl -fsSL "$ARCHIVE_URL" | tar -xz -C "$TMP_DIR"
+
+ARCHIVE_FOLDER="$(find "$TMP_DIR" -maxdepth 1 -mindepth 1 -type d | head -n 1)"
+[[ -d "$ARCHIVE_FOLDER" ]] || error "Failed to extract archive"
+
+CLI_DIR="${ARCHIVE_FOLDER}/cli"
+[[ -d "$CLI_DIR" ]] || error "CLI directory not found in archive"
+
+info "Installing dependencies..."
+pushd "$CLI_DIR" >/dev/null
+corepack pnpm install
+
+info "Building CLI..."
+corepack pnpm build
+
+info "Pruning dev dependencies..."
+corepack pnpm prune --prod
+
+info "Preparing installation directory at ${INSTALL_DIR}..."
+rm -rf "$INSTALL_DIR"
+mkdir -p "$INSTALL_DIR"
+
+if command -v rsync >/dev/null 2>&1; then
+  rsync -a bin dist node_modules package.json "$INSTALL_DIR"/
+else
+  cp -R bin "$INSTALL_DIR/"
+  cp -R dist "$INSTALL_DIR/"
+  cp -R node_modules "$INSTALL_DIR/"
+  cp package.json "$INSTALL_DIR/"
+fi
+
+popd >/dev/null
+
+mkdir -p "$BIN_DIR"
+ln -sf "$INSTALL_DIR/bin/dsa" "$BIN_DIR/dsa"
+
+if ! command -v dsa >/dev/null 2>&1; then
+  warn "dsa command not detected on PATH. Ensure ${BIN_DIR} is in your PATH."
+fi
+
+VERSION="$("$BIN_DIR/dsa" --version 2>/dev/null || echo 'unknown')"
+info "Installation complete. dsa version: ${VERSION}"
+info "Add the following to your shell profile if needed:"
+printf '  export PATH="%s:$PATH"\n' "$BIN_DIR"
+

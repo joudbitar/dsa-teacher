@@ -1,112 +1,111 @@
 # DSA Lab
 
-> A platform where you pick a data structures challenge, get a private GitHub repo with tests, code it locally, and watch your progress update live on a dashboard.
+DSA Lab is a toolkit for learning data structures with hands-on projects.  
+The monorepo bundles a React dashboard, Node.js CLI, and Supabase Edge Functions that
+work together to provision challenge repositories, run local tests, and report progress.
 
-## Quick Start
+## Packages
 
-```bash
-# Test the API
-curl https://mwlhxwbkuumjxpnvldli.supabase.co/functions/v1/modules | jq
-
-# See QUICK_START.md for complete setup
-```
-
-## How It Works
-
-1. **Pick a challenge** (Stack, Queue, Binary Search, Min-Heap)
-2. **Get a private GitHub repo** with starter code and tests
-3. **Code locally** in your preferred editor
-4. **Test** with `dsa test`
-5. **Submit** with `dsa submit`
-6. **Watch your progress** update live on the dashboard
-
-## Repo Structure
-
-```
-dsa-lab/
-├── web/                → React dashboard (shows challenges, tracks progress)
-├── cli/                → The `dsa` command (test & submit from terminal)
-├── supabase/
-│   ├── functions/      → Edge Functions (API endpoints)
-│   ├── init.sql        → Database schema
-│   └── config.toml     → Supabase config
-├── infra/              → Config files (challenge data, API specs)
-├── docs/               → Detailed specs (read these to understand the flow)
-└── .github/            → CI stuff
-```
-
-## How It Actually Works
-
-### The User Flow
-
-1. **User visits web app** → sees 4 challenges (Stack, Queue, Binary Search, Min-Heap)
-2. **Clicks "Start Challenge"** → backend creates a private GitHub repo from a template
-3. **User clones repo** → gets TypeScript starter code with TODOs and pre-written tests
-4. **User codes solution** → runs `dsa test` to see if tests pass
-5. **Tests pass?** → runs `dsa submit` to send results to our API
-6. **Dashboard updates** → progress bar fills up, checkmarks appear
-
-### The Data Flow
-
-```
-CLI (your laptop)
-  └─ runs tests
-  └─ reads .dsa-report.json
-  └─ POSTs to /api/submissions (with project token)
-      └─ API saves to database
-          └─ Database triggers Realtime event
-              └─ Dashboard updates automatically
-```
-
-## Current Status
-
-✅ **Production Ready**
-- API deployed and working
-- CLI built and tested
-- GitHub integration working
-- Database schema applied
-- Template repos ready
+- `cli/` – `dsa` command-line interface (test, submit, hints)
+- `web/` – Vite + React dashboard
+- `supabase/` – Edge Functions, migrations, and database schema
+- `docs/` – Reference material for contributors
 
 ## Getting Started
 
 ```bash
-# CLI
-cd cli && npm install && npm run build
+# Clone (replace <org> with your GitHub org or account)
+git clone https://github.com/<org>/dsa-lab.git
+cd dsa-lab
 
-# Web
-cd web && pnpm install && pnpm dev
+# Install workspace dependencies
+pnpm install
 
-# Test the system
-See QUICK_START.md
+# Build the CLI
+pnpm --filter ./cli build
+
+# Start the web dashboard
+pnpm --filter ./web dev
 ```
 
-## Architecture
+Supabase and GitHub credentials are not bundled.  
+Create your own Supabase project, configure the secrets listed in
+`supabase/functions/README.md`, and register a GitHub App with access to your template
+repositories before deploying the Edge Functions.
 
-- **Web**: React + Vite (dashboard)
-- **CLI**: Node.js + TypeScript (local testing & submission)
-- **API**: Supabase Edge Functions (Deno runtime)
-- **Database**: Supabase Postgres
-- **Auth**: Anonymous UUIDs (MVP) + project tokens (CLI)
-- **GitHub**: Private repos via GitHub App
+## Install the CLI Globally
 
-See `docs/ARCHITECTURE.md` for details.
+From a local checkout:
 
+```bash
+cd cli
+pnpm install
+pnpm build
+pnpm link --global
 
-## Key Features
+# verify
+dsa --version
+```
 
-- **4 Challenges**: Stack, Queue, Binary Search, Min-Heap
-- **TypeScript Only**: Other languages post-MVP
-- **GitHub Integration**: Auto-creates private repos
-- **CLI Testing**: Local test runner with instant feedback
-- **Live Dashboard**: Real-time progress updates
-- **Anonymous Auth**: No sign-up required (MVP)
-- **Project Tokens**: Auto-configured, secure per-project auth
+A full installer lives in `cli/scripts/install.sh`. Distribute it however you like—
+for example, you can create a small wrapper that downloads this repository (or a
+packaged release) and then executes the script. Always audit before piping into `bash`.
 
----
+### One-line remote install (no npm registry)
+
+1. Set the repository URL for your fork/organization:
+
+   ```bash
+   export DSA_CLI_REPO="https://github.com/<org>/dsa-lab"
+   ```
+
+2. Run the remote installer:
+
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/<org>/dsa-lab/main/scripts/install-cli.sh | bash
+   ```
+
+The script downloads the latest sources, builds the CLI locally, and symlinks the
+`dsa` command into `~/.local/bin`. Adjust `DSA_CLI_HOME` or `DSA_CLI_BIN` to customize
+where it installs artifacts or the executable shim.
+
+## Environment
+
+- Node.js ≥ 18 (includes npm)
+- pnpm ≥ 8
+- Supabase CLI (for deploying Edge Functions)
+- GitHub App private key + credentials (for provisioning repositories)
+
+Copy any environment variables into `.env.local` (not committed) and load them before
+running `supabase functions serve` or deploying to production.
+
+## Repository Layout
+
+```
+.
+├─ cli/            # Node.js CLI (TypeScript)
+├─ docs/           # Additional contributor guides
+├─ infra/          # API definitions & support files
+├─ supabase/       # Edge Functions, migrations, seed data
+├─ web/            # React dashboard
+└─ scripts/        # Utility scripts
+```
 
 ## Documentation
 
-- **`QUICK_START.md`** - Get started in 2 minutes
-- **`docs/ARCHITECTURE.md`** - Complete architecture reference
-- **`cli/README.md`** - CLI documentation
-- **`supabase/functions/README.md`** - API reference
+- `docs/cli-reference.md` – detailed CLI command behavior
+- `docs/command-line-tips.md` – terminal workflow tips
+- `docs/guides/QUICK_START.md` – end-to-end setup walkthrough
+- `docs/guides/RUN_APP.md` – running the full stack locally
+
+## Contributing
+
+1. Fork and clone the repository.
+2. Run `pnpm install` at the workspace root.
+3. Use `pnpm --filter ./cli build` or `pnpm --filter ./web dev` when working on a package.
+4. Keep secrets in environment variables—never commit real keys.
+5. Submit a pull request with tests or manual verification notes.
+
+## License
+
+This project is released under the MIT License. See `LICENSE` for details.

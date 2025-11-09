@@ -10,25 +10,58 @@ Complete guide for installing the DSA Lab CLI tool.
 
 ## Quick Install (Recommended) 🚀
 
-The easiest way to install the CLI is using our automated installation script:
+Use the remote installer script to download, build, and link the CLI without relying on npm:
 
-### macOS / Linux / WSL
+```bash
+export DSA_CLI_REPO="https://github.com/joudbitar/dsa-hackathon"
+curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-hackathon/main/scripts/install-cli.sh | bash
+```
+
+Replace `<org>` with the GitHub org or username that hosts your fork.
+
+### Updating
+
+Re-run the same one-liner after exporting `DSA_CLI_REPO`; the script replaces the previous installation with the latest commit from `main`.
+
+### Uninstalling
+
+```bash
+rm -rf ~/.local/share/dsa-cli
+rm -f ~/.local/bin/dsa
+```
+
+If you run the installer again it recreates both paths automatically.
+
+### Installing from npm (future)
+
+Once the package is published to npm:
+
+```bash
+npm install -g @dsa/cli
+```
+
+Updating stays the same:
+
+```bash
+npm update -g @dsa/cli
+```
+
+Check the README for release announcements before relying on the npm workflow.
+
+## Install from source (advanced)
+
+If you're developing the CLI locally or contributing changes, you can link it from the repository.
+
+### Automated install script
+
+#### macOS / Linux / WSL
 
 ```bash
 # From the project root directory
 ./cli/scripts/install.sh
 ```
 
-That's it! The script will:
-- ✅ Check for Node.js and npm
-- ✅ Install pnpm if needed
-- ✅ Set up pnpm automatically
-- ✅ Install all CLI dependencies
-- ✅ Build TypeScript
-- ✅ Link CLI globally
-- ✅ Verify installation
-
-### Windows (PowerShell)
+#### Windows (PowerShell)
 
 ```powershell
 # From the project root directory
@@ -36,19 +69,25 @@ cd cli
 .\scripts\install.ps1
 ```
 
-## Installation from CLI Directory
+### Manual steps
 
-If you're already in the `cli/` directory:
+If you prefer to run the steps yourself:
 
 ```bash
-# Make sure you're in the cli directory
+# Starting in the project root
 cd cli
 
-# Run the install script
-./scripts/install.sh
+# 1. Install pnpm if needed
+npm install -g pnpm
 
-# Or use the pnpm script
-pnpm run install:cli
+# 2. Install dependencies
+pnpm install
+
+# 3. Build the CLI
+pnpm build
+
+# 4. Link globally
+pnpm link --global
 ```
 
 ## Verify Installation
@@ -59,7 +98,7 @@ After installation, verify it works:
 dsa --version
 ```
 
-You should see: `0.0.0` (or the current version)
+You should see the published version number (for example `0.1.0`).
 
 Test the commands:
 
@@ -73,65 +112,24 @@ dsa submit --help
 
 If you prefer to install manually or the script doesn't work:
 
-### Step 1: Install pnpm
-
-```bash
-npm install -g pnpm
-```
-
-### Step 2: Set up pnpm
-
-```bash
-pnpm setup
-```
-
-Then restart your terminal or run:
-```bash
-source ~/.zshrc  # For zsh
-# or
-source ~/.bashrc  # For bash
-```
-
-### Step 3: Install CLI Dependencies
-
-```bash
-cd cli
-pnpm install
-```
-
-### Step 4: Build TypeScript
-
-```bash
-pnpm build
-```
-
-### Step 5: Link CLI Globally
-
-```bash
-pnpm link --global
-```
-
-### Step 6: Verify
-
-```bash
-dsa --version
-```
-
 ## Troubleshooting
 
 ### "Command not found: dsa"
 
 **Solution 1:** Restart your terminal
+
 ```bash
 # Close and reopen your terminal
 ```
 
 **Solution 2:** Add pnpm to PATH manually
+
 ```bash
 export PATH="$(npm config get prefix)/bin:$PATH"
 ```
 
 **Solution 3:** Add to shell config permanently
+
 ```bash
 # For zsh
 echo 'export PATH="$(npm config get prefix)/bin:$PATH"' >> ~/.zshrc
@@ -184,32 +182,14 @@ chmod +x cli/scripts/install.sh
 ./cli/scripts/install.sh
 ```
 
-## Uninstalling
-
-To uninstall the CLI:
-
-```bash
-pnpm unlink --global @dsa/cli
-```
-
-Or manually remove:
-```bash
-# Find where it's linked
-which dsa
-
-# Remove the symlink (path will vary)
-rm /path/to/dsa
-```
-
 ## Updating
 
-To update the CLI:
+For npm installations, run `npm update -g @dsa/cli`.
+
+For local development installs, pull latest changes and rerun the build/link flow:
 
 ```bash
-# Pull latest changes
 git pull
-
-# Rebuild and relink
 cd cli
 pnpm install
 pnpm build
@@ -218,22 +198,24 @@ pnpm link --global
 
 ## Installation Methods Comparison
 
-| Method | Ease | Speed | Recommended For |
-|--------|------|-------|-----------------|
-| **Automated Script** | ⭐⭐⭐⭐⭐ | Fast | Everyone |
-| **Manual Steps** | ⭐⭐⭐ | Medium | Advanced users, troubleshooting |
-| **npm publish** (future) | ⭐⭐⭐⭐⭐ | Fastest | Production use |
+| Method                   | Ease       | Speed  | Recommended For                       |
+| ------------------------ | ---------- | ------ | ------------------------------------- |
+| **npm (global install)** | ⭐⭐⭐⭐⭐ | Fast   | Learners, production use              |
+| **Automated Script**     | ⭐⭐⭐⭐   | Fast   | Contributors working from source      |
+| **Manual Steps**         | ⭐⭐⭐     | Medium | Troubleshooting, fine-grained control |
 
 ## Next Steps
 
 After installation:
 
 1. **Test the CLI:**
+
    ```bash
    dsa --help
    ```
 
 2. **Use in a project:**
+
    ```bash
    cd your-dsa-challenge-repo
    dsa test
@@ -255,20 +237,22 @@ After installation:
 ## Summary
 
 **Easiest installation:**
+
 ```bash
-./cli/scripts/install.sh
+npm install -g @dsa/cli
 ```
 
 **Verify:**
+
 ```bash
 dsa --version
 ```
 
 **Start using:**
+
 ```bash
 cd your-project
 dsa test
 ```
 
 That's it! 🎉
-

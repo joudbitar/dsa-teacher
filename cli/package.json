@@ -1,14 +1,33 @@
 {
   "name": "@dsa/cli",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
+  "main": "./dist/index.js",
   "bin": {
     "dsa": "bin/dsa"
   },
+  "files": [
+    "dist",
+    "bin",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "install:cli": "./scripts/install.sh"
+    "install:cli": "./scripts/install.sh",
+    "prepack": "npm run build"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "dsa",
+    "cli",
+    "algorithms",
+    "education"
+  ],
+  "publishConfig": {
+    "access": "public"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

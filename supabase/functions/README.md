@@ -4,16 +4,18 @@ Supabase Edge Functions (Deno runtime) for DSA Lab backend.
 
 ## Base URL
 
-**Production**: `https://mwlhxwbkuumjxpnvldli.supabase.co/functions/v1`  
+**Production**: `https://<your-project-ref>.supabase.co/functions/v1`  
 **Local**: `http://localhost:54321/functions/v1`
 
 ## Endpoints
 
 ### GET /modules
+
 Returns all available challenge modules.
 
 **Headers**: None required  
 **Response**:
+
 ```json
 {
   "modules": [
@@ -28,15 +30,19 @@ Returns all available challenge modules.
 ```
 
 ### GET /projects
+
 Lists user's projects (optionally filtered by module).
 
-**Headers**: 
+**Headers**:
+
 - `x-user-id` (required)
 
 **Query Params**:
+
 - `moduleId` (optional)
 
 **Response**:
+
 ```json
 [
   {
@@ -53,13 +59,16 @@ Lists user's projects (optionally filtered by module).
 ```
 
 ### POST /projects
+
 Creates a new project with GitHub repository.
 
 **Headers**:
+
 - `x-user-id` (required)
 - `Content-Type: application/json`
 
 **Body**:
+
 ```json
 {
   "moduleId": "stack",
@@ -68,6 +77,7 @@ Creates a new project with GitHub repository.
 ```
 
 **Response** (201):
+
 ```json
 {
   "id": "uuid",
@@ -78,6 +88,7 @@ Creates a new project with GitHub repository.
 ```
 
 **What it does**:
+
 1. Generates project token
 2. Creates database record
 3. Creates GitHub repo from template
@@ -85,13 +96,16 @@ Creates a new project with GitHub repository.
 5. Updates database with GitHub URL
 
 ### POST /submissions
+
 Submits test results and updates progress.
 
 **Headers**:
+
 - `Authorization: Bearer <projectToken>` (required)
 - `Content-Type: application/json`
 
 **Body**:
+
 ```json
 {
   "projectId": "uuid",
@@ -115,6 +129,7 @@ Submits test results and updates progress.
 ```
 
 **Response** (201):
+
 ```json
 {
   "id": "submission-uuid",
@@ -126,6 +141,7 @@ Submits test results and updates progress.
 ```
 
 **What it does**:
+
 1. Validates project token
 2. Stores submission
 3. Calculates progress: `(passedCount / totalCount) * 100`
@@ -189,6 +205,7 @@ All errors return JSON:
 ```
 
 **Status Codes**:
+
 - `400` - Bad Request (missing/invalid parameters)
 - `401` - Unauthorized (invalid token)
 - `403` - Forbidden (project ID mismatch)

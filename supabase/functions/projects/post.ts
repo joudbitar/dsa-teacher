@@ -412,12 +412,22 @@ export async function handlePost(req: Request): Promise<Response> {
     console.log(`Default branch: ${defaultBranch}`);
 
     // Commit dsa.config.json
+    const DEFAULT_FUNCTIONS_PATH = '/functions/v1';
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const publicApiUrl =
+      Deno.env.get('PUBLIC_DSA_API_URL') ??
+      (supabaseUrl ? `${supabaseUrl}${DEFAULT_FUNCTIONS_PATH}` : '');
+
+    if (!publicApiUrl) {
+      console.error('PUBLIC_DSA_API_URL not configured');
+    }
+
     const configContent = {
       projectId: project.id,
       projectToken: project.projectToken,
       moduleId,
       language,
-      apiUrl: 'https://mwlhxwbkuumjxpnvldli.supabase.co/functions/v1',
+      apiUrl: publicApiUrl || DEFAULT_FUNCTIONS_PATH,
       testCommand: getTestCommand(language),
       reportFile: '.dsa-report.json',
       currentChallengeIndex: 0,

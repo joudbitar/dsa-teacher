@@ -4,40 +4,35 @@ DSA Lab command-line tool for testing and submitting solutions locally.
 
 ## Installation
 
-### Quick Install (Recommended) 🚀
+### Install from npm (Recommended) 🚀
 
-**One command installation:**
-
-```bash
-./cli/scripts/install.sh
+```
+npm install -g @dsa/cli
 ```
 
-The automated script handles everything:
+After installation, verify the CLI is available:
 
-- ✅ Checks for Node.js and npm
-- ✅ Installs pnpm if needed
-- ✅ Sets up pnpm automatically
-- ✅ Installs CLI dependencies
-- ✅ Builds TypeScript
-- ✅ Links CLI globally
-- ✅ Verifies installation
-
-**For Windows (PowerShell):**
-
-```powershell
-cd cli
-.\scripts\install.ps1
 ```
-
-**Verify installation:**
-
-```bash
 dsa --version
 ```
 
-### Alternative: Manual Installation
+#### Updating
 
-If you prefer manual steps or the script doesn't work:
+Already installed the CLI? Grab the latest version with:
+
+```
+npm update -g @dsa/cli
+```
+
+To check what version you have locally:
+
+```
+npm ls -g @dsa/cli --depth=0
+```
+
+### Alternative: Install from source
+
+If you want to work from a local clone instead:
 
 ```bash
 # 1. Install and set up pnpm
@@ -57,6 +52,21 @@ pnpm link --global
 dsa --version
 ```
 
+### Legacy: install script
+
+The automated install script still works for contributors who want to link from source:
+
+```bash
+./cli/scripts/install.sh
+```
+
+For Windows PowerShell:
+
+```powershell
+cd cli
+.\scripts\install.ps1
+```
+
 ### Troubleshooting
 
 If `dsa` command is not found after installation:
@@ -69,11 +79,20 @@ If `dsa` command is not found after installation:
 
 See `INSTALL.md` for detailed troubleshooting guide.
 
-### Future (After Publishing to npm)
+### Publishing to npm
+
+To cut a new release:
 
 ```bash
-pnpm install -g @dsa/cli
+cd cli
+pnpm install
+pnpm test        # when available
+npm version <patch|minor|major>
+pnpm publish --access public
+git push --follow-tags
 ```
+
+Rebuilds run automatically through the `prepack` script before publishing.
 
 ## Commands
 

@@ -5,7 +5,7 @@ info:
   description: API for DSA Lab challenge platform
 
 servers:
-  - url: https://mwlhxwbkuumjxpnvldli.supabase.co/functions/v1
+  - url: https://<your-project-ref>.supabase.co/functions/v1
     description: Production
   - url: http://localhost:54321/functions/v1
     description: Local development
