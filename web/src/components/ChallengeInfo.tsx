@@ -13,6 +13,7 @@ import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { ChallengeSteps } from "./ChallengeSteps";
 import { ChallengeData } from "@/data/challenges/types";
 import { getSubchallengeInstruction } from "@/data/subchallenge-instructions";
+import { useTheme } from "@/theme/ThemeContext";
 
 interface TimelineStep {
   id: string;
@@ -58,6 +59,7 @@ export function ChallengeInfo({
   subchallengeName,
 }: ChallengeInfoProps) {
   const [copied, setCopied] = React.useState(false);
+  const { backgroundColor, textColor, borderColor, secondaryTextColor } = useTheme();
   // Step 0 = Choose Language
   // Step 1+ = Challenge steps
   const isLanguageStep = currentStepIndex === 0;
@@ -707,18 +709,19 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
     <div className="flex-1 space-y-8">
       {/* Repository Box - Show at top if repo exists */}
       {githubRepoUrl && (
-        <div className="rounded-xl border border-border bg-card p-6 space-y-4 text-center">
-          <h2 className="text-2xl font-bold">Repository Created!</h2>
-          <p className="text-muted-foreground">
+        <div className="rounded-xl border p-6 space-y-4 text-center" style={{ borderColor, backgroundColor: textColor }}>
+          <h2 className="text-2xl font-bold" style={{ color: backgroundColor }}>Repository Created!</h2>
+          <p style={{ color: secondaryTextColor }}>
             Your project repository has been created. Clone it to get started:
           </p>
 
-          <div className="bg-muted rounded-lg p-4 font-mono text-sm">
+          <div className="rounded-lg p-4 font-mono text-sm" style={{ backgroundColor }}>
             <div className="flex items-center justify-between">
-              <code className="flex-1 text-foreground">git clone {githubRepoUrl}</code>
+              <code className="flex-1" style={{ color: textColor }}>git clone {githubRepoUrl}</code>
               <button
                 onClick={handleCopy}
-                className="ml-4 px-3 py-1 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors flex items-center gap-2"
+                className="ml-4 px-3 py-1 rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2"
+                style={{ backgroundColor: borderColor, color: backgroundColor }}
               >
                 {copied ? (
                   <>
@@ -735,9 +738,9 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
             </div>
           </div>
 
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm" style={{ color: secondaryTextColor }}>
             After cloning, run{" "}
-            <code className="px-2 py-1 rounded bg-muted text-accent">
+            <code className="px-2 py-1 rounded" style={{ backgroundColor, color: textColor }}>
               dsa test
             </code>{" "}
             to check your progress.
@@ -747,8 +750,8 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
 
       {/* Header */}
       <div>
-        <h1 className="text-4xl font-bold mb-4">{getPageTitle()}</h1>
-        <p className="text-xl text-muted-foreground">{getPageSubheading()}</p>
+        <h1 className="text-4xl font-bold mb-4" style={{ color: backgroundColor }}>{getPageTitle()}</h1>
+        <p className="text-xl" style={{ color: secondaryTextColor }}>{getPageSubheading()}</p>
       </div>
 
       {/* Step 0: Language Selection - Show general info */}
@@ -756,29 +759,29 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
         <>
           {/* Description */}
           <div className="prose prose-invert max-w-none">
-            <p className="text-lg text-foreground/90 leading-relaxed">
+            <p className="text-lg leading-relaxed" style={{ color: backgroundColor }}>
               {description}
             </p>
           </div>
 
           {/* Concept Explanation */}
-          <div className="rounded-xl border border-border bg-muted p-6">
+          <div className="rounded-xl border p-6" style={{ borderColor, backgroundColor: textColor }}>
             <div className="flex items-center gap-3 mb-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
                 <Lightbulb className="h-5 w-5 text-accent" />
               </div>
-              <h2 className="text-2xl font-bold">Understanding the Concept</h2>
+              <h2 className="text-2xl font-bold" style={{ color: backgroundColor }}>Understanding the Concept</h2>
             </div>
-            <p className="text-foreground/90 leading-relaxed">{concept}</p>
+            <p className="leading-relaxed" style={{ color: backgroundColor }}>{concept}</p>
           </div>
 
           {/* How This Helps You */}
-          <div className="rounded-xl border border-border bg-muted p-6">
+          <div className="rounded-xl border p-6" style={{ borderColor, backgroundColor: textColor }}>
             <div className="flex items-center gap-3 mb-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10 border border-success/20">
                 <Target className="h-5 w-5 text-success" />
               </div>
-              <h2 className="text-2xl font-bold">How This Helps You</h2>
+              <h2 className="text-2xl font-bold" style={{ color: backgroundColor }}>How This Helps You</h2>
             </div>
             <ul className="space-y-3">
               {benefits.map((benefit, index) => (
@@ -788,7 +791,7 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
                       {index + 1}
                     </span>
                   </div>
-                  <p className="text-foreground/90">{benefit}</p>
+                  <p style={{ color: backgroundColor }}>{benefit}</p>
                 </li>
               ))}
             </ul>
@@ -796,14 +799,14 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
 
           {/* Code Example - Stack Usage */}
           {moduleId === 'stack' && (
-            <div className="rounded-xl border border-border bg-muted p-6">
+            <div className="rounded-xl border p-6" style={{ borderColor, backgroundColor: textColor }}>
               <div className="flex items-center gap-3 mb-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
                   <Code2 className="h-5 w-5 text-accent" />
                 </div>
-                <h2 className="text-2xl font-bold">Example: Using a Stack</h2>
+                <h2 className="text-2xl font-bold" style={{ color: backgroundColor }}>Example: Using a Stack</h2>
               </div>
-              <p className="text-foreground/90 mb-4">
+              <p className="mb-4" style={{ color: backgroundColor }}>
                 Here's how to use a stack to reverse a string. Select a language to see the example:
               </p>
               {selectedLanguage ? (
@@ -823,13 +826,13 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
                       {getStackExample(selectedLanguage)}
                     </SyntaxHighlighter>
                   </div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm" style={{ color: secondaryTextColor }}>
                     This example demonstrates the LIFO principle: characters are pushed onto the stack,
                     then popped in reverse order to create the reversed string.
                   </p>
                 </div>
               ) : (
-                <div className="bg-background rounded-lg border border-border p-4 text-center text-muted-foreground">
+                <div className="rounded-lg border p-4 text-center" style={{ backgroundColor, borderColor, color: secondaryTextColor }}>
                   <p>Select a language above to see a code example</p>
                 </div>
               )}
@@ -838,14 +841,14 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
 
           {/* Code Example - Queue Usage */}
           {moduleId === 'queue' && (
-            <div className="rounded-xl border border-border bg-muted p-6">
+            <div className="rounded-xl border p-6" style={{ borderColor, backgroundColor: textColor }}>
               <div className="flex items-center gap-3 mb-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
                   <Code2 className="h-5 w-5 text-accent" />
                 </div>
-                <h2 className="text-2xl font-bold">Example: Simulating a Ticket Counter</h2>
+                <h2 className="text-2xl font-bold" style={{ color: backgroundColor }}>Example: Simulating a Ticket Counter</h2>
               </div>
-              <p className="text-foreground/90 mb-4">
+              <p className="mb-4" style={{ color: backgroundColor }}>
                 Here's how to use a queue to simulate a ticket counter. Select a language to see the example:
               </p>
               {selectedLanguage ? (
@@ -865,13 +868,13 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
                       {getQueueExample(selectedLanguage)}
                     </SyntaxHighlighter>
                   </div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm" style={{ color: secondaryTextColor }}>
                     This example demonstrates the FIFO principle: customers join the queue in order,
                     and are served in the same order they arrived—just like a real ticket counter.
                   </p>
                 </div>
               ) : (
-                <div className="bg-background rounded-lg border border-border p-4 text-center text-muted-foreground">
+                <div className="rounded-lg border p-4 text-center" style={{ backgroundColor, borderColor, color: secondaryTextColor }}>
                   <p>Select a language above to see a code example</p>
                 </div>
               )}
@@ -880,14 +883,14 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
 
           {/* Code Example - Binary Search Usage */}
           {moduleId === 'binary-search' && (
-            <div className="rounded-xl border border-border bg-muted p-6">
+            <div className="rounded-xl border p-6" style={{ borderColor, backgroundColor: textColor }}>
               <div className="flex items-center gap-3 mb-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
                   <Code2 className="h-5 w-5 text-accent" />
                 </div>
-                <h2 className="text-2xl font-bold">Example: Binary Search Implementation</h2>
+                <h2 className="text-2xl font-bold" style={{ color: backgroundColor }}>Example: Binary Search Implementation</h2>
               </div>
-              <p className="text-foreground/90 mb-4">
+              <p className="mb-4" style={{ color: backgroundColor }}>
                 Here's an iterative binary search implementation. Select a language to see the example:
               </p>
               {selectedLanguage ? (
@@ -907,13 +910,13 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
                       {getBinarySearchExample(selectedLanguage)}
                     </SyntaxHighlighter>
                   </div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm" style={{ color: secondaryTextColor }}>
                     This example demonstrates the divide-and-conquer approach: each comparison eliminates half of the remaining elements,
                     achieving O(log n) time complexity. The algorithm repeatedly halves the search space until the target is found.
                   </p>
                 </div>
               ) : (
-                <div className="bg-background rounded-lg border border-border p-4 text-center text-muted-foreground">
+                <div className="rounded-lg border p-4 text-center" style={{ backgroundColor, borderColor, color: secondaryTextColor }}>
                   <p>Select a language above to see a code example</p>
                 </div>
               )}
@@ -922,14 +925,14 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
 
           {/* Code Example - Min Heap Usage */}
           {moduleId === 'min-heap' && (
-            <div className="rounded-xl border border-border bg-muted p-6">
+            <div className="rounded-xl border p-6" style={{ borderColor, backgroundColor: textColor }}>
               <div className="flex items-center gap-3 mb-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
                   <Code2 className="h-5 w-5 text-accent" />
                 </div>
-                <h2 className="text-2xl font-bold">Example: Min Heap Implementation</h2>
+                <h2 className="text-2xl font-bold" style={{ color: backgroundColor }}>Example: Min Heap Implementation</h2>
               </div>
-              <p className="text-foreground/90 mb-4">
+              <p className="mb-4" style={{ color: backgroundColor }}>
                 Here's a complete Min Heap implementation using an array. Select a language to see the example:
               </p>
               {selectedLanguage ? (
@@ -949,14 +952,14 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
                       {getMinHeapExample(selectedLanguage)}
                     </SyntaxHighlighter>
                   </div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm" style={{ color: secondaryTextColor }}>
                     This example demonstrates the complete Min Heap with insert, extractMin, peekMin, and helper methods.
                     The heap maintains the min-heap property where each parent is smaller than its children.
                     Elements bubble up when inserted and bubble down when the minimum is extracted.
                   </p>
                 </div>
               ) : (
-                <div className="bg-background rounded-lg border border-border p-4 text-center text-muted-foreground">
+                <div className="rounded-lg border p-4 text-center" style={{ backgroundColor, borderColor, color: secondaryTextColor }}>
                   <p>Select a language above to see a code example</p>
                 </div>
               )}
@@ -979,7 +982,8 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
               {!selectedLanguage ? (
                 <button
                   disabled
-                  className="px-6 py-3 rounded-lg bg-muted text-muted-foreground cursor-not-allowed font-medium"
+                  className="px-6 py-3 rounded-lg cursor-not-allowed font-medium"
+                  style={{ backgroundColor: textColor, color: secondaryTextColor }}
                 >
                   Select a language to continue
                 </button>
@@ -987,7 +991,8 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
                 <button
                   onClick={() => onStartChallenge?.(selectedLanguage)}
                   disabled={isCreatingProject}
-                  className="px-6 py-3 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 font-medium transition-colors font-mono disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-3 rounded-lg hover:opacity-90 font-medium transition-opacity font-mono disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ backgroundColor: backgroundColor, color: textColor }}
                 >
                   {isCreatingProject ? (
                     <span className="flex items-center gap-2">
@@ -1008,14 +1013,14 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
       {!isLanguageStep && instruction && (
         <div className="space-y-6">
           {/* Objective */}
-          <div className="rounded-xl border border-border bg-muted p-6">
+          <div className="rounded-xl border p-6" style={{ borderColor, backgroundColor: textColor }}>
             <div className="flex items-center gap-3 mb-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
                 <Target className="h-5 w-5 text-accent" />
               </div>
-              <h2 className="text-2xl font-bold">{instruction.title}</h2>
+              <h2 className="text-2xl font-bold" style={{ color: backgroundColor }}>{instruction.title}</h2>
             </div>
-            <p className="text-lg text-foreground/90">
+            <p className="text-lg" style={{ color: backgroundColor }}>
               {instruction.objective}
             </p>
           </div>
@@ -1023,12 +1028,12 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
           {/* Method Signature */}
           {selectedLanguage &&
             instruction.methodSignature[selectedLanguage.toLowerCase()] && (
-              <div className="rounded-xl border border-border bg-muted p-6">
+              <div className="rounded-xl border p-6" style={{ borderColor, backgroundColor: textColor }}>
                 <div className="flex items-center gap-3 mb-4">
                   <Code2 className="h-5 w-5 text-accent" />
-                  <h3 className="text-xl font-bold">Method Signature</h3>
+                  <h3 className="text-xl font-bold" style={{ color: backgroundColor }}>Method Signature</h3>
                 </div>
-                <div className="rounded-lg border border-border bg-background p-4 font-mono text-sm overflow-x-auto">
+                <div className="rounded-lg border p-4 font-mono text-sm overflow-x-auto" style={{ borderColor, backgroundColor }}>
                   <code className="text-accent">
                     {
                       instruction.methodSignature[
@@ -1041,43 +1046,44 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
             )}
 
           {/* Requirements */}
-          <div className="rounded-xl border border-border bg-muted p-6">
+          <div className="rounded-xl border p-6" style={{ borderColor, backgroundColor: textColor }}>
             <div className="flex items-center gap-3 mb-4">
               <CheckCircle2 className="h-5 w-5 text-success" />
-              <h3 className="text-xl font-bold">Requirements</h3>
+              <h3 className="text-xl font-bold" style={{ color: backgroundColor }}>Requirements</h3>
             </div>
             <ul className="space-y-2">
               {instruction.requirements.map((req, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <CheckCircle2 className="h-5 w-5 text-success mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground/90">{req}</span>
+                  <span style={{ color: backgroundColor }}>{req}</span>
                 </li>
               ))}
             </ul>
           </div>
 
           {/* Examples */}
-          <div className="rounded-xl border border-border bg-muted p-6">
+          <div className="rounded-xl border p-6" style={{ borderColor, backgroundColor: textColor }}>
             <div className="flex items-center gap-3 mb-4">
               <Lightbulb className="h-5 w-5 text-accent" />
-              <h3 className="text-xl font-bold">Examples</h3>
+              <h3 className="text-xl font-bold" style={{ color: backgroundColor }}>Examples</h3>
             </div>
             <div className="space-y-4">
               {instruction.examples.map((example, i) => (
                 <div
                   key={i}
-                  className="rounded-lg border border-border bg-background p-4 space-y-3"
+                  className="rounded-lg border p-4 space-y-3"
+                  style={{ borderColor, backgroundColor }}
                 >
                   <div>
-                    <div className="text-sm font-semibold text-muted-foreground mb-2">
+                    <div className="text-sm font-semibold mb-2" style={{ color: secondaryTextColor }}>
                       Input:
                     </div>
-                    <pre className="font-mono text-sm text-foreground/90 whitespace-pre-wrap">
+                    <pre className="font-mono text-sm whitespace-pre-wrap" style={{ color: textColor }}>
                       {example.input}
                     </pre>
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-muted-foreground mb-2">
+                    <div className="text-sm font-semibold mb-2" style={{ color: secondaryTextColor }}>
                       Output:
                     </div>
                     <pre className="font-mono text-sm text-success whitespace-pre-wrap">
@@ -1085,10 +1091,10 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
                     </pre>
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-muted-foreground mb-2">
+                    <div className="text-sm font-semibold mb-2" style={{ color: secondaryTextColor }}>
                       Explanation:
                     </div>
-                    <p className="text-sm text-foreground/90">
+                    <p className="text-sm" style={{ color: textColor }}>
                       {example.explanation}
                     </p>
                   </div>
@@ -1098,32 +1104,32 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
           </div>
 
           {/* Hints */}
-          <div className="rounded-xl border border-border bg-muted p-6">
+          <div className="rounded-xl border p-6" style={{ borderColor, backgroundColor: textColor }}>
             <div className="flex items-center gap-3 mb-4">
               <Lightbulb className="h-5 w-5 text-warning" />
-              <h3 className="text-xl font-bold">Hints</h3>
+              <h3 className="text-xl font-bold" style={{ color: backgroundColor }}>Hints</h3>
             </div>
             <ul className="space-y-2">
               {instruction.hints.map((hint, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <span className="text-warning mt-0.5">💡</span>
-                  <span className="text-foreground/90">{hint}</span>
+                  <span style={{ color: backgroundColor }}>{hint}</span>
                 </li>
               ))}
             </ul>
           </div>
 
           {/* Edge Cases */}
-          <div className="rounded-xl border border-border bg-muted p-6">
+          <div className="rounded-xl border p-6" style={{ borderColor, backgroundColor: textColor }}>
             <div className="flex items-center gap-3 mb-4">
               <AlertCircle className="h-5 w-5 text-destructive" />
-              <h3 className="text-xl font-bold">Edge Cases to Test</h3>
+              <h3 className="text-xl font-bold" style={{ color: backgroundColor }}>Edge Cases to Test</h3>
             </div>
             <ul className="space-y-2">
               {instruction.edgeCases.map((edge, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <AlertCircle className="h-5 w-5 text-destructive mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground/90">{edge}</span>
+                  <span style={{ color: backgroundColor }}>{edge}</span>
                 </li>
               ))}
             </ul>
