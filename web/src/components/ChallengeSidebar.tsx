@@ -95,7 +95,7 @@ export function ChallengeSidebar({
                     shapeVariant={index}
                   >
                     {/* Content without numbers */}
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 text-center">
                       <p
                         className={cn(
                           "text-sm font-medium leading-snug font-mono",
@@ -104,7 +104,6 @@ export function ChallengeSidebar({
                         )}
                       >
                         {sub.name}
-                        {isFutureLocked && " 🔒"}
                         {isCompleted && index <= maxAccessibleStep && " ✓"}
                       </p>
                       {isCurrentStep && selectedLanguage && index === 0 && (
