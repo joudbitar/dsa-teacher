@@ -34,26 +34,27 @@ export function Navbar({ className }: { className?: string }) {
 
   return (
     <nav 
-      className={`sticky top-0 z-50 ${className || ''}`}
+      className={`sticky top-0 z-50 border-b backdrop-blur-sm ${className || ''}`}
       style={{ 
-        backgroundColor: backgroundColor
+        backgroundColor: backgroundColor,
+        borderColor: '#D4CFC0'
       }}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative flex h-16 items-center justify-between">
           {/* Left: Logo */}
-          <Link to="/" className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2 group">
             <div 
-              className="flex h-8 w-8 items-center justify-center rounded-lg border"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border-2 transition-all group-hover:scale-105"
               style={{ 
-                borderColor: borderColor,
-                backgroundColor: 'transparent'
+                borderColor: '#7F5539',
+                backgroundColor: 'rgba(127, 85, 57, 0.1)'
               }}
             >
-              <Code2 className="h-5 w-5" style={{ color: textColor }} />
+              <Code2 className="h-5 w-5" style={{ color: '#7F5539' }} />
             </div>
             <span 
-              className="text-xl font-bold"
+              className="text-xl font-bold tracking-tight"
               style={{ 
                 color: textColor,
                 fontFamily: 'JetBrains Mono, monospace'
@@ -64,20 +65,20 @@ export function Navbar({ className }: { className?: string }) {
           </Link>
           
           {/* Center: Navigation Links */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-6">
+          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-2">
             <Link
-              to="/about"
-              className="text-sm font-medium transition-colors hover:opacity-70"
+              to="/"
+              className="text-sm font-semibold px-4 py-2 rounded-lg transition-all hover:bg-[rgba(127,85,57,0.1)]"
               style={{ 
                 color: textColor,
                 fontFamily: 'JetBrains Mono, monospace'
               }}
             >
-              About
+              Home
             </Link>
             <Link
               to="/challenges"
-              className="text-sm font-medium transition-colors hover:opacity-70"
+              className="text-sm font-semibold px-4 py-2 rounded-lg transition-all hover:bg-[rgba(127,85,57,0.1)]"
               style={{ 
                 color: textColor,
                 fontFamily: 'JetBrains Mono, monospace'
@@ -87,7 +88,7 @@ export function Navbar({ className }: { className?: string }) {
             </Link>
             <Link
               to="/docs"
-              className="text-sm font-medium transition-colors hover:opacity-70"
+              className="text-sm font-semibold px-4 py-2 rounded-lg transition-all hover:bg-[rgba(127,85,57,0.1)]"
               style={{ 
                 color: textColor,
                 fontFamily: 'JetBrains Mono, monospace'
@@ -103,11 +104,14 @@ export function Navbar({ className }: { className?: string }) {
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg transition-colors hover:opacity-80"
-                  style={{ color: textColor }}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-all hover:bg-[rgba(127,85,57,0.05)]"
+                  style={{ 
+                    color: textColor,
+                    borderColor: '#D4CFC0'
+                  }}
                 >
                   <User className="h-4 w-4" />
-                  <span className="text-sm" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+                  <span className="text-sm font-medium" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
                     {user.email}
                   </span>
                   <ChevronDown 
@@ -117,18 +121,18 @@ export function Navbar({ className }: { className?: string }) {
                 
                 {isDropdownOpen && (
                   <div 
-                    className="absolute right-0 mt-2 w-48 rounded-lg border-2 shadow-lg z-50"
+                    className="absolute right-0 mt-2 w-56 rounded-lg border shadow-lg z-50"
                     style={{ 
                       backgroundColor: backgroundColor,
-                      borderColor: borderColor
+                      borderColor: '#D4CFC0'
                     }}
                   >
                     <button
                       onClick={toggleDarkMode}
-                      className="w-full flex items-center justify-between gap-2 px-4 py-3 text-sm font-semibold transition-colors hover:opacity-90 rounded-t-lg border-b"
+                      className="w-full flex items-center justify-between gap-2 px-4 py-3 text-sm font-semibold transition-all hover:bg-[rgba(127,85,57,0.05)] rounded-t-lg border-b"
                       style={{ 
                         color: textColor,
-                        borderColor: borderColor,
+                        borderColor: '#D4CFC0',
                         fontFamily: 'JetBrains Mono, monospace'
                       }}
                     >
@@ -144,7 +148,7 @@ export function Navbar({ className }: { className?: string }) {
                     </button>
                     <button
                       onClick={handleSignOut}
-                      className="w-full flex items-center justify-between gap-2 px-4 py-3 text-sm font-semibold transition-colors hover:opacity-90 rounded-b-lg"
+                      className="w-full flex items-center justify-between gap-2 px-4 py-3 text-sm font-semibold transition-all hover:bg-red-50 dark:hover:bg-red-950/20 rounded-b-lg"
                       style={{ 
                         color: '#dc2626',
                         fontFamily: 'JetBrains Mono, monospace'
@@ -163,10 +167,10 @@ export function Navbar({ className }: { className?: string }) {
               <>
                 <Link
                   to="/login"
-                  className="inline-flex items-center justify-center rounded-lg border-2 bg-transparent px-4 py-2 text-sm font-semibold transition-colors hover:opacity-80"
+                  className="inline-flex items-center justify-center rounded-lg border-2 bg-transparent px-5 py-2 text-sm font-semibold transition-all hover:bg-[rgba(127,85,57,0.05)]"
                   style={{ 
-                    borderColor: borderColor, 
-                    color: textColor,
+                    borderColor: '#7F5539', 
+                    color: '#7F5539',
                     fontFamily: 'JetBrains Mono, monospace'
                   }}
                 >
@@ -174,10 +178,10 @@ export function Navbar({ className }: { className?: string }) {
                 </Link>
                 <Link
                   to="/auth?mode=signup"
-                  className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-bold transition-colors hover:opacity-90"
+                  className="inline-flex items-center justify-center rounded-lg px-5 py-2 text-sm font-bold transition-all hover:opacity-90 shadow-sm"
                   style={{ 
-                    backgroundColor: textColor, 
-                    color: backgroundColor,
+                    backgroundColor: '#7F5539', 
+                    color: '#FFFEF9',
                     fontFamily: 'JetBrains Mono, monospace'
                   }}
                 >

@@ -311,7 +311,7 @@ export function Challenges() {
             className="mb-8 rounded-lg border p-6"
             style={{
               backgroundColor: sectionBackgroundColor,
-              borderColor: borderColor,
+              borderColor: '#D4CFC0',
             }}
           >
             <div className="flex items-center justify-between mb-6">
@@ -404,7 +404,7 @@ export function Challenges() {
 
                         {/* Icon and Title */}
                         <div className="flex items-start gap-2 mb-2 pr-24">
-                          <div className="flex h-10 w-10 shrink-0 aspect-square items-center justify-center rounded-sm bg-primary/10 border border-primary/20">
+                          <div className="flex h-10 w-10 shrink-0 aspect-square items-center justify-center rounded-sm bg-primary/10 border border-primary/30">
                             <Icon className="h-5 w-5 text-primary" />
                           </div>
                           <div className="flex-1">

@@ -1,94 +1,72 @@
-import { Code2, Github } from 'lucide-react'
+import { Linkedin, Mail } from 'lucide-react'
 import { useTheme } from '../theme/ThemeContext'
 
 export function Footer({ className }: { className?: string }) {
-  const { backgroundColor, textColor, borderColor, secondaryTextColor } = useTheme()
+  const { backgroundColor, textColor, secondaryTextColor } = useTheme()
   
   // Use the primary brown color from the theme
   const primaryBrown = '#7F5539'
-  
-  // Convert hex to rgba for opacity
-  const hexToRgba = (hex: string, alpha: number) => {
-    const r = parseInt(hex.slice(1, 3), 16)
-    const g = parseInt(hex.slice(3, 5), 16)
-    const b = parseInt(hex.slice(5, 7), 16)
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`
-  }
   
   return (
     <footer 
       className={`border-t backdrop-blur-sm ${className || ''}`}
       style={{
         backgroundColor: backgroundColor,
-        borderColor: borderColor,
+        borderColor: '#D4CFC0',
       }}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
-            <div className="flex items-center space-x-2 mb-4">
-              <div 
-                className="flex h-8 w-8 items-center justify-center rounded-sm border"
-                style={{
-                  backgroundColor: hexToRgba(primaryBrown, 0.1),
-                  borderColor: hexToRgba(primaryBrown, 0.2),
-                }}
-              >
-                <Code2 className="h-5 w-5" style={{ color: primaryBrown }} />
-              </div>
-              <span className="font-bold font-mono" style={{ color: textColor }}>
-                DSA Lab
-              </span>
+        {/* Team and Connect - Horizontal and Centered */}
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-16 mb-8">
+          <div className="flex flex-col items-center gap-3">
+            <h3 className="font-semibold font-mono" style={{ color: textColor }}>Team</h3>
+            <div className="flex gap-4 text-sm font-mono">
+              <span style={{ color: primaryBrown }}>Taha</span>
+              <span style={{ color: secondaryTextColor }}>•</span>
+              <span style={{ color: primaryBrown }}>Ethan</span>
+              <span style={{ color: secondaryTextColor }}>•</span>
+              <span style={{ color: primaryBrown }}>Joud</span>
             </div>
-            <p className="text-sm font-mono" style={{ color: secondaryTextColor }}>
-              Built by vibe coders, for real coders. Learn multiplication before you touch the calculator.
-            </p>
           </div>
 
-          <div>
-            <h3 className="font-semibold mb-4 font-mono" style={{ color: textColor }}>Product</h3>
-            <ul className="space-y-2 text-sm font-mono" style={{ color: secondaryTextColor }}>
-              <li>
-                <a href="/challenges" className="transition-colors hover:opacity-80" style={{ color: primaryBrown }}>
-                  Challenges
-                </a>
-              </li>
-              <li>
-                <a href="#how-it-works" className="transition-colors hover:opacity-80" style={{ color: primaryBrown }}>
-                  How It Works
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="font-semibold mb-4 font-mono" style={{ color: textColor }}>Resources</h3>
-            <ul className="space-y-2 text-sm font-mono" style={{ color: secondaryTextColor }}>
-              <li>
-                <a href="https://github.com" className="transition-colors hover:opacity-80" style={{ color: primaryBrown }}>
-                  Documentation
-                </a>
-              </li>
-              <li>
-                <a href="https://github.com" className="transition-colors hover:opacity-80" style={{ color: primaryBrown }}>
-                  GitHub
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="font-semibold mb-4 font-mono" style={{ color: textColor }}>Connect</h3>
+          <div className="flex flex-col items-center gap-3">
+            <h3 className="font-semibold font-mono" style={{ color: textColor }}>Connect</h3>
             <div className="flex space-x-4">
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition-colors hover:opacity-80"
-              style={{ color: primaryBrown }}
-            >
-              <Github className="h-5 w-5" />
-            </a>
+              <a
+                href="https://x.com/dsalab"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors hover:opacity-80"
+                style={{ color: primaryBrown }}
+                title="X (formerly Twitter)"
+              >
+                <svg 
+                  className="h-5 w-5" 
+                  viewBox="0 0 24 24" 
+                  fill="currentColor"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+              </a>
+              <a
+                href="https://linkedin.com/company/dsalab"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors hover:opacity-80"
+                style={{ color: primaryBrown }}
+                title="LinkedIn"
+              >
+                <Linkedin className="h-5 w-5" />
+              </a>
+              <a
+                href="mailto:contact@dsalab.dev"
+                className="transition-colors hover:opacity-80"
+                style={{ color: primaryBrown }}
+                title="Email"
+              >
+                <Mail className="h-5 w-5" />
+              </a>
             </div>
           </div>
         </div>
@@ -96,11 +74,11 @@ export function Footer({ className }: { className?: string }) {
         <div 
           className="mt-8 border-t pt-8 text-center text-sm font-mono"
           style={{ 
-            borderColor: borderColor,
+            borderColor: '#D4CFC0',
             color: secondaryTextColor 
           }}
         >
-          <p>© 2024 DSA Lab. Built for hackers who want to master fundamentals.</p>
+          <p>© 2025 DSA Lab. Built for hackers who want to master fundamentals.</p>
         </div>
       </div>
     </footer>
