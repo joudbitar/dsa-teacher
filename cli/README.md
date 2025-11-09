@@ -4,6 +4,15 @@ DSA Lab command-line tool for testing and submitting solutions locally.
 
 ## Installation
 
+### Install from this monorepo (macOS/Linux/WSL)
+
+```bash
+make install-cli      # run from repository root
+dsa --version
+```
+
+Need to pull the latest sources directly? Use `make install-cli-remote`.
+
 ### Install from npm (Recommended) 🚀
 
 ```
@@ -30,9 +39,9 @@ To check what version you have locally:
 npm ls -g @dsa/cli --depth=0
 ```
 
-### Alternative: Install from source
+### Alternative: Install from source step-by-step
 
-If you want to work from a local clone instead:
+If you want to run each step manually instead of using the Makefile:
 
 ```bash
 # 1. Install and set up pnpm
@@ -52,20 +61,10 @@ pnpm link --global
 dsa --version
 ```
 
-### Legacy: install script
+### Helper scripts
 
-The automated install script still works for contributors who want to link from source:
-
-```bash
-./cli/scripts/install.sh
-```
-
-For Windows PowerShell:
-
-```powershell
-cd cli
-.\scripts\install.ps1
-```
+- POSIX shell: `scripts/install-cli.sh`
+- Windows PowerShell: `cli/scripts/install.ps1`
 
 ### Troubleshooting
 

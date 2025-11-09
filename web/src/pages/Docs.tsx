@@ -178,6 +178,29 @@ const docSections: DocSection[] = [
             >
               <tr>
                 <td className="px-4 py-3 font-medium">
+                  Local workspace (recommended)
+                </td>
+                <td className="px-4 py-3">
+                  <code>make install-cli</code>
+                </td>
+                <td className="px-4 py-3">
+                  Builds from your checkout and links <code>dsa</code> into{" "}
+                  <code>~/.local/bin</code>.
+                </td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3 font-medium">
+                  Remote fetch helper
+                </td>
+                <td className="px-4 py-3">
+                  <code>make install-cli-remote</code>
+                </td>
+                <td className="px-4 py-3">
+                  Downloads the latest sources before running the helper script.
+                </td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3 font-medium">
                   npm registry (default)
                 </td>
                 <td className="px-4 py-3">
@@ -200,7 +223,8 @@ const docSections: DocSection[] = [
                 <td className="px-4 py-3 font-medium">Remote one-liner</td>
                 <td className="px-4 py-3">
                   <code>
-                    curl .../install-cli.sh | DSA_CLI_REPO=&lt;url&gt; bash
+                    curl -fsSL https://raw.githubusercontent.com/&lt;org&gt;/&lt;repo&gt;/main/scripts/install-cli.sh |
+                    env DSA_CLI_REPO="https://github.com/&lt;org&gt;/&lt;repo&gt;" bash
                   </code>
                 </td>
                 <td className="px-4 py-3">

@@ -10,15 +10,14 @@ cd dsa-lab
 pnpm install
 ```
 
-## 2. Build the CLI
+## 2. Install the CLI
 
 ```bash
-cd cli
-pnpm install
-pnpm build
-pnpm link --global   # optional, exposes the `dsa` command
+make install-cli      # builds cli/ locally and links the dsa binary
 dsa --version
 ```
+
+> Prefer a remote pull of the latest `main`? Swap in `make install-cli-remote`.
 
 ## 3. Run Supabase Functions Locally
 

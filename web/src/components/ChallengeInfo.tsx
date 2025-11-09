@@ -18,77 +18,79 @@ import { useTheme } from "@/theme/ThemeContext";
 // Custom light syntax highlighting theme matching site colors
 const customLightTheme: any = {
   'code[class*="language-"]': {
-    color: '#171512',
-    background: '#F0ECDA',
-    fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
-    fontSize: '0.875rem',
-    textAlign: 'left',
-    whiteSpace: 'pre',
-    wordSpacing: 'normal',
-    wordBreak: 'normal',
-    wordWrap: 'normal',
-    lineHeight: '1.5',
-    MozTabSize: '4',
-    OTabSize: '4',
-    tabSize: '4',
-    WebkitHyphens: 'none',
-    MozHyphens: 'none',
-    msHyphens: 'none',
-    hyphens: 'none',
+    color: "#171512",
+    background: "#F0ECDA",
+    fontFamily:
+      'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
+    fontSize: "0.875rem",
+    textAlign: "left",
+    whiteSpace: "pre",
+    wordSpacing: "normal",
+    wordBreak: "normal",
+    wordWrap: "normal",
+    lineHeight: "1.5",
+    MozTabSize: "4",
+    OTabSize: "4",
+    tabSize: "4",
+    WebkitHyphens: "none",
+    MozHyphens: "none",
+    msHyphens: "none",
+    hyphens: "none",
   },
   'pre[class*="language-"]': {
-    color: '#171512',
-    background: '#F0ECDA',
-    fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
-    fontSize: '0.875rem',
-    textAlign: 'left',
-    whiteSpace: 'pre',
-    wordSpacing: 'normal',
-    wordBreak: 'normal',
-    wordWrap: 'normal',
-    lineHeight: '1.5',
-    MozTabSize: '4',
-    OTabSize: '4',
-    tabSize: '4',
-    WebkitHyphens: 'none',
-    MozHyphens: 'none',
-    msHyphens: 'none',
-    hyphens: 'none',
-    padding: '1em',
-    margin: '0',
-    overflow: 'auto',
+    color: "#171512",
+    background: "#F0ECDA",
+    fontFamily:
+      'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
+    fontSize: "0.875rem",
+    textAlign: "left",
+    whiteSpace: "pre",
+    wordSpacing: "normal",
+    wordBreak: "normal",
+    wordWrap: "normal",
+    lineHeight: "1.5",
+    MozTabSize: "4",
+    OTabSize: "4",
+    tabSize: "4",
+    WebkitHyphens: "none",
+    MozHyphens: "none",
+    msHyphens: "none",
+    hyphens: "none",
+    padding: "1em",
+    margin: "0",
+    overflow: "auto",
   },
-  'comment': { color: '#6a737d' },
-  'prolog': { color: '#6a737d' },
-  'doctype': { color: '#6a737d' },
-  'cdata': { color: '#6a737d' },
-  'punctuation': { color: '#171512' },
-  'property': { color: '#171512' },
-  'tag': { color: '#171512' },
-  'boolean': { color: '#0550ae' },
-  'number': { color: '#0550ae' },
-  'constant': { color: '#0550ae' },
-  'symbol': { color: '#0550ae' },
-  'deleted': { color: '#cf222e' },
-  'selector': { color: '#953800' },
-  'attr-name': { color: '#953800' },
-  'string': { color: '#0a3069' },
-  'char': { color: '#0a3069' },
-  'builtin': { color: '#0a3069' },
-  'inserted': { color: '#1a7f37' },
-  'operator': { color: '#171512' },
-  'entity': { color: '#171512' },
-  'url': { color: '#0a3069' },
-  'variable': { color: '#171512' },
-  'atrule': { color: '#0969da' },
-  'attr-value': { color: '#0a3069' },
-  'function': { color: '#8250df' },
-  'class-name': { color: '#953800' },
-  'keyword': { color: '#cf222e' },
-  'regex': { color: '#0a3069' },
-  'important': { color: '#cf222e', fontWeight: 'bold' },
-  'bold': { fontWeight: 'bold' },
-  'italic': { fontStyle: 'italic' },
+  comment: { color: "#6a737d" },
+  prolog: { color: "#6a737d" },
+  doctype: { color: "#6a737d" },
+  cdata: { color: "#6a737d" },
+  punctuation: { color: "#171512" },
+  property: { color: "#171512" },
+  tag: { color: "#171512" },
+  boolean: { color: "#0550ae" },
+  number: { color: "#0550ae" },
+  constant: { color: "#0550ae" },
+  symbol: { color: "#0550ae" },
+  deleted: { color: "#cf222e" },
+  selector: { color: "#953800" },
+  "attr-name": { color: "#953800" },
+  string: { color: "#0a3069" },
+  char: { color: "#0a3069" },
+  builtin: { color: "#0a3069" },
+  inserted: { color: "#1a7f37" },
+  operator: { color: "#171512" },
+  entity: { color: "#171512" },
+  url: { color: "#0a3069" },
+  variable: { color: "#171512" },
+  atrule: { color: "#0969da" },
+  "attr-value": { color: "#0a3069" },
+  function: { color: "#8250df" },
+  "class-name": { color: "#953800" },
+  keyword: { color: "#cf222e" },
+  regex: { color: "#0a3069" },
+  important: { color: "#cf222e", fontWeight: "bold" },
+  bold: { fontWeight: "bold" },
+  italic: { fontStyle: "italic" },
 };
 
 interface TimelineStep {
@@ -1115,8 +1117,14 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
             </div>
             <p className="text-foreground/90 mb-4">
               Get the command-line helper locally with a single command so you
-              can run <code className="px-1 py-0.5 rounded bg-background">dsa test</code>{" "}
-              and <code className="px-1 py-0.5 rounded bg-background">dsa submit</code>{" "}
+              can run{" "}
+              <code className="px-1 py-0.5 rounded bg-background">
+                dsa test
+              </code>{" "}
+              and{" "}
+              <code className="px-1 py-0.5 rounded bg-background">
+                dsa submit
+              </code>{" "}
               without leaving your editor.
             </p>
             <div className="rounded-lg border border-border bg-background p-4 font-mono text-sm text-foreground space-y-2">
@@ -1129,9 +1137,16 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
             </div>
             <p className="text-sm text-muted-foreground mt-3">
               If your shell cannot find the command after running{" "}
-              <code className="px-1 py-0.5 rounded bg-background">make install-cli</code>, add{" "}
-              <code className="px-1 py-0.5 rounded bg-background">~/.local/bin</code> to your{" "}
-              <code className="px-1 py-0.5 rounded bg-background">PATH</code> and re-open the terminal.
+              <code className="px-1 py-0.5 rounded bg-background">
+                make install-cli
+              </code>
+              , add{" "}
+              <code className="px-1 py-0.5 rounded bg-background">
+                ~/.local/bin
+              </code>{" "}
+              to your{" "}
+              <code className="px-1 py-0.5 rounded bg-background">PATH</code>{" "}
+              and re-open the terminal.
             </p>
           </div>
 

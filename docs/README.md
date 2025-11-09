@@ -4,27 +4,41 @@ Welcome to the DSA Lab knowledge base. This manual explains every component of t
 
 ---
 
+## Quick Start: Install the CLI
+
+If you simply need the CLI, follow these steps before diving into the rest of the documentation:
+
+1. From the repository root (macOS/Linux/WSL), run `make install-cli`. This compiles the local `cli/` package and symlinks the resulting `dsa` binary into your PATH without downloading anything.
+2. Need the latest from `main` instead of your checkout? Use `make install-cli-remote` to fetch sources via `scripts/install-cli.sh`.
+3. On Windows, open PowerShell 7 and run `pwsh -File cli/scripts/install.ps1`.
+4. Confirm the installation with `dsa --version`.
+
+For deeper options, environment variables, and troubleshooting tips, continue with [Installing the CLI](#installing-the-cli).
+
+---
+
 ## Table of Contents
 
-1. [Platform Overview](#platform-overview)
-2. [System Architecture](#system-architecture)
-3. [Roles & Responsibilities](#roles--responsibilities)
-4. [Prerequisites](#prerequisites)
-5. [Installing the CLI](#installing-the-cli)
-6. [Verifying & Updating Your Environment](#verifying--updating-your-environment)
-7. [Uninstalling & Reinstalling](#uninstalling--reinstalling)
-8. [Working with Challenge Repositories](#working-with-challenge-repositories)
-9. [Configuration Reference (`dsa.config.json`)](#configuration-reference-dsaconfigjson)
-10. [Daily Workflow](#daily-workflow)
-11. [Command Reference](#command-reference)
-12. [Advanced Usage & Automation](#advanced-usage--automation)
-13. [Troubleshooting & Diagnostics](#troubleshooting--diagnostics)
-14. [Support Playbook](#support-playbook)
-15. [How the CLI Works Internally](#how-the-cli-works-internally)
-16. [Release & Versioning Strategy](#release--versioning-strategy)
-17. [Security & Compliance Considerations](#security--compliance-considerations)
-18. [Glossary](#glossary)
-19. [Additional Resources](#additional-resources)
+1. [Quick Start: Install the CLI](#quick-start-install-the-cli)
+2. [Platform Overview](#platform-overview)
+3. [System Architecture](#system-architecture)
+4. [Roles & Responsibilities](#roles--responsibilities)
+5. [Prerequisites](#prerequisites)
+6. [Installing the CLI](#installing-the-cli)
+7. [Verifying & Updating Your Environment](#verifying--updating-your-environment)
+8. [Uninstalling & Reinstalling](#uninstalling--reinstalling)
+9. [Working with Challenge Repositories](#working-with-challenge-repositories)
+10. [Configuration Reference (`dsa.config.json`)](#configuration-reference-dsaconfigjson)
+11. [Daily Workflow](#daily-workflow)
+12. [Command Reference](#command-reference)
+13. [Advanced Usage & Automation](#advanced-usage--automation)
+14. [Troubleshooting & Diagnostics](#troubleshooting--diagnostics)
+15. [Support Playbook](#support-playbook)
+16. [How the CLI Works Internally](#how-the-cli-works-internally)
+17. [Release & Versioning Strategy](#release--versioning-strategy)
+18. [Security & Compliance Considerations](#security--compliance-considerations)
+19. [Glossary](#glossary)
+20. [Additional Resources](#additional-resources)
 
 ---
 
@@ -103,13 +117,15 @@ corepack --version  # optional
 
 Choose the path that matches your environment and security posture.
 
-| Scenario                                               | Steps                                                                                   | Notes                                                                                                                                        |
-| ------------------------------------------------------ | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| **Published npm package (recommended)**                | `npm install -g @dsa/cli`                                                               | Fastest route for learners. Requires npm registry access. Update with `npm update -g @dsa/cli`.                                              |
-| **Source install via helper script (macOS/Linux/WSL)** | `./scripts/install-cli.sh`                                                              | Builds TypeScript locally, installs under `~/.local/share/dsa-cli`, and symlinks to `~/.local/bin/dsa`. Respects Corepack/pnpm availability. |
-| **Remote one-liner (no npm registry)**                 | `curl -fsSL https://raw.githubusercontent.com/<org>/dsa-lab/main/scripts/install-cli.sh | ENV_VARS bash`                                                                                                                               | Explicitly set `DSA_CLI_REPO`, `DSA_CLI_HOME`, `DSA_CLI_BIN`. Audit the script before piping into `bash`. |
-| **Windows (PowerShell)**                               | `cd cli; .\scripts\install.ps1`                                                         | Equivalent functionality for Windows. Run `Set-ExecutionPolicy RemoteSigned` if execution is blocked.                                        |
-| **Air-gapped / Manual fallback**                       | `cd cli && pnpm install && pnpm build && pnpm link --global`                            | Requires local access to the repo and pnpm. Ideal for contributors working off the main branch.                                              |
+| Scenario                                               | Steps                                                                                     | Notes                                                                                                                                         |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Local workspace (recommended)**                      | `make install-cli`                                                                        | Uses your checked-out `cli/` package, builds it, and installs to `~/.local/bin` via the helper script’s local mode.                           |
+| **Remote fetch (macOS/Linux/WSL)**                     | `make install-cli-remote`                                                                 | Downloads the latest sources defined by `DSA_CLI_REPO`/`DSA_CLI_REF`, then runs the same build-and-link flow.                                 |
+| **Published npm package**                              | `npm install -g @dsa/cli`                                                                 | Fastest route for learners. Requires npm registry access. Update with `npm update -g @dsa/cli`.                                               |
+| **Helper script (manual invocation)**                  | `./scripts/install-cli.sh`                                                                | Builds TypeScript locally, installs under `~/.local/share/dsa-cli`, and symlinks to `~/.local/bin/dsa`. Respects Corepack/pnpm availability.  |
+| **Remote one-liner (no npm registry)**                 | `curl -fsSL https://raw.githubusercontent.com/<org>/<repo>/main/scripts/install-cli.sh \| ENV_VARS bash` | Explicitly set `DSA_CLI_REPO`, `DSA_CLI_HOME`, `DSA_CLI_BIN`. Audit the script before piping into `bash`. |
+| **Windows (PowerShell)**                               | `pwsh -File cli/scripts/install.ps1`                                                      | Equivalent functionality for Windows. Run `Set-ExecutionPolicy RemoteSigned` if execution is blocked.                                         |
+| **Air-gapped / Manual fallback**                       | `cd cli && pnpm install && pnpm build && pnpm link --global`                              | Requires local access to the repo and pnpm. Ideal for contributors working off the main branch.                                               |
 
 ### Environment Variables Supported by `install-cli.sh`
 

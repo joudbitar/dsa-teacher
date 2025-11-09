@@ -35,7 +35,16 @@ repositories before deploying the Edge Functions.
 
 ## Install the CLI Globally
 
-From a local checkout:
+Quick start for macOS/Linux/WSL:
+
+```bash
+make install-cli         # builds cli/ locally and links dsa into ~/.local/bin
+dsa --version            # verify the binary resolves
+```
+
+Need to refresh from the latest remote sources? Run `make install-cli-remote`, which wraps the same helper script but downloads the archive defined by `DSA_CLI_REPO`/`DSA_CLI_REF` before building.
+
+Manual steps remain available:
 
 ```bash
 cd cli
@@ -47,7 +56,7 @@ pnpm link --global
 dsa --version
 ```
 
-A full installer lives in `cli/scripts/install.sh`. Distribute it however you like—
+A full installer lives in `scripts/install-cli.sh`. Distribute it however you like—
 for example, you can create a small wrapper that downloads this repository (or a
 packaged release) and then executes the script. Always audit before piping into `bash`.
 
@@ -56,7 +65,8 @@ packaged release) and then executes the script. Always audit before piping into 
 Run the one-liner:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-lab/main/scripts/install-cli.sh | env DSA_CLI_REPO="https://github.com/<org>/dsa-lab" COREPACK_ENABLE=0 bash
+curl -fsSL https://raw.githubusercontent.com/<org>/<repo>/main/scripts/install-cli.sh | \
+  env DSA_CLI_REPO="https://github.com/<org>/<repo>" COREPACK_ENABLE=0 bash
 ```
 
 The script downloads the latest sources, builds the CLI locally, and symlinks the
@@ -105,12 +115,13 @@ This section is the canonical reference for onboarding to the DSA Lab platform a
 
 ### Install the CLI
 
-| Scenario                   | Command                                                      | Notes                                                                                             |
-| -------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| Recommended (npm registry) | `npm install -g @dsa/cli`                                    | Installs the published package and adds `dsa` to your PATH. Update with `npm update -g @dsa/cli`. |
-| From this repository       | `./scripts/install-cli.sh`                                   | Builds from source, symlinks into `~/.local/bin`, and detects pnpm/Corepack automatically.        |
-| Custom location            | `DSA_CLI_HOME=$HOME/dsa-cli ./scripts/install-cli.sh`        | Overrides artifact cache path; pair with `DSA_CLI_BIN` to control the symlink directory.          |
-| Manual fallback            | `cd cli && pnpm install && pnpm build && pnpm link --global` | Use when automation is blocked. Re-run after pulling CLI changes.                                 |
+| Scenario                        | Command                                                            | Notes                                                                                             |
+| ------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| Local workspace (recommended)   | `make install-cli`                                                 | Builds from your checkout and links `dsa` into `~/.local/bin`.                                    |
+| Remote fetch helper             | `make install-cli-remote`                                          | Downloads sources via `scripts/install-cli.sh` before building/linking.                          |
+| Published npm registry package  | `npm install -g @dsa/cli`                                          | Installs the published package and adds `dsa` to your PATH. Update with `npm update -g @dsa/cli`. |
+| Script with custom locations    | `DSA_CLI_HOME=$HOME/dsa-cli ./scripts/install-cli.sh`              | Overrides artifact cache path; pair with `DSA_CLI_BIN` to control the symlink directory.          |
+| Manual fallback                 | `cd cli && pnpm install && pnpm build && pnpm link --global`       | Use when automation is blocked. Re-run after pulling CLI changes.                                 |
 
 Verify the install:
 

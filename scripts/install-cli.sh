@@ -16,26 +16,38 @@ info()  { printf '\033[0;34m[INFO]\033[0m %s\n' "$*"; }
 warn()  { printf '\033[0;33m[WARN]\033[0m %s\n' "$*" >&2; }
 error() { printf '\033[0;31m[ERROR]\033[0m %s\n' "$*" >&2; exit 1; }
 
-REPO_URL_DEFAULT="https://github.com/<org>/dsa-lab"
+REPO_URL_DEFAULT="https://github.com/joudbitar/dsa-teacher"
 REPO_URL="${DSA_CLI_REPO:-$REPO_URL_DEFAULT}"
 REPO_REF="${DSA_CLI_REF:-main}"
 INSTALL_DIR="${DSA_CLI_HOME:-$HOME/.local/share/dsa-cli}"
 BIN_DIR="${DSA_CLI_BIN:-$HOME/.local/bin}"
+LOCAL_DIR="${DSA_CLI_LOCAL_DIR:-}"
+USE_LOCAL_SOURCE=0
 
-if [[ "$REPO_URL" == *"<org>"* ]]; then
+if [[ -n "$LOCAL_DIR" ]]; then
+  USE_LOCAL_SOURCE=1
+elif [[ "$REPO_URL" == "local" ]]; then
+  SCRIPT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+  LOCAL_DIR="${SCRIPT_ROOT}/cli"
+  USE_LOCAL_SOURCE=1
+fi
+
+if [[ $USE_LOCAL_SOURCE -eq 0 && "$REPO_URL" == *"<org>"* ]]; then
   error "Set DSA_CLI_REPO to your GitHub repository URL (e.g., https://github.com/acme/dsa-lab)."
 fi
 
-ARCHIVE_URL="${REPO_URL}/archive/refs/heads/${REPO_REF}.tar.gz"
-if [[ "$REPO_REF" == refs/tags/* ]]; then
-  ARCHIVE_URL="${REPO_URL}/archive/${REPO_REF}.tar.gz"
-elif [[ "$REPO_REF" == v* ]]; then
-  # Allow passing a tag like v0.1.0
-  ARCHIVE_URL="${REPO_URL}/archive/refs/tags/${REPO_REF}.tar.gz"
-fi
+if [[ $USE_LOCAL_SOURCE -eq 0 ]]; then
+  ARCHIVE_URL="${REPO_URL}/archive/refs/heads/${REPO_REF}.tar.gz"
+  if [[ "$REPO_REF" == refs/tags/* ]]; then
+    ARCHIVE_URL="${REPO_URL}/archive/${REPO_REF}.tar.gz"
+  elif [[ "$REPO_REF" == v* ]]; then
+    # Allow passing a tag like v0.1.0
+    ARCHIVE_URL="${REPO_URL}/archive/refs/tags/${REPO_REF}.tar.gz"
+  fi
 
-command -v curl >/dev/null 2>&1 || error "curl is required"
-command -v tar >/dev/null 2>&1 || error "tar is required"
+  command -v curl >/dev/null 2>&1 || error "curl is required"
+  command -v tar >/dev/null 2>&1 || error "tar is required"
+fi
 command -v node >/dev/null 2>&1 || error "Node.js 18+ is required"
 
 NODE_MAJOR=$(node -p "process.versions.node.split('.')[0]")
@@ -96,14 +108,26 @@ cleanup() {
 }
 trap cleanup EXIT
 
-info "Downloading CLI source from ${ARCHIVE_URL}..."
-curl -fsSL "$ARCHIVE_URL" | tar -xz -C "$TMP_DIR"
+if [[ $USE_LOCAL_SOURCE -eq 1 ]]; then
+  [[ -d "$LOCAL_DIR" ]] || error "Local CLI directory not found at ${LOCAL_DIR}"
+  info "Copying CLI source from ${LOCAL_DIR}..."
+  mkdir -p "$TMP_DIR/cli"
+  if command -v rsync >/dev/null 2>&1; then
+    rsync -a "$LOCAL_DIR/" "$TMP_DIR/cli/"
+  else
+    cp -a "$LOCAL_DIR/." "$TMP_DIR/cli/"
+  fi
+  CLI_DIR="${TMP_DIR}/cli"
+else
+  info "Downloading CLI source from ${ARCHIVE_URL}..."
+  curl -fsSL "$ARCHIVE_URL" | tar -xz -C "$TMP_DIR"
 
-ARCHIVE_FOLDER="$(find "$TMP_DIR" -maxdepth 1 -mindepth 1 -type d | head -n 1)"
-[[ -d "$ARCHIVE_FOLDER" ]] || error "Failed to extract archive"
+  ARCHIVE_FOLDER="$(find "$TMP_DIR" -maxdepth 1 -mindepth 1 -type d | head -n 1)"
+  [[ -d "$ARCHIVE_FOLDER" ]] || error "Failed to extract archive"
 
-CLI_DIR="${ARCHIVE_FOLDER}/cli"
-[[ -d "$CLI_DIR" ]] || error "CLI directory not found in archive"
+  CLI_DIR="${ARCHIVE_FOLDER}/cli"
+  [[ -d "$CLI_DIR" ]] || error "CLI directory not found in archive"
+fi
 
 info "Installing dependencies..."
 pushd "$CLI_DIR" >/dev/null
@@ -113,21 +137,29 @@ info "Building CLI..."
 run_pnpm build
 
 info "Pruning dev dependencies..."
-run_pnpm prune --prod
+CI=1 run_pnpm prune --prod
 
 info "Preparing installation directory at ${INSTALL_DIR}..."
 rm -rf "$INSTALL_DIR"
 mkdir -p "$INSTALL_DIR"
 
 if command -v rsync >/dev/null 2>&1; then
-  rsync -a bin dist node_modules package.json "$INSTALL_DIR"/
+  rsync -a bin/ "$INSTALL_DIR/bin/"
+  rsync -a dist/ "$INSTALL_DIR/dist/"
+  rsync -a package.json "$INSTALL_DIR/"
+  rsync -a pnpm-lock.yaml "$INSTALL_DIR/"
 else
-  cp -R bin "$INSTALL_DIR/"
-  cp -R dist "$INSTALL_DIR/"
-  cp -R node_modules "$INSTALL_DIR/"
+  cp -a bin "$INSTALL_DIR/"
+  cp -a dist "$INSTALL_DIR/"
   cp package.json "$INSTALL_DIR/"
+  cp pnpm-lock.yaml "$INSTALL_DIR/"
 fi
 
+popd >/dev/null
+
+info "Installing production dependencies at ${INSTALL_DIR}..."
+pushd "$INSTALL_DIR" >/dev/null
+run_pnpm install --prod --frozen-lockfile
 popd >/dev/null
 
 mkdir -p "$BIN_DIR"
