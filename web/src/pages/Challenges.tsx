@@ -19,6 +19,8 @@ import {
   X,
 } from "lucide-react";
 
+const ALLOWED_MODULE_IDS = ["stack", "queue", "binary-search", "min-heap"];
+
 // Icon mapping for different data structures
 const iconMap: Record<string, any> = {
   stack: Layers,
@@ -58,7 +60,7 @@ export function Challenges() {
       try {
         setModulesLoading(true);
         const data = await apiClient.getModules();
-        setModules(data);
+        setModules(data.filter((module) => ALLOWED_MODULE_IDS.includes(module.id)));
       } catch (err) {
         console.error("Failed to load modules:", err);
         setModulesError(
@@ -189,6 +191,10 @@ export function Challenges() {
 
     // Map database projects to challenge display format
     projects.forEach((project) => {
+      if (!ALLOWED_MODULE_IDS.includes(project.moduleId)) {
+        return;
+      }
+
       const challenge = challengeData[project.moduleId];
       if (!challenge) return;
 
