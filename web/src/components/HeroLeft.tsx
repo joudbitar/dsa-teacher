@@ -1,17 +1,19 @@
-import { Link } from 'react-router-dom'
-import { ArrowRight } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function HeroLeft() {
-  const heroText = "Built by vibe coders, for real coders."
-  const subtext = "Learn multiplication before you touch the calculator."
+  const heroText = "Master the fundamentals";
+  const subtext = "Learn multiplication before you touch the calculator.";
 
   return (
     <div className="flex flex-col justify-center space-y-8">
       {/* Badge */}
       <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 w-fit">
         <span className="h-2 w-2 rounded-full bg-primary" />
-        <span className="text-sm font-medium text-primary">Fundamentals-first · No copy-paste coding</span>
+        <span className="text-sm font-medium text-primary">
+          Fundamentals-first · No copy-paste coding
+        </span>
       </div>
 
       {/* Hero Text */}
@@ -36,13 +38,10 @@ export function HeroLeft() {
           Browse Challenges
           <ArrowRight className="ml-2 h-5 w-5" />
         </Link>
-        <button
-          className="inline-flex items-center justify-center rounded-lg border-2 border-primary bg-transparent px-8 py-4 text-base font-semibold text-primary transition-colors hover:bg-primary/10"
-        >
+        <button className="inline-flex items-center justify-center rounded-lg border-2 border-primary bg-transparent px-8 py-4 text-base font-semibold text-primary transition-colors hover:bg-primary/10">
           How It Works
         </button>
       </div>
     </div>
-  )
+  );
 }
-
