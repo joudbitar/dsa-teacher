@@ -1148,6 +1148,15 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
               <code className="px-1 py-0.5 rounded bg-background">PATH</code>{" "}
               and re-open the terminal.
             </p>
+            <div className="mt-4 flex gap-3 rounded-lg border border-border bg-background/80 p-4 text-sm text-muted-foreground">
+              <AlertCircle className="h-5 w-5 text-warning shrink-0" />
+              <p>
+                Heads up: the CLI install flow is still in a limited demo phase,
+                so this command may not work yet in your environment. If you
+                want to see the full workflow in action, find one of the
+                founders and ask for a live demo.
+              </p>
+            </div>
           </div>
 
           {/* Error Display */}
