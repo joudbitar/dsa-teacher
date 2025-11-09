@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useState, useEffect } from "react";
 import {
   BookOpen,
   Bug,
@@ -784,6 +784,36 @@ export function Docs() {
     fontFamily: "JetBrains Mono, monospace",
   };
 
+  const [activeSection, setActiveSection] = useState<string>("");
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      {
+        rootMargin: "-20% 0px -60% 0px",
+        threshold: 0,
+      }
+    );
+
+    // Observe all section elements
+    docSections.forEach((section) => {
+      const element = document.getElementById(section.id);
+      if (element) {
+        observer.observe(element);
+      }
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
   return (
     <div
       className="min-h-screen flex flex-col"
@@ -847,18 +877,24 @@ export function Docs() {
                 className="flex flex-col space-y-1 text-sm"
                 style={{ color: colors.text.secondary }}
               >
-                {docSections.map((section) => (
-                  <a
-                    key={section.id}
-                    href={`#${section.id}`}
-                    className="rounded-md px-3 py-2 transition"
-                    style={{
-                      border: `1px solid transparent`,
-                    }}
-                  >
-                    {section.title}
-                  </a>
-                ))}
+                {docSections.map((section) => {
+                  const isActive = activeSection === section.id;
+                  return (
+                    <a
+                      key={section.id}
+                      href={`#${section.id}`}
+                      className="rounded-md px-3 py-2 transition font-mono"
+                      style={{
+                        border: `1px solid transparent`,
+                        color: isActive ? '#171512' : colors.text.secondary,
+                        fontWeight: isActive ? 'bold' : 'normal',
+                        backgroundColor: isActive ? 'rgba(127, 85, 57, 0.08)' : 'transparent',
+                      }}
+                    >
+                      {section.title}
+                    </a>
+                  );
+                })}
               </nav>
             </aside>
 
