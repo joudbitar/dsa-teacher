@@ -1,5 +1,14 @@
 import { Link } from "react-router-dom";
-import { User, LogOut, ChevronDown, ArrowRight, Moon, Sun } from "lucide-react";
+import {
+  User,
+  LogOut,
+  ChevronDown,
+  ArrowRight,
+  Moon,
+  Sun,
+  Menu,
+  X,
+} from "lucide-react";
 import { useAuth } from "../auth/useAuth";
 import { useTheme } from "../theme/ThemeContext";
 import { useState, useRef, useEffect } from "react";
@@ -8,11 +17,13 @@ export function Navbar({ className }: { className?: string }) {
   const { user, signOut } = useAuth();
   const { isDarkMode, toggleDarkMode, backgroundColor, textColor } = useTheme();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleSignOut = async () => {
     await signOut();
     setIsDropdownOpen(false);
+    setIsMobileMenuOpen(false);
   };
 
   // Close dropdown when clicking outside
@@ -34,6 +45,17 @@ export function Navbar({ className }: { className?: string }) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isDropdownOpen]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     <nav
@@ -66,7 +88,7 @@ export function Navbar({ className }: { className?: string }) {
           </Link>
 
           {/* Center: Navigation Links */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-3">
+          <div className="hidden lg:flex lg:absolute lg:left-1/2 lg:-translate-x-1/2 items-center space-x-3">
             <Link
               to="/"
               className="text-base font-semibold px-4 py-2 rounded-lg transition-all hover:bg-[rgba(127,85,57,0.1)]"
@@ -100,7 +122,7 @@ export function Navbar({ className }: { className?: string }) {
           </div>
 
           {/* Right: Auth Buttons */}
-          <div className="flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3">
             {user ? (
               <div className="relative" ref={dropdownRef}>
                 <button
@@ -196,7 +218,134 @@ export function Navbar({ className }: { className?: string }) {
               </>
             )}
           </div>
+
+          {/* Mobile Menu Toggle */}
+          <button
+            type="button"
+            onClick={() => {
+              setIsMobileMenuOpen((prev) => !prev);
+              setIsDropdownOpen(false);
+            }}
+            className="lg:hidden inline-flex items-center justify-center rounded-lg border px-3 py-2 transition-all hover:bg-[rgba(127,85,57,0.05)]"
+            style={{
+              borderColor: "#D4CFC0",
+              color: textColor,
+            }}
+            aria-label="Toggle navigation"
+            aria-expanded={isMobileMenuOpen}
+          >
+            {isMobileMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
+          </button>
         </div>
+
+        {/* Mobile Navigation */}
+        {isMobileMenuOpen && (
+          <div
+            className="lg:hidden mt-3 rounded-xl border px-4 py-4 flex flex-col gap-4"
+            style={{
+              backgroundColor,
+              borderColor: "#D4CFC0",
+              color: textColor,
+            }}
+          >
+            <div className="flex flex-col gap-2">
+              <Link
+                to="/"
+                className="text-base font-semibold px-3 py-2 rounded-lg transition-all hover:bg-[rgba(127,85,57,0.08)]"
+                style={{ color: textColor }}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Home
+              </Link>
+              <Link
+                to="/challenges"
+                className="text-base font-semibold px-3 py-2 rounded-lg transition-all hover:bg-[rgba(127,85,57,0.08)]"
+                style={{ color: textColor }}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Challenges
+              </Link>
+              <Link
+                to="/docs"
+                className="text-base font-semibold px-3 py-2 rounded-lg transition-all hover:bg-[rgba(127,85,57,0.08)]"
+                style={{ color: textColor }}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Docs
+              </Link>
+            </div>
+
+            <div className="border-t pt-4" style={{ borderColor: "#D4CFC0" }}>
+              {user ? (
+                <div className="flex flex-col gap-3">
+                  <div
+                    className="text-sm font-medium"
+                    style={{ color: textColor }}
+                  >
+                    {user.email}
+                  </div>
+                  <button
+                    onClick={toggleDarkMode}
+                    className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm font-semibold transition-all hover:bg-[rgba(127,85,57,0.08)]"
+                    style={{ color: textColor }}
+                  >
+                    <span className="flex items-center gap-2">
+                      {isDarkMode ? (
+                        <Sun className="h-4 w-4" />
+                      ) : (
+                        <Moon className="h-4 w-4" />
+                      )}
+                      {isDarkMode ? "Light Mode" : "Dark Mode"}
+                    </span>
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={handleSignOut}
+                    className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm font-semibold transition-all hover:bg-red-50 dark:hover:bg-red-950/20"
+                    style={{ color: "#dc2626" }}
+                  >
+                    <span className="flex items-center gap-2">
+                      <LogOut className="h-4 w-4" />
+                      Sign out
+                    </span>
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <Link
+                    to="/login"
+                    className="inline-flex items-center justify-center rounded-lg border-2 bg-transparent px-3 py-2 text-sm font-semibold transition-all hover:bg-[rgba(127,85,57,0.05)]"
+                    style={{
+                      borderColor: "#7F5539",
+                      color: "#7F5539",
+                      fontFamily: "JetBrains Mono, monospace",
+                    }}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Log in
+                  </Link>
+                  <Link
+                    to="/auth?mode=signup"
+                    className="inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-bold transition-all hover:opacity-90 shadow-sm"
+                    style={{
+                      backgroundColor: "#7F5539",
+                      color: "#FFFEF9",
+                      fontFamily: "JetBrains Mono, monospace",
+                    }}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );

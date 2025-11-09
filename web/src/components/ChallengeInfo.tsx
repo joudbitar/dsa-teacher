@@ -7,6 +7,7 @@ import {
   AlertCircle,
   Check,
   Copy,
+  Terminal,
 } from "lucide-react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { ChallengeSteps } from "./ChallengeSteps";
@@ -1104,6 +1105,35 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
               )}
             </div>
           )}
+
+          <div className="rounded-xl border border-border bg-muted p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
+                <Terminal className="h-5 w-5 text-accent" />
+              </div>
+              <h2 className="text-2xl font-bold">Install the DSA CLI</h2>
+            </div>
+            <p className="text-foreground/90 mb-4">
+              Get the command-line helper locally with a single command so you
+              can run <code className="px-1 py-0.5 rounded bg-background">dsa test</code>{" "}
+              and <code className="px-1 py-0.5 rounded bg-background">dsa submit</code>{" "}
+              without leaving your editor.
+            </p>
+            <div className="rounded-lg border border-border bg-background p-4 font-mono text-sm text-foreground space-y-2">
+              <code className="block whitespace-pre-wrap break-words">
+                {`make install-cli\n# verify\ndsa --version`}
+              </code>
+              <code className="block whitespace-pre-wrap break-words text-muted-foreground">
+                {`# Need the latest remote build?\nmake install-cli-remote`}
+              </code>
+            </div>
+            <p className="text-sm text-muted-foreground mt-3">
+              If your shell cannot find the command after running{" "}
+              <code className="px-1 py-0.5 rounded bg-background">make install-cli</code>, add{" "}
+              <code className="px-1 py-0.5 rounded bg-background">~/.local/bin</code> to your{" "}
+              <code className="px-1 py-0.5 rounded bg-background">PATH</code> and re-open the terminal.
+            </p>
+          </div>
 
           {/* Error Display */}
           {projectError && (
