@@ -191,7 +191,7 @@ export function Navbar({ className }: { className?: string }) {
                     fontFamily: "JetBrains Mono, monospace",
                   }}
                 >
-                  Start Learning
+                  Sign Up
                 </Link>
               </>
             )}

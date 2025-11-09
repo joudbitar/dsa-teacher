@@ -426,17 +426,6 @@ export function Landing() {
                   Start Your First Challenge
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
-                <Link
-                  to="/about"
-                  className="inline-flex items-center justify-center rounded-lg border-2 px-8 py-4 text-lg font-semibold transition-all hover:opacity-80"
-                  style={{ 
-                    borderColor: borderColor,
-                    color: textColor,
-                    fontFamily: themeStyle.fontFamily
-                  }}
-                >
-                  Learn More
-                </Link>
               </div>
             </div>
           </div>
