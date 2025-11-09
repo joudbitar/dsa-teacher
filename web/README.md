@@ -1,4 +1,4 @@
-# DSA Lab Web
+# Shelly Web
 
 This is the front-end dashboard built with **Vite + React + TypeScript**.
 

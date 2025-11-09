@@ -70,7 +70,7 @@ const docSections: DocSection[] = [
     id: "overview",
     title: "Platform Overview",
     summary:
-      "Understand how the dashboard, CLI, challenge templates, and Supabase work together to deliver the DSA Lab learning experience.",
+      "Understand how the dashboard, CLI, challenge templates, and Supabase work together to deliver the Shelly learning experience.",
     icon: <Layers className="h-6 w-6 text-emerald-300" />,
     link: {
       href: "/docs/README.md",
@@ -79,8 +79,8 @@ const docSections: DocSection[] = [
     content: (
       <>
         <p>
-          DSA Lab blends a React dashboard, per-learner challenge repositories,
-          a TypeScript CLI, and Supabase Edge Functions. Learners work locally,
+          Shelly blends a React dashboard, per-learner challenge repositories, a
+          TypeScript CLI, and Supabase Edge Functions. Learners work locally,
           while submissions and hints sync with the hosted services.
         </p>
         <ul className="marker:text-emerald-300">
@@ -808,7 +808,7 @@ export function Docs() {
               className="text-4xl font-bold leading-tight md:text-5xl"
               style={{ color: colors.text.primary }}
             >
-              DSA Lab Platform Manual
+              Shelly Platform Manual
             </h1>
             <p
               className="mt-4 max-w-3xl text-lg leading-relaxed"

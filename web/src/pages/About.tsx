@@ -20,7 +20,7 @@ export function About() {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto text-center">
               <h1 className="text-4xl sm:text-5xl font-bold mb-6" style={themeStyle}>
-                About DSA Lab
+                About Shelly
               </h1>
               <p className="text-xl mb-8" style={{ color: secondaryTextColor, fontFamily: themeStyle.fontFamily }}>
                 Learn data structures and algorithms by building them from scratch.
@@ -43,7 +43,7 @@ export function About() {
                     With AI tools becoming ubiquitous, it's tempting to skip the fundamentals. But if you never built a stack, queue, or hash map yourself, you cap your ceiling.
                   </p>
                   <p className="text-lg" style={{ color: secondaryTextColor, fontFamily: themeStyle.fontFamily }}>
-                    DSA Lab bridges that gap by giving you real projects to build in your own environment, with real tests, and real feedback—just like you'd work on the job.
+                    Shelly bridges that gap by giving you real projects to build in your own environment, with real tests, and real feedback—just like you'd work on the job.
                   </p>
                 </div>
               </div>
@@ -67,7 +67,7 @@ export function About() {
                     <li>Interest in the fundamental data structures in computer science</li>
                   </ul>
                   <p className="text-lg mt-4 font-bold" style={{ color: secondaryTextColor, fontFamily: themeStyle.fontFamily }}>
-                    DSA Lab will be with you every step of the way.
+                    Shelly will be with you every step of the way.
                   </p>
                 </div>
               </div>

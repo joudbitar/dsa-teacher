@@ -51,7 +51,7 @@ export function Navbar({ className }: { className?: string }) {
           <Link to="/" className="flex items-center gap-4 group">
             <img
               src="/turtle_logo.png"
-              alt="DSA Lab logo"
+              alt="Shelly logo"
               className="block h-12 w-auto py-1 transition-all group-hover:scale-105 object-contain"
             />
             <span
@@ -61,7 +61,7 @@ export function Navbar({ className }: { className?: string }) {
                 fontFamily: "JetBrains Mono, monospace",
               }}
             >
-              DSA Lab
+              Shelly
             </span>
           </Link>
 

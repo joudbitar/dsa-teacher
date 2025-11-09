@@ -352,10 +352,16 @@ export function Landing() {
         </section>
 
         {/* Key Differentiators */}
-        <section className="py-16 sm:py-24" style={{ backgroundColor: sectionBackgroundColor }}>
+        <section
+          className="py-16 sm:py-24"
+          style={{ backgroundColor: accentGreen }}
+        >
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-12 text-center" style={{ color: textColor, fontFamily: themeStyle.fontFamily }}>
-              Build like an <span className="font-extrabold">engineer</span>.
+            <h2
+              className="text-3xl sm:text-4xl font-bold mb-12 text-center"
+              style={{ color: '#FFFEF9', fontFamily: themeStyle.fontFamily }}
+            >
+              Slow &amp; Steady Wins the Race
             </h2>
             <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
               {features.map((feature) => {
@@ -364,15 +370,30 @@ export function Landing() {
                   <div
                     key={feature.title}
                     className="rounded-xl border-2 p-6 text-center"
-                    style={{ borderColor: borderColor, backgroundColor: backgroundColor }}
+                    style={{
+                      borderColor: 'rgba(255, 255, 255, 0.35)',
+                      backgroundColor: 'rgba(0, 0, 0, 0.15)',
+                    }}
                   >
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full mx-auto mb-4" style={{ backgroundColor: textColor }}>
-                      <Icon className="h-8 w-8" style={{ color: backgroundColor }} />
+                    <div
+                      className="flex h-16 w-16 items-center justify-center rounded-full mx-auto mb-4"
+                      style={{ backgroundColor: '#FFFEF9' }}
+                    >
+                      <Icon className="h-8 w-8" style={{ color: accentGreen }} />
                     </div>
-                    <h3 className="text-xl font-bold mb-3" style={themeStyle}>
+                    <h3
+                      className="text-xl font-bold mb-3"
+                      style={{ color: '#FFFEF9', fontFamily: themeStyle.fontFamily }}
+                    >
                       {feature.title}
                     </h3>
-                    <p className="leading-relaxed" style={{ color: secondaryTextColor, fontFamily: themeStyle.fontFamily }}>
+                    <p
+                      className="leading-relaxed"
+                      style={{
+                        color: 'rgba(255, 255, 255, 0.85)',
+                        fontFamily: themeStyle.fontFamily,
+                      }}
+                    >
                       {feature.description}
                     </p>
                   </div>

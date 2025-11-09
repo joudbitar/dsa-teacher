@@ -21,7 +21,7 @@ export function Footer({ className }: { className?: string }) {
           <Link to="/" className="flex items-center gap-4 group">
             <img
               src="/turtle_logo.png"
-              alt="DSA Lab logo"
+              alt="Shelly logo"
               className="block h-14 w-auto transition-all group-hover:scale-105 object-contain"
             />
             <span
@@ -31,7 +31,7 @@ export function Footer({ className }: { className?: string }) {
                 fontFamily: 'JetBrains Mono, monospace',
               }}
             >
-              DSA Lab
+              Shelly
             </span>
           </Link>
         </div>
@@ -97,7 +97,7 @@ export function Footer({ className }: { className?: string }) {
             color: secondaryTextColor 
           }}
         >
-          <p>© 2025 DSA Lab. Built for hackers who want to master fundamentals.</p>
+          <p>© 2025 Shelly. Built for hackers who want to master fundamentals.</p>
         </div>
       </div>
     </footer>
