@@ -354,12 +354,12 @@ export function Landing() {
         {/* Key Differentiators */}
         <section
           className="py-16 sm:py-24"
-          style={{ backgroundColor: accentGreen }}
+          style={{ backgroundColor: sectionBackgroundColor }}
         >
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <h2
               className="text-3xl sm:text-4xl font-bold mb-12 text-center"
-              style={{ color: '#FFFEF9', fontFamily: themeStyle.fontFamily }}
+              style={{ color: textColor, fontFamily: themeStyle.fontFamily }}
             >
               Slow &amp; Steady Wins the Race
             </h2>
@@ -371,26 +371,26 @@ export function Landing() {
                     key={feature.title}
                     className="rounded-xl border-2 p-6 text-center"
                     style={{
-                      borderColor: 'rgba(255, 255, 255, 0.35)',
-                      backgroundColor: 'rgba(0, 0, 0, 0.15)',
+                      borderColor: 'rgba(102, 160, 86, 0.25)',
+                      backgroundColor: 'rgba(102, 160, 86, 0.15)',
                     }}
                   >
                     <div
                       className="flex h-16 w-16 items-center justify-center rounded-full mx-auto mb-4"
-                      style={{ backgroundColor: '#FFFEF9' }}
+                      style={{ backgroundColor: '#66A056' }}
                     >
-                      <Icon className="h-8 w-8" style={{ color: accentGreen }} />
+                      <Icon className="h-8 w-8" style={{ color: '#FFFEF9' }} />
                     </div>
                     <h3
                       className="text-xl font-bold mb-3"
-                      style={{ color: '#FFFEF9', fontFamily: themeStyle.fontFamily }}
+                      style={{ color: textColor, fontFamily: themeStyle.fontFamily }}
                     >
                       {feature.title}
                     </h3>
                     <p
                       className="leading-relaxed"
                       style={{
-                        color: 'rgba(255, 255, 255, 0.85)',
+                        color: secondaryTextColor,
                         fontFamily: themeStyle.fontFamily,
                       }}
                     >
