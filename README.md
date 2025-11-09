@@ -115,13 +115,13 @@ This section is the canonical reference for onboarding to the DSA Lab platform a
 
 ### Install the CLI
 
-| Scenario                        | Command                                                            | Notes                                                                                             |
-| ------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| Local workspace (recommended)   | `make install-cli`                                                 | Builds from your checkout and links `dsa` into `~/.local/bin`.                                    |
-| Remote fetch helper             | `make install-cli-remote`                                          | Downloads sources via `scripts/install-cli.sh` before building/linking.                          |
-| Published npm registry package  | `npm install -g @dsa/cli`                                          | Installs the published package and adds `dsa` to your PATH. Update with `npm update -g @dsa/cli`. |
-| Script with custom locations    | `DSA_CLI_HOME=$HOME/dsa-cli ./scripts/install-cli.sh`              | Overrides artifact cache path; pair with `DSA_CLI_BIN` to control the symlink directory.          |
-| Manual fallback                 | `cd cli && pnpm install && pnpm build && pnpm link --global`       | Use when automation is blocked. Re-run after pulling CLI changes.                                 |
+| Scenario                       | Command                                                      | Notes                                                                                             |
+| ------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| Local workspace (recommended)  | `make install-cli`                                           | Builds from your checkout and links `dsa` into `~/.local/bin`.                                    |
+| Remote fetch helper            | `make install-cli-remote`                                    | Downloads sources via `scripts/install-cli.sh` before building/linking.                           |
+| Published npm registry package | `npm install -g @dsa/cli`                                    | Installs the published package and adds `dsa` to your PATH. Update with `npm update -g @dsa/cli`. |
+| Script with custom locations   | `DSA_CLI_HOME=$HOME/dsa-cli ./scripts/install-cli.sh`        | Overrides artifact cache path; pair with `DSA_CLI_BIN` to control the symlink directory.          |
+| Manual fallback                | `cd cli && pnpm install && pnpm build && pnpm link --global` | Use when automation is blocked. Re-run after pulling CLI changes.                                 |
 
 Verify the install:
 

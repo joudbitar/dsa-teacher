@@ -1,156 +1,217 @@
-import { Navbar } from '@/components/Navbar'
-import { Footer } from '@/components/Footer'
-import { Link } from 'react-router-dom'
-import { ArrowRight, GitBranch, Terminal, Code2 } from 'lucide-react'
-import { useState, useEffect } from 'react'
-import { cn } from '@/lib/utils'
-import { useTheme } from '@/theme/ThemeContext'
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
+import { Link } from "react-router-dom";
+import { ArrowRight, GitBranch, Terminal, Code2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
+import { useTheme } from "@/theme/ThemeContext";
 
 const codeExamples = {
   stack: {
-    prefix: 'Build a: Stack',
+    prefix: "Build a: Stack",
     code: `class Stack<T> {
   private items: T[] = [];
-}`
+}`,
   },
   queue: {
-    prefix: 'Build a: Queue',
+    prefix: "Build a: Queue",
     code: `class Queue<T> {
   private items: T[] = [];
-}`
+}`,
   },
-  'binary-search': {
-    prefix: 'Build a: Tree',
+  "binary-search": {
+    prefix: "Build a: Tree",
     code: `class Tree {
   private root: TreeNode | null = null;
-}`
+}`,
   },
-  'min-heap': {
-    prefix: 'Build a: Min-Heap',
+  "min-heap": {
+    prefix: "Build a: Min-Heap",
     code: `class MinHeap {
   private heap: number[] = [];
-}`
+}`,
   },
-}
+};
 
 // Enhanced syntax highlighting function with IDE-like colors
 const highlightCode = (code: string, defaultTextColor: string) => {
-  const tokens: Array<{ text: string; color: string }> = []
-  const lines = code.split('\n')
-  
+  const tokens: Array<{ text: string; color: string }> = [];
+  const lines = code.split("\n");
+
   lines.forEach((line, lineIdx) => {
     // More comprehensive regex to match different token types
-    const tokenRegex = /(\/\/.*$)|(\s+)|(class|function|private|const|let|return|if|else|while|for|interface|type|extends|implements)\b|(number|void|undefined|string|boolean|null|any|unknown)\b|([a-zA-Z_$][a-zA-Z0-9_$]*)|([0-9]+)|([<>():,;={}\[\]|&])|(\[\]|:)/g
-    let match
-    let lastIndex = 0
-    
+    const tokenRegex =
+      /(\/\/.*$)|(\s+)|(class|function|private|const|let|return|if|else|while|for|interface|type|extends|implements)\b|(number|void|undefined|string|boolean|null|any|unknown)\b|([a-zA-Z_$][a-zA-Z0-9_$]*)|([0-9]+)|([<>():,;={}\[\]|&])|(\[\]|:)/g;
+    let match;
+    let lastIndex = 0;
+
     while ((match = tokenRegex.exec(line)) !== null) {
-      const [fullMatch, comment, whitespace, keyword, type, identifier, number, bracket, arrayType] = match
-      
+      const [
+        fullMatch,
+        comment,
+        whitespace,
+        keyword,
+        type,
+        identifier,
+        number,
+        bracket,
+        arrayType,
+      ] = match;
+
       // Handle text before the match
       if (match.index > lastIndex) {
-        const beforeText = line.substring(lastIndex, match.index)
+        const beforeText = line.substring(lastIndex, match.index);
         if (beforeText) {
-          tokens.push({ text: beforeText, color: defaultTextColor })
+          tokens.push({ text: beforeText, color: defaultTextColor });
         }
       }
-      lastIndex = match.index + fullMatch.length
-      
+      lastIndex = match.index + fullMatch.length;
+
       if (comment) {
-        tokens.push({ text: comment, color: '#6a737d' }) // Gray for comments
+        tokens.push({ text: comment, color: "#6a737d" }); // Gray for comments
       } else if (whitespace) {
-        tokens.push({ text: whitespace, color: defaultTextColor })
+        tokens.push({ text: whitespace, color: defaultTextColor });
       } else if (keyword) {
         // Make class and private blue, others red
-        const blueKeywords = ['class', 'private']
-        const color = blueKeywords.includes(keyword) ? '#0969da' : '#cf222e'
-        tokens.push({ text: keyword, color }) // Blue for class/private, red for other keywords
+        const blueKeywords = ["class", "private"];
+        const color = blueKeywords.includes(keyword) ? "#0969da" : "#cf222e";
+        tokens.push({ text: keyword, color }); // Blue for class/private, red for other keywords
       } else if (type) {
-        tokens.push({ text: type, color: '#8250df' }) // Purple for types
+        tokens.push({ text: type, color: "#8250df" }); // Purple for types
       } else if (number) {
-        tokens.push({ text: number, color: '#0550ae' }) // Blue for numbers
+        tokens.push({ text: number, color: "#0550ae" }); // Blue for numbers
       } else if (arrayType) {
-        tokens.push({ text: arrayType, color: '#8250df' }) // Purple for array type
+        tokens.push({ text: arrayType, color: "#8250df" }); // Purple for array type
       } else if (identifier) {
         // Check if it's a type parameter like T
-        if (identifier === 'T' && line.includes('<')) {
-          tokens.push({ text: identifier, color: '#8250df' }) // Purple for type parameters
-        } else if (line.includes('class ') && identifier === line.split('class ')[1]?.split(/[<{\s]/)[0]) {
-          tokens.push({ text: identifier, color: '#953800' }) // Brown/Orange for class names
-        } else if (line.includes('function ') && identifier === line.split('function ')[1]?.split(/[<(\s]/)[0]) {
-          tokens.push({ text: identifier, color: '#8250df' }) // Purple for function names
+        if (identifier === "T" && line.includes("<")) {
+          tokens.push({ text: identifier, color: "#8250df" }); // Purple for type parameters
+        } else if (
+          line.includes("class ") &&
+          identifier === line.split("class ")[1]?.split(/[<{\s]/)[0]
+        ) {
+          tokens.push({ text: identifier, color: "#953800" }); // Brown/Orange for class names
+        } else if (
+          line.includes("function ") &&
+          identifier === line.split("function ")[1]?.split(/[<(\s]/)[0]
+        ) {
+          tokens.push({ text: identifier, color: "#8250df" }); // Purple for function names
         } else {
-          tokens.push({ text: identifier, color: defaultTextColor }) // Use theme color for other identifiers
+          tokens.push({ text: identifier, color: defaultTextColor }); // Use theme color for other identifiers
         }
       } else if (bracket) {
-        tokens.push({ text: bracket, color: defaultTextColor }) // Use theme color for brackets
+        tokens.push({ text: bracket, color: defaultTextColor }); // Use theme color for brackets
       }
     }
-    
+
     // Handle remaining text after last match
     if (lastIndex < line.length) {
-      const remaining = line.substring(lastIndex)
+      const remaining = line.substring(lastIndex);
       if (remaining) {
-        tokens.push({ text: remaining, color: defaultTextColor })
+        tokens.push({ text: remaining, color: defaultTextColor });
       }
     }
-    
+
     if (lineIdx < lines.length - 1) {
-      tokens.push({ text: '\n', color: defaultTextColor })
+      tokens.push({ text: "\n", color: defaultTextColor });
     }
-  })
-  
-  return tokens
-}
+  });
+
+  return tokens;
+};
 
 const challenges = [
-  { id: 'stack', title: 'Build a Stack', prefix: codeExamples.stack.prefix, code: codeExamples.stack.code },
-  { id: 'queue', title: 'Build a Queue', prefix: codeExamples.queue.prefix, code: codeExamples.queue.code },
-  { id: 'binary-search', title: 'Binary Search', prefix: codeExamples['binary-search'].prefix, code: codeExamples['binary-search'].code },
-  { id: 'min-heap', title: 'Build a Min-Heap', prefix: codeExamples['min-heap'].prefix, code: codeExamples['min-heap'].code },
-]
+  {
+    id: "stack",
+    title: "Build a Stack",
+    prefix: codeExamples.stack.prefix,
+    code: codeExamples.stack.code,
+  },
+  {
+    id: "queue",
+    title: "Build a Queue",
+    prefix: codeExamples.queue.prefix,
+    code: codeExamples.queue.code,
+  },
+  {
+    id: "binary-search",
+    title: "Binary Search",
+    prefix: codeExamples["binary-search"].prefix,
+    code: codeExamples["binary-search"].code,
+  },
+  {
+    id: "min-heap",
+    title: "Build a Min-Heap",
+    prefix: codeExamples["min-heap"].prefix,
+    code: codeExamples["min-heap"].code,
+  },
+];
 
 const steps = [
-  { number: 1, title: 'Pick a challenge', description: '50+ challenges to master' },
-  { number: 2, title: 'Get a private repo', description: 'GitHub repo with starter code and tests' },
-  { number: 3, title: 'Code locally', description: 'Clone it, run our dsa CLI tool to test your work' },
-  { number: 4, title: 'Submit & track', description: 'Dashboard updates in real-time' },
-]
+  {
+    number: 1,
+    title: "Pick a challenge",
+    description: "50+ challenges to master",
+  },
+  {
+    number: 2,
+    title: "Get a private repo",
+    description: "GitHub repo with starter code and tests",
+  },
+  {
+    number: 3,
+    title: "Code locally",
+    description: "Clone it, run our dsa CLI tool to test your work",
+  },
+  {
+    number: 4,
+    title: "Submit & track",
+    description: "Dashboard updates in real-time",
+  },
+];
 
 const features = [
   {
     icon: GitBranch,
-    title: 'Real Repos',
-    description: 'Get actual GitHub repos you can build on, not browser editors',
+    title: "Real Repos",
+    description:
+      "Get actual GitHub repos you can build on, not browser editors",
   },
   {
     icon: Terminal,
-    title: 'CLI-First',
-    description: 'Work in your terminal like a real engineer',
+    title: "CLI-First",
+    description: "Work in your terminal like a real engineer",
   },
   {
     icon: Code2,
-    title: 'Build Systems',
-    description: 'Structured projects with tests, not isolated puzzles',
+    title: "Build Systems",
+    description: "Structured projects with tests, not isolated puzzles",
   },
-]
+];
 
 export function Landing() {
-  const [currentChallenge, setCurrentChallenge] = useState(0)
-  const { backgroundColor, textColor, borderColor, secondaryTextColor, sectionBackgroundColor, accentGreen } = useTheme()
+  const [currentChallenge, setCurrentChallenge] = useState(0);
+  const {
+    backgroundColor,
+    textColor,
+    borderColor,
+    secondaryTextColor,
+    sectionBackgroundColor,
+    accentGreen,
+  } = useTheme();
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentChallenge((prev) => (prev + 1) % challenges.length)
-    }, 3000)
-    return () => clearInterval(interval)
-  }, [])
+      setCurrentChallenge((prev) => (prev + 1) % challenges.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   const themeStyle = {
     backgroundColor,
     color: textColor,
-    fontFamily: 'JetBrains Mono, monospace',
-  }
+    fontFamily: "JetBrains Mono, monospace",
+  };
 
   return (
     <div className="min-h-screen flex flex-col" style={themeStyle}>
@@ -161,7 +222,7 @@ export function Landing() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left: Text Content */}
             <div className="text-center lg:text-left">
-              <h1 
+              <h1
                 className="text-5xl sm:text-6xl lg:text-7xl mb-6 font-bold leading-tight"
                 style={themeStyle}
               >
@@ -169,19 +230,23 @@ export function Landing() {
                 <br />
                 <span className="font-bold">Start learning.</span>
               </h1>
-              <p 
-                className="text-xl sm:text-2xl mb-8" 
-                style={{ color: secondaryTextColor, fontFamily: themeStyle.fontFamily }}
+              <p
+                className="text-xl sm:text-2xl mb-8"
+                style={{
+                  color: secondaryTextColor,
+                  fontFamily: themeStyle.fontFamily,
+                }}
               >
-                Learn data structures and algorithms by building them from scratch.
+                Learn data structures and algorithms by building them from
+                scratch.
               </p>
               <Link
                 to="/auth?mode=signup"
                 className="inline-flex items-center justify-center rounded-lg px-8 py-4 text-lg font-bold transition-all hover:opacity-90 hover:scale-105"
-                style={{ 
-                  backgroundColor: accentGreen, 
+                style={{
+                  backgroundColor: accentGreen,
                   color: backgroundColor,
-                  fontFamily: themeStyle.fontFamily
+                  fontFamily: themeStyle.fontFamily,
                 }}
               >
                 Start Coding
@@ -192,9 +257,12 @@ export function Landing() {
             {/* Right: Challenge Carousel */}
             <div className="relative w-full">
               {/* Build a text above the box */}
-              <div className="text-center mb-6 relative" style={{ minHeight: '3rem' }}>
+              <div
+                className="text-center mb-6 relative"
+                style={{ minHeight: "3rem" }}
+              >
                 {challenges.map((challenge, index) => {
-                  const [buildPart, dsName] = challenge.prefix.split(': ')
+                  const [buildPart, dsName] = challenge.prefix.split(": ");
                   return (
                     <h2
                       key={challenge.id}
@@ -202,50 +270,72 @@ export function Landing() {
                       style={{
                         fontFamily: themeStyle.fontFamily,
                         opacity: index === currentChallenge ? 1 : 0,
-                        pointerEvents: index === currentChallenge ? 'auto' : 'none'
+                        pointerEvents:
+                          index === currentChallenge ? "auto" : "none",
                       }}
                     >
-                      <span style={{ fontWeight: 'normal', color: secondaryTextColor }}>
+                      <span
+                        style={{
+                          fontWeight: "normal",
+                          color: secondaryTextColor,
+                        }}
+                      >
                         {buildPart}:
                       </span>
-                      <span style={{ fontWeight: 'bold', color: textColor, marginLeft: '0.5rem' }}>
+                      <span
+                        style={{
+                          fontWeight: "bold",
+                          color: textColor,
+                          marginLeft: "0.5rem",
+                        }}
+                      >
                         {dsName}
                       </span>
                     </h2>
-                  )
+                  );
                 })}
               </div>
-              
-              <div className="relative h-64 rounded-2xl border-2 overflow-hidden" style={{ borderColor: borderColor }}>
+
+              <div
+                className="relative h-64 rounded-2xl border-2 overflow-hidden"
+                style={{ borderColor: borderColor }}
+              >
                 <div className="relative h-full w-full">
                   {challenges.map((challenge, index) => {
                     return (
                       <div
                         key={challenge.id}
                         className="absolute inset-0 h-full overflow-hidden transition-opacity duration-500 flex items-center justify-center"
-                        style={{ 
+                        style={{
                           backgroundColor: backgroundColor,
                           opacity: index === currentChallenge ? 1 : 0,
-                          pointerEvents: index === currentChallenge ? 'auto' : 'none'
+                          pointerEvents:
+                            index === currentChallenge ? "auto" : "none",
                         }}
                       >
-                        <pre className="m-0 text-center" style={{ 
-                          fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
-                          fontSize: '1.5rem',
-                          lineHeight: '1.8',
-                          color: textColor,
-                          whiteSpace: 'pre'
-                        }}>
+                        <pre
+                          className="m-0 text-center"
+                          style={{
+                            fontFamily:
+                              'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
+                            fontSize: "1.5rem",
+                            lineHeight: "1.8",
+                            color: textColor,
+                            whiteSpace: "pre",
+                          }}
+                        >
                           <code>
-                            {highlightCode(challenge.code, textColor).map((token, i) => (
-                              <span key={i} style={{ color: token.color }}>
-                                {token.text}
-                              </span>
-                            ))}
+                            {highlightCode(challenge.code, textColor).map(
+                              (token, i) => (
+                                <span key={i} style={{ color: token.color }}>
+                                  {token.text}
+                                </span>
+                              )
+                            )}
                           </code>
                         </pre>
                       </div>
-                    )
+                    );
                   })}
                 </div>
               </div>
@@ -259,8 +349,11 @@ export function Landing() {
                       "h-2 rounded-full transition-all",
                       index === currentChallenge ? "w-8" : "w-2"
                     )}
-                    style={{ 
-                      backgroundColor: index === currentChallenge ? textColor : secondaryTextColor
+                    style={{
+                      backgroundColor:
+                        index === currentChallenge
+                          ? textColor
+                          : secondaryTextColor,
                     }}
                     aria-label={`Go to challenge ${index + 1}`}
                   />
@@ -271,13 +364,19 @@ export function Landing() {
         </section>
 
         {/* Why Section */}
-        <section className="py-16 sm:py-24" style={{ backgroundColor: sectionBackgroundColor }}>
+        <section
+          className="py-16 sm:py-24"
+          style={{ backgroundColor: sectionBackgroundColor }}
+        >
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-12">
               <div className="text-center lg:text-left lg:flex-1">
                 <h2
                   className="text-3xl sm:text-4xl font-bold mb-6"
-                  style={{ color: textColor, fontFamily: themeStyle.fontFamily }}
+                  style={{
+                    color: textColor,
+                    fontFamily: themeStyle.fontFamily,
+                  }}
                 >
                   Missing the fundamentals?
                   <br />
@@ -285,11 +384,20 @@ export function Landing() {
                 </h2>
                 <p
                   className="text-xl sm:text-2xl leading-relaxed"
-                  style={{ color: secondaryTextColor, fontFamily: themeStyle.fontFamily }}
+                  style={{
+                    color: secondaryTextColor,
+                    fontFamily: themeStyle.fontFamily,
+                  }}
                 >
-                  AI won’t transform you into a standout engineer—<span className="font-semibold">mastery of fundamentals will</span>.
-                  Dive deep into <span className="font-semibold">how and why data structures and algorithms work</span> so you can build
-                  with confidence, speed, and impact.
+                  AI won’t transform you into a standout engineer.
+                  <span className="font-semibold">
+                    Mastery of fundamentals will
+                  </span>
+                  . Dive deep into{" "}
+                  <span className="font-semibold">
+                    how and why data structures and algorithms work
+                  </span>{" "}
+                  so you can build with confidence, speed, and impact.
                 </p>
               </div>
               <div className="w-full max-w-xs lg:flex-1">
@@ -306,7 +414,10 @@ export function Landing() {
         {/* How It Works */}
         <section className="py-16 sm:py-24" style={themeStyle}>
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-12 text-center" style={themeStyle}>
+            <h2
+              className="text-3xl sm:text-4xl font-bold mb-12 text-center"
+              style={themeStyle}
+            >
               How it works.
             </h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
@@ -314,22 +425,43 @@ export function Landing() {
                 <div
                   key={step.number}
                   className="relative rounded-xl border-2 p-6 text-center"
-                  style={{ borderColor: borderColor, backgroundColor: backgroundColor }}
+                  style={{
+                    borderColor: borderColor,
+                    backgroundColor: backgroundColor,
+                  }}
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full mx-auto mb-4" style={{ backgroundColor: textColor }}>
-                    <span className="text-2xl font-bold" style={{ color: backgroundColor, fontFamily: themeStyle.fontFamily }}>
+                  <div
+                    className="flex h-12 w-12 items-center justify-center rounded-full mx-auto mb-4"
+                    style={{ backgroundColor: textColor }}
+                  >
+                    <span
+                      className="text-2xl font-bold"
+                      style={{
+                        color: backgroundColor,
+                        fontFamily: themeStyle.fontFamily,
+                      }}
+                    >
                       {step.number}
                     </span>
                   </div>
                   <h3 className="text-lg font-bold mb-2" style={themeStyle}>
                     {step.title}
                   </h3>
-                  <p className="text-sm" style={{ color: secondaryTextColor, fontFamily: themeStyle.fontFamily }}>
+                  <p
+                    className="text-sm"
+                    style={{
+                      color: secondaryTextColor,
+                      fontFamily: themeStyle.fontFamily,
+                    }}
+                  >
                     {step.description}
                   </p>
                   {step.number < steps.length && (
                     <div className="hidden lg:block absolute top-1/2 -right-6 transform -translate-y-1/2">
-                      <ArrowRight className="h-6 w-6" style={{ color: secondaryTextColor }} />
+                      <ArrowRight
+                        className="h-6 w-6"
+                        style={{ color: secondaryTextColor }}
+                      />
                     </div>
                   )}
                 </div>
@@ -339,10 +471,10 @@ export function Landing() {
               <Link
                 to="/docs"
                 className="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-bold transition-all hover:opacity-90 hover:scale-105"
-                style={{ 
+                style={{
                   backgroundColor: textColor,
                   color: backgroundColor,
-                  fontFamily: themeStyle.fontFamily
+                  fontFamily: themeStyle.fontFamily,
                 }}
               >
                 view docs
@@ -365,25 +497,28 @@ export function Landing() {
             </h2>
             <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
               {features.map((feature) => {
-                const Icon = feature.icon
+                const Icon = feature.icon;
                 return (
                   <div
                     key={feature.title}
                     className="rounded-xl border-2 p-6 text-center"
                     style={{
-                      borderColor: 'rgba(102, 160, 86, 0.25)',
-                      backgroundColor: 'rgba(102, 160, 86, 0.15)',
+                      borderColor: "rgba(102, 160, 86, 0.25)",
+                      backgroundColor: "rgba(102, 160, 86, 0.15)",
                     }}
                   >
                     <div
                       className="flex h-16 w-16 items-center justify-center rounded-full mx-auto mb-4"
-                      style={{ backgroundColor: '#66A056' }}
+                      style={{ backgroundColor: "#66A056" }}
                     >
-                      <Icon className="h-8 w-8" style={{ color: '#FFFEF9' }} />
+                      <Icon className="h-8 w-8" style={{ color: "#FFFEF9" }} />
                     </div>
                     <h3
                       className="text-xl font-bold mb-3"
-                      style={{ color: textColor, fontFamily: themeStyle.fontFamily }}
+                      style={{
+                        color: textColor,
+                        fontFamily: themeStyle.fontFamily,
+                      }}
                     >
                       {feature.title}
                     </h3>
@@ -397,7 +532,7 @@ export function Landing() {
                       {feature.description}
                     </p>
                   </div>
-                )
+                );
               })}
             </div>
           </div>
@@ -407,10 +542,19 @@ export function Landing() {
         <section className="py-16 sm:py-24" style={themeStyle}>
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-2xl mx-auto text-center">
-              <h2 className="text-3xl sm:text-4xl font-bold mb-6" style={themeStyle}>
+              <h2
+                className="text-3xl sm:text-4xl font-bold mb-6"
+                style={themeStyle}
+              >
                 Ready to start building?
               </h2>
-              <p className="text-xl mb-8" style={{ color: secondaryTextColor, fontFamily: themeStyle.fontFamily }}>
+              <p
+                className="text-xl mb-8"
+                style={{
+                  color: secondaryTextColor,
+                  fontFamily: themeStyle.fontFamily,
+                }}
+              >
                 Pick your first challenge and start learning by doing.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -418,9 +562,9 @@ export function Landing() {
                   to="/auth?mode=signup"
                   className="inline-flex items-center justify-center rounded-lg px-8 py-4 text-lg font-bold transition-all hover:opacity-90 hover:scale-105"
                   style={{
-                    backgroundColor: '#66A056',
+                    backgroundColor: "#66A056",
                     color: backgroundColor,
-                    fontFamily: themeStyle.fontFamily
+                    fontFamily: themeStyle.fontFamily,
                   }}
                 >
                   Start Your First Challenge
@@ -433,5 +577,5 @@ export function Landing() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }

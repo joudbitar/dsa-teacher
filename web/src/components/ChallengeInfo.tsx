@@ -1125,7 +1125,7 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
               <code className="px-1 py-0.5 rounded bg-background">
                 dsa submit
               </code>{" "}
-              without leaving your editor.
+              .
             </p>
             <div className="rounded-lg border border-border bg-background p-4 font-mono text-sm text-foreground space-y-2">
               <code className="block whitespace-pre-wrap break-words">

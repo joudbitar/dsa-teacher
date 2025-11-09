@@ -189,9 +189,7 @@ const docSections: DocSection[] = [
                 </td>
               </tr>
               <tr>
-                <td className="px-4 py-3 font-medium">
-                  Remote fetch helper
-                </td>
+                <td className="px-4 py-3 font-medium">Remote fetch helper</td>
                 <td className="px-4 py-3">
                   <code>make install-cli-remote</code>
                 </td>
@@ -223,8 +221,11 @@ const docSections: DocSection[] = [
                 <td className="px-4 py-3 font-medium">Remote one-liner</td>
                 <td className="px-4 py-3">
                   <code>
-                    curl -fsSL https://raw.githubusercontent.com/&lt;org&gt;/&lt;repo&gt;/main/scripts/install-cli.sh |
-                    env DSA_CLI_REPO="https://github.com/&lt;org&gt;/&lt;repo&gt;" bash
+                    curl -fsSL
+                    https://raw.githubusercontent.com/&lt;org&gt;/&lt;repo&gt;/main/scripts/install-cli.sh
+                    | env
+                    DSA_CLI_REPO="https://github.com/&lt;org&gt;/&lt;repo&gt;"
+                    bash
                   </code>
                 </td>
                 <td className="px-4 py-3">
@@ -910,9 +911,11 @@ export function Docs() {
                       className="rounded-md px-3 py-2 transition font-mono"
                       style={{
                         border: `1px solid transparent`,
-                        color: isActive ? '#171512' : colors.text.secondary,
-                        fontWeight: isActive ? 'bold' : 'normal',
-                        backgroundColor: isActive ? 'rgba(127, 85, 57, 0.08)' : 'transparent',
+                        color: isActive ? "#171512" : colors.text.secondary,
+                        fontWeight: isActive ? "bold" : "normal",
+                        backgroundColor: isActive
+                          ? "rgba(127, 85, 57, 0.08)"
+                          : "transparent",
                       }}
                     >
                       {section.title}
