@@ -9,7 +9,6 @@ import { useAuth } from "@/auth/useAuth";
 import { Link, useLocation } from "react-router-dom";
 import { challengeData } from "@/data/challenges";
 import { clearChallengeProgress } from "@/utils/challengeProgress";
-import { cn } from "@/lib/utils";
 import {
   Layers,
   Search,
@@ -368,9 +367,6 @@ export function Challenges() {
               <div className="relative flex gap-4 overflow-x-auto pb-4 scrollbar-hide" style={{ paddingRight: `${libraryChallenges.length * 60}px` }}>
                 {libraryChallenges.map((challenge, index) => {
                   const Icon = iconMap[challenge.id] || Code2;
-                  const isIntermediate = challenge.level === "Intermediate";
-                  const isAdvanced = challenge.level === "Advanced";
-
                   return (
                     <Link
                       key={challenge.id}

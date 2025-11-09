@@ -137,7 +137,7 @@ const features = [
 
 export function Landing() {
   const [currentChallenge, setCurrentChallenge] = useState(0)
-  const { backgroundColor, textColor, borderColor, secondaryTextColor, sectionBackgroundColor, accentGreen, accentBlue } = useTheme()
+  const { backgroundColor, textColor, borderColor, secondaryTextColor, sectionBackgroundColor, accentGreen } = useTheme()
 
   useEffect(() => {
     const interval = setInterval(() => {

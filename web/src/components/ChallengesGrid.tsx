@@ -1,7 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { Layers, Search, Minus, Code2 } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
-import { cn } from '@/lib/utils'
 import { OrganicStep } from './OrganicStep'
 import { TurtleProgress } from './TurtleProgress'
 import { getChallengeProgress, calculateProgressPercentage } from '@/utils/challengeProgress'
@@ -112,8 +111,6 @@ export function ChallengesGrid({ modules }: ChallengesGridProps) {
     <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-2 challenges-page">
       {modules.map((module) => {
         const Icon = iconMap[module.id] || Code2
-        const isIntermediate = module.level === 'Intermediate'
-        const isAdvanced = module.level === 'Advanced'
         const progress = moduleProgress[module.id] || 0
         
         return (
