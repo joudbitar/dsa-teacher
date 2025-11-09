@@ -9,11 +9,86 @@ import {
   Copy,
 } from "lucide-react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { ChallengeSteps } from "./ChallengeSteps";
 import { ChallengeData } from "@/data/challenges/types";
 import { getSubchallengeInstruction } from "@/data/subchallenge-instructions";
 import { useTheme } from "@/theme/ThemeContext";
+
+// Custom light syntax highlighting theme matching site colors
+const customLightTheme: any = {
+  'code[class*="language-"]': {
+    color: '#171512',
+    background: '#F0ECDA',
+    fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
+    fontSize: '0.875rem',
+    textAlign: 'left',
+    whiteSpace: 'pre',
+    wordSpacing: 'normal',
+    wordBreak: 'normal',
+    wordWrap: 'normal',
+    lineHeight: '1.5',
+    MozTabSize: '4',
+    OTabSize: '4',
+    tabSize: '4',
+    WebkitHyphens: 'none',
+    MozHyphens: 'none',
+    msHyphens: 'none',
+    hyphens: 'none',
+  },
+  'pre[class*="language-"]': {
+    color: '#171512',
+    background: '#F0ECDA',
+    fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
+    fontSize: '0.875rem',
+    textAlign: 'left',
+    whiteSpace: 'pre',
+    wordSpacing: 'normal',
+    wordBreak: 'normal',
+    wordWrap: 'normal',
+    lineHeight: '1.5',
+    MozTabSize: '4',
+    OTabSize: '4',
+    tabSize: '4',
+    WebkitHyphens: 'none',
+    MozHyphens: 'none',
+    msHyphens: 'none',
+    hyphens: 'none',
+    padding: '1em',
+    margin: '0',
+    overflow: 'auto',
+  },
+  'comment': { color: '#6a737d' },
+  'prolog': { color: '#6a737d' },
+  'doctype': { color: '#6a737d' },
+  'cdata': { color: '#6a737d' },
+  'punctuation': { color: '#171512' },
+  'property': { color: '#171512' },
+  'tag': { color: '#171512' },
+  'boolean': { color: '#0550ae' },
+  'number': { color: '#0550ae' },
+  'constant': { color: '#0550ae' },
+  'symbol': { color: '#0550ae' },
+  'deleted': { color: '#cf222e' },
+  'selector': { color: '#953800' },
+  'attr-name': { color: '#953800' },
+  'string': { color: '#0a3069' },
+  'char': { color: '#0a3069' },
+  'builtin': { color: '#0a3069' },
+  'inserted': { color: '#1a7f37' },
+  'operator': { color: '#171512' },
+  'entity': { color: '#171512' },
+  'url': { color: '#0a3069' },
+  'variable': { color: '#171512' },
+  'atrule': { color: '#0969da' },
+  'attr-value': { color: '#0a3069' },
+  'function': { color: '#8250df' },
+  'class-name': { color: '#953800' },
+  'keyword': { color: '#cf222e' },
+  'regex': { color: '#0a3069' },
+  'important': { color: '#cf222e', fontWeight: 'bold' },
+  'bold': { fontWeight: 'bold' },
+  'italic': { fontStyle: 'italic' },
+};
 
 interface TimelineStep {
   id: string;
@@ -863,7 +938,7 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
                   <div className="rounded-lg border border-border overflow-hidden">
                     <SyntaxHighlighter
                       language={getSyntaxLanguage(selectedLanguage)}
-                      style={vscDarkPlus}
+                      style={customLightTheme}
                       customStyle={{
                         margin: 0,
                         borderRadius: "0.5rem",
@@ -909,7 +984,7 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
                   <div className="rounded-lg border border-border overflow-hidden">
                     <SyntaxHighlighter
                       language={getSyntaxLanguage(selectedLanguage)}
-                      style={vscDarkPlus}
+                      style={customLightTheme}
                       customStyle={{
                         margin: 0,
                         borderRadius: "0.5rem",
@@ -955,7 +1030,7 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
                   <div className="rounded-lg border border-border overflow-hidden">
                     <SyntaxHighlighter
                       language={getSyntaxLanguage(selectedLanguage)}
-                      style={vscDarkPlus}
+                      style={customLightTheme}
                       customStyle={{
                         margin: 0,
                         borderRadius: "0.5rem",
@@ -1002,7 +1077,7 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
                   <div className="rounded-lg border border-border overflow-hidden">
                     <SyntaxHighlighter
                       language={getSyntaxLanguage(selectedLanguage)}
-                      style={vscDarkPlus}
+                      style={customLightTheme}
                       customStyle={{
                         margin: 0,
                         borderRadius: "0.5rem",
