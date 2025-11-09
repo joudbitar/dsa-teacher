@@ -438,13 +438,6 @@ export function Challenges() {
 
                         {/* Action Buttons - Bottom right */}
                         <div className="absolute bottom-4 right-4 flex items-center gap-2">
-                          <Link
-                            to={`/challenges/${challenge.id}`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="text-xs text-primary font-medium font-mono"
-                          >
-                            View →
-                          </Link>
                           <button
                             onClick={(e) => {
                               e.preventDefault();
@@ -457,10 +450,11 @@ export function Challenges() {
                             disabled={
                               restartingProjectId === challenge.project.id
                             }
-                            className="text-xs text-muted-foreground font-mono transition-opacity hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center gap-1 text-xs text-muted-foreground font-mono transition-opacity hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
                             title="Restart this module and create a new repository"
                           >
                             <RotateCcw className="h-3 w-3" />
+                            Restart
                           </button>
                         </div>
                       </OrganicStep>

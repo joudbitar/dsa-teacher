@@ -147,6 +147,9 @@ export function ChallengesGrid({ modules }: ChallengesGridProps) {
                   </span>
                 </div>
 
+                {/* Summary */}
+                <p className="text-sm text-muted-foreground mb-4 font-mono">{module.summary}</p>
+
                 {/* Turtle Progress */}
                 <div className="mb-4">
                   <TurtleProgress progress={progress} />
