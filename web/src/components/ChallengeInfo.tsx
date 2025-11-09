@@ -78,15 +78,17 @@ export function ChallengeInfo({
       // Remove "Build a " prefix if present, otherwise just use the title
       return title.replace(/^Build a /i, "").replace(/^Build /i, "");
     }
-    
+
     // If we have instruction with a title, use that
     if (instruction?.title) {
       // Extract the main action from instruction title
       // e.g., "Implement enqueue() Method" -> "Implement enqueue()"
       // e.g., "Create Queue Class" -> "Create Queue Class"
-      return instruction.title.replace(/ Method$/, "").replace(/ Helper Method$/, "");
+      return instruction.title
+        .replace(/ Method$/, "")
+        .replace(/ Helper Method$/, "");
     }
-    
+
     // If we have a subchallenge name, format it nicely
     if (subchallengeName && subchallengeName !== "Choose Language") {
       // Capitalize and format the subchallenge name
@@ -96,7 +98,7 @@ export function ChallengeInfo({
         .replace(/\b\w/g, (l) => l.toUpperCase());
       return formatted;
     }
-    
+
     // Fallback to simplified challenge name
     return title.replace(/^Build a /i, "").replace(/^Build /i, "");
   };
@@ -107,12 +109,12 @@ export function ChallengeInfo({
     if (isLanguageStep) {
       return summary;
     }
-    
+
     // If we have instruction with an objective, use that
     if (instruction?.objective) {
       return instruction.objective;
     }
-    
+
     // Fallback to challenge summary
     return summary;
   };
@@ -165,7 +167,7 @@ def reverse_string(s):
 # Usage
 result = reverse_string("STACK")
 print(result)  # Output: KCATS`,
-      
+
       java: `// Example: Reverse a string using stack
 import java.util.Stack;
 
@@ -192,7 +194,7 @@ public class StackExample {
         System.out.println(result);  // Output: KCATS
     }
 }`,
-      
+
       javascript: `// Example: Reverse a string using stack
 function reverseString(s) {
     const stack = [];
@@ -215,7 +217,7 @@ function reverseString(s) {
 // Usage
 const result = reverseString("STACK");
 console.log(result);  // Output: KCATS`,
-      
+
       typescript: `// Example: Reverse a string using stack
 function reverseString(s: string): string {
     const stack: string[] = [];
@@ -242,7 +244,7 @@ function reverseString(s: string): string {
 const result = reverseString("STACK");
 console.log(result);  // Output: KCATS`,
     };
-    
+
     return examples[lang.toLowerCase()] || examples.javascript;
   };
 
@@ -271,7 +273,7 @@ simulate_ticket_counter(["Alice", "Bob", "Charlie", "Diana"])
 # Now serving: Bob
 # Now serving: Charlie
 # Now serving: Diana`,
-      
+
       java: `// Example: Simulate a ticket counter using queue
 import java.util.LinkedList;
 import java.util.Queue;
@@ -303,7 +305,7 @@ public class QueueExample {
         // Now serving: Diana
     }
 }`,
-      
+
       javascript: `// Example: Simulate a ticket counter using queue
 function simulateTicketCounter(customers) {
     const queue = [];
@@ -329,7 +331,7 @@ simulateTicketCounter(["Alice", "Bob", "Charlie", "Diana"]);
 // Now serving: Bob
 // Now serving: Charlie
 // Now serving: Diana`,
-      
+
       typescript: `// Example: Simulate a ticket counter using queue
 function simulateTicketCounter(customers: string[]): void {
     const queue: string[] = [];
@@ -359,7 +361,7 @@ simulateTicketCounter(["Alice", "Bob", "Charlie", "Diana"]);
 // Now serving: Charlie
 // Now serving: Diana`,
     };
-    
+
     return examples[lang.toLowerCase()] || examples.javascript;
   };
 
@@ -391,7 +393,7 @@ print(binary_search(numbers, 10))  # Output: -1
 # Step 1: left=0, right=6, mid=3, arr[3]=8 → 10 > 8 → search right
 # Step 2: left=4, right=6, mid=5, arr[5]=12 → 10 < 12 → search left
 # Step 3: left=4, right=4, mid=4, arr[4]=10 → found at index 4!`,
-      
+
       java: `// Example: Binary Search (Iterative Implementation)
 public class BinarySearchExample {
     public static int binarySearch(int[] arr, int target) {
@@ -423,7 +425,7 @@ public class BinarySearchExample {
         // Step 3: left=4, right=4, mid=4, arr[4]=10 → found at index 4!
     }
 }`,
-      
+
       javascript: `// Example: Binary Search (Iterative Implementation)
 function binarySearch(arr, target) {
     let left = 0;
@@ -454,7 +456,7 @@ console.log(binarySearch(numbers, 10)); // Output: -1
 // Step 2: left=4, right=6, mid=5, arr[5]=12 → 10 < 12 → search left
 // Step 3: left=4, right=4, mid=4, arr[4]=10 → found at index 4!`,
     };
-    
+
     return examples[lang.toLowerCase()] || examples.javascript;
   };
 
@@ -522,7 +524,7 @@ heap.insert(6)  # [1, 3, 8, 5, 6]
 
 print(heap.peek_min())  # Output: 1
 print(heap.extract_min())  # Output: 1, heap becomes [3, 5, 8, 6]`,
-      
+
       java: `// Example: Min Heap (Array Implementation)
 import java.util.ArrayList;
 import java.util.List;
@@ -611,7 +613,7 @@ public class MinHeap {
         System.out.println(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]
     }
 }`,
-      
+
       javascript: `// Example: Min Heap (Array Implementation)
 class MinHeap {
     constructor() {
@@ -690,7 +692,7 @@ heap.insert(6);  // [1, 3, 8, 5, 6]
 console.log(heap.peekMin());      // Output: 1
 console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
     };
-    
+
     return examples[lang.toLowerCase()] || examples.javascript;
   };
 
@@ -715,7 +717,9 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
 
           <div className="bg-muted rounded-lg p-4 font-mono text-sm">
             <div className="flex items-center justify-between">
-              <code className="flex-1 text-foreground">git clone {githubRepoUrl}</code>
+              <code className="flex-1 text-foreground">
+                git clone {githubRepoUrl}
+              </code>
               <button
                 onClick={handleCopy}
                 className="ml-4 px-3 py-1 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors flex items-center gap-2"
@@ -795,7 +799,7 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
           </div>
 
           {/* Code Example - Stack Usage */}
-          {moduleId === 'stack' && (
+          {moduleId === "stack" && (
             <div className="rounded-xl border border-border bg-muted p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
@@ -804,7 +808,8 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
                 <h2 className="text-2xl font-bold">Example: Using a Stack</h2>
               </div>
               <p className="text-foreground/90 mb-4">
-                Here's how to use a stack to reverse a string. Select a language to see the example:
+                Here's how to use a stack to reverse a string. Select a language
+                to see the example:
               </p>
               {selectedLanguage ? (
                 <div className="space-y-4">
@@ -824,8 +829,9 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
                     </SyntaxHighlighter>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    This example demonstrates the LIFO principle: characters are pushed onto the stack,
-                    then popped in reverse order to create the reversed string.
+                    This example demonstrates the LIFO principle: characters are
+                    pushed onto the stack, then popped in reverse order to
+                    create the reversed string.
                   </p>
                 </div>
               ) : (
@@ -837,16 +843,19 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
           )}
 
           {/* Code Example - Queue Usage */}
-          {moduleId === 'queue' && (
+          {moduleId === "queue" && (
             <div className="rounded-xl border border-border bg-muted p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
                   <Code2 className="h-5 w-5 text-accent" />
                 </div>
-                <h2 className="text-2xl font-bold">Example: Simulating a Ticket Counter</h2>
+                <h2 className="text-2xl font-bold">
+                  Example: Simulating a Ticket Counter
+                </h2>
               </div>
               <p className="text-foreground/90 mb-4">
-                Here's how to use a queue to simulate a ticket counter. Select a language to see the example:
+                Here's how to use a queue to simulate a ticket counter. Select a
+                language to see the example:
               </p>
               {selectedLanguage ? (
                 <div className="space-y-4">
@@ -866,8 +875,9 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
                     </SyntaxHighlighter>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    This example demonstrates the FIFO principle: customers join the queue in order,
-                    and are served in the same order they arrived—just like a real ticket counter.
+                    This example demonstrates the FIFO principle: customers join
+                    the queue in order, and are served in the same order they
+                    arrived—just like a real ticket counter.
                   </p>
                 </div>
               ) : (
@@ -879,16 +889,19 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
           )}
 
           {/* Code Example - Binary Search Usage */}
-          {moduleId === 'binary-search' && (
+          {moduleId === "binary-search" && (
             <div className="rounded-xl border border-border bg-muted p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
                   <Code2 className="h-5 w-5 text-accent" />
                 </div>
-                <h2 className="text-2xl font-bold">Example: Binary Search Implementation</h2>
+                <h2 className="text-2xl font-bold">
+                  Example: Binary Search Implementation
+                </h2>
               </div>
               <p className="text-foreground/90 mb-4">
-                Here's an iterative binary search implementation. Select a language to see the example:
+                Here's an iterative binary search implementation. Select a
+                language to see the example:
               </p>
               {selectedLanguage ? (
                 <div className="space-y-4">
@@ -908,8 +921,10 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
                     </SyntaxHighlighter>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    This example demonstrates the divide-and-conquer approach: each comparison eliminates half of the remaining elements,
-                    achieving O(log n) time complexity. The algorithm repeatedly halves the search space until the target is found.
+                    This example demonstrates the divide-and-conquer approach:
+                    each comparison eliminates half of the remaining elements,
+                    achieving O(log n) time complexity. The algorithm repeatedly
+                    halves the search space until the target is found.
                   </p>
                 </div>
               ) : (
@@ -921,16 +936,19 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
           )}
 
           {/* Code Example - Min Heap Usage */}
-          {moduleId === 'min-heap' && (
+          {moduleId === "min-heap" && (
             <div className="rounded-xl border border-border bg-muted p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
                   <Code2 className="h-5 w-5 text-accent" />
                 </div>
-                <h2 className="text-2xl font-bold">Example: Min Heap Implementation</h2>
+                <h2 className="text-2xl font-bold">
+                  Example: Min Heap Implementation
+                </h2>
               </div>
               <p className="text-foreground/90 mb-4">
-                Here's a complete Min Heap implementation using an array. Select a language to see the example:
+                Here's a complete Min Heap implementation using an array. Select
+                a language to see the example:
               </p>
               {selectedLanguage ? (
                 <div className="space-y-4">
@@ -950,9 +968,11 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
                     </SyntaxHighlighter>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    This example demonstrates the complete Min Heap with insert, extractMin, peekMin, and helper methods.
-                    The heap maintains the min-heap property where each parent is smaller than its children.
-                    Elements bubble up when inserted and bubble down when the minimum is extracted.
+                    This example demonstrates the complete Min Heap with insert,
+                    extractMin, peekMin, and helper methods. The heap maintains
+                    the min-heap property where each parent is smaller than its
+                    children. Elements bubble up when inserted and bubble down
+                    when the minimum is extracted.
                   </p>
                 </div>
               ) : (
@@ -967,8 +987,12 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
           {projectError && (
             <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
               <div className="space-y-2">
-                <p className="text-destructive font-semibold">Error creating project:</p>
-                <p className="text-destructive whitespace-pre-wrap text-sm">{projectError}</p>
+                <p className="text-destructive font-semibold">
+                  Error creating project:
+                </p>
+                <p className="text-destructive whitespace-pre-wrap text-sm">
+                  {projectError}
+                </p>
               </div>
             </div>
           )}
@@ -1141,7 +1165,6 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
           showOnlyCurrentStep={true}
         />
       )}
-
     </div>
   );
 }

@@ -84,7 +84,7 @@ export function ChallengeDetail() {
         if (projects.length > 0) {
           // Get the most recent project (or filter by selected language if available)
           const project = projects[0];
-          
+
           // Store the existing project info but don't auto-navigate
           setExistingProject(project);
           setSelectedLanguage(project.language.toLowerCase());
@@ -95,7 +95,7 @@ export function ChallengeDetail() {
           const stepIndex =
             project.currentChallengeIndex === 0
               ? 0 // Stay on setup/language selection - repo created but not working on challenges yet
-            : project.currentChallengeIndex + 1; // +1 for "Choose Language" step
+              : project.currentChallengeIndex + 1; // +1 for "Choose Language" step
           setCurrentStepIndex(stepIndex);
 
           // Mark completed steps based on currentChallengeIndex
@@ -103,7 +103,10 @@ export function ChallengeDetail() {
           const completed =
             project.currentChallengeIndex === 0
               ? [] // No steps completed - still on setup
-              : Array.from({ length: project.currentChallengeIndex + 1 }, (_, i) => i);
+              : Array.from(
+                  { length: project.currentChallengeIndex + 1 },
+                  (_, i) => i
+                );
           setCompletedSteps(completed);
 
           // Set saved repo URL
@@ -217,17 +220,17 @@ export function ChallengeDetail() {
                 moduleData?.subchallenges?.[
                   updatedProject.currentChallengeIndex
                 ];
-              
+
               // Check if this is the last step
               const isLastStep =
                 updatedProject.currentChallengeIndex >=
                 (moduleData?.subchallenges?.length || 0);
-              
+
               // Create a temporary toast notification
               const toast = document.createElement("div");
               toast.className =
                 "fixed top-20 right-4 bg-success text-success-foreground px-6 py-3 rounded-lg shadow-lg z-50 animate-in slide-in-from-right";
-              
+
               if (isLastStep) {
                 toast.innerHTML = `
                   <div class="flex items-center gap-2">
@@ -247,7 +250,7 @@ export function ChallengeDetail() {
                   }</div>
                 `;
               }
-              
+
               document.body.appendChild(toast);
 
               // Remove after 4 seconds
@@ -257,7 +260,7 @@ export function ChallengeDetail() {
                 setTimeout(() => toast.remove(), 300);
               }, 4000);
             }
-            
+
             hasShownInitialState = true;
           } else {
             // Same state, mark as shown
@@ -293,7 +296,7 @@ export function ChallengeDetail() {
   // Display step 0 (language selection) until project is created
   // Once project exists (repo created), show the current challenge step
   const displayStepIndex = existingProject ? currentStepIndex : 0;
-  
+
   // Max accessible step is based on backend's currentChallengeIndex
   // currentChallengeIndex = 0 means working on first challenge (step 1) - user can access it
   // currentChallengeIndex = 1 means working on second challenge (step 2), etc.
@@ -306,10 +309,12 @@ export function ChallengeDetail() {
 
   // Debug logging
   console.log("ChallengeDetail Debug:", {
-    existingProject: existingProject ? {
-      id: existingProject.id,
-      currentChallengeIndex: existingProject.currentChallengeIndex,
-    } : null,
+    existingProject: existingProject
+      ? {
+          id: existingProject.id,
+          currentChallengeIndex: existingProject.currentChallengeIndex,
+        }
+      : null,
     currentStepIndex,
     maxAccessibleStep,
     completedSteps,
@@ -322,7 +327,9 @@ export function ChallengeDetail() {
 
     // Check if user is authenticated
     if (!user || !session) {
-      setProjectError("Please sign in to create a project. Redirecting to login...");
+      setProjectError(
+        "Please sign in to create a project. Redirecting to login..."
+      );
       setTimeout(() => {
         navigate("/login");
       }, 2000);
@@ -332,9 +339,12 @@ export function ChallengeDetail() {
     try {
       setCreatingProject(true);
       setProjectError(null);
-      
+
       // Clear old project info if switching languages
-      if (existingProject && existingProject.language.toLowerCase() !== language.toLowerCase()) {
+      if (
+        existingProject &&
+        existingProject.language.toLowerCase() !== language.toLowerCase()
+      ) {
         setExistingProject(null);
         setSavedRepoUrl(undefined);
         setCurrentStepIndex(0);
@@ -383,8 +393,12 @@ export function ChallengeDetail() {
       let errorMessage = "Failed to create project. Please try again.";
 
       if (error instanceof Error) {
-        if (error.message.includes("No active session") || error.message.includes("Unauthorized")) {
-          errorMessage = "You must be signed in to create a project. Please sign in and try again.";
+        if (
+          error.message.includes("No active session") ||
+          error.message.includes("Unauthorized")
+        ) {
+          errorMessage =
+            "You must be signed in to create a project. Please sign in and try again.";
           setTimeout(() => {
             navigate("/login");
           }, 2000);
@@ -400,7 +414,7 @@ export function ChallengeDetail() {
           error.message.includes("private key") ||
           error.message.includes("not configured")
         ) {
-          errorMessage = 
+          errorMessage =
             "GitHub App is not properly configured. Please contact support.\n\n" +
             "The backend needs GitHub App credentials to create repositories.";
         } else if (
@@ -408,7 +422,7 @@ export function ChallengeDetail() {
           error.message.includes("401") ||
           error.message.includes("403")
         ) {
-          errorMessage = 
+          errorMessage =
             "GitHub authentication failed. Please contact support.\n\n" +
             "The GitHub App credentials may be incorrect or expired.";
         } else {
@@ -435,14 +449,14 @@ export function ChallengeDetail() {
   // Continue to challenge after viewing repo modal
   const handleContinueToChallenge = () => {
     setShowRepoCommand(false);
-    
+
     // Move to first challenge (step 1)
     setCurrentStepIndex(1);
-    
+
     // Mark step 0 (language selection) as completed
     if (!completedSteps.includes(0)) {
       setCompletedSteps([0]);
-      
+
       // Save to localStorage
       if (id) {
         saveChallengeProgress(id, {
@@ -505,9 +519,20 @@ export function ChallengeDetail() {
     return (
       <div className="min-h-screen flex flex-col" style={{ backgroundColor }}>
         <Navbar className="relative z-10" />
-        <main className="flex-1 relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="text-center">
-            <p className="text-lg">Loading challenge...</p>
+        <main className="flex-1 relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-12 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4 rounded-2xl border border-border/60 bg-card/80 px-10 py-12 shadow-[0_12px_32px_rgba(0,0,0,0.12)] backdrop-blur-sm">
+            <span className="relative flex h-12 w-12">
+              <span className="absolute inset-0 rounded-full border-2 border-border/60" />
+              <span className="absolute inset-0 rounded-full border-t-2 border-primary animate-spin" />
+            </span>
+            <div className="space-y-2 text-center">
+              <p className="text-lg font-semibold tracking-tight text-foreground">
+                Preparing your challenge
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Just a moment while we load your progress and workspace.
+              </p>
+            </div>
           </div>
         </main>
         <Footer className="relative z-10 mt-auto" />
