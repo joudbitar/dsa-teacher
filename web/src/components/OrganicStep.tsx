@@ -1,38 +1,38 @@
-import { cn } from '@/lib/utils'
-import { ReactNode } from 'react'
-import { useTheme } from '@/theme/ThemeContext'
+import { cn } from "@/lib/utils";
+import { ReactNode } from "react";
+import { useTheme } from "@/theme/ThemeContext";
 
 interface OrganicStepProps {
-  children: ReactNode
-  isCurrent?: boolean
-  isCompleted?: boolean
-  isClickable?: boolean
-  className?: string
-  shapeVariant?: number
+  children: ReactNode;
+  isCurrent?: boolean;
+  isCompleted?: boolean;
+  isClickable?: boolean;
+  className?: string;
+  shapeVariant?: number;
 }
 
-export function OrganicStep({ 
-  children, 
-  isCurrent: _isCurrent = false, 
+export function OrganicStep({
+  children,
+  isCurrent: _isCurrent = false,
   isCompleted: _isCompleted = false,
   isClickable: _isClickable = true,
   className,
-  shapeVariant: _shapeVariant = 0
+  shapeVariant: _shapeVariant = 0,
 }: OrganicStepProps) {
-  const { sectionBackgroundColor, borderColor } = useTheme()
-  
+  const { sectionBackgroundColor, borderColor } = useTheme();
+
   // Use padding from className if provided, otherwise default
   const paddingClasses = className?.match(/\b(p|px|py|pt|pb|pl|pr)-\d+\b/)
     ? "" // Use padding from className
-    : "px-4 py-3" // Default padding
-  
+    : "px-4 py-3"; // Default padding
+
   // Card background: use sectionBackgroundColor which adapts to theme
-  const cardBackgroundColor = sectionBackgroundColor
-  
+  const cardBackgroundColor = sectionBackgroundColor;
+
   return (
-    <div 
+    <div
       className={cn(
-        "relative rounded-lg border-2",
+        "relative rounded-lg border",
         paddingClasses,
         "shadow-[0_8px_16px_rgba(0,0,0,0.25)]",
         className
@@ -44,5 +44,5 @@ export function OrganicStep({
     >
       {children}
     </div>
-  )
+  );
 }

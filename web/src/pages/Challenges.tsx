@@ -308,10 +308,10 @@ export function Challenges() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 min-h-[calc(100vh-12rem)]">
           {/* Your Library Section */}
           <div
-            className="mb-8 rounded-lg border-2 p-8"
+            className="mb-8 rounded-lg border p-6"
             style={{
               backgroundColor: sectionBackgroundColor,
-              borderColor: borderColor,
+              borderColor: '#D4CFC0',
             }}
           >
             <div className="flex items-center justify-between mb-6">
@@ -365,8 +365,8 @@ export function Challenges() {
                 </p>
               </div>
             ) : libraryChallenges.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {libraryChallenges.map((challenge) => {
+              <div className="relative flex gap-4 overflow-x-auto pb-4 scrollbar-hide" style={{ paddingRight: `${libraryChallenges.length * 60}px` }}>
+                {libraryChallenges.map((challenge, index) => {
                   const Icon = iconMap[challenge.id] || Code2;
                   const isIntermediate = challenge.level === "Intermediate";
                   const isAdvanced = challenge.level === "Advanced";
@@ -375,89 +375,69 @@ export function Challenges() {
                     <Link
                       key={challenge.id}
                       to={`/challenges/${challenge.id}`}
-                      className="block"
-                      style={{ transform: 'none' }}
+                      className="block shrink-0 sticky"
+                      style={{ 
+                        transform: 'none',
+                        zIndex: libraryChallenges.length - index,
+                        left: `${index * 30}px`,
+                        width: '300px'
+                      }}
                     >
                       <OrganicStep
                         isCurrent={false}
                         isCompleted={challenge.status === "completed"}
-                        className="p-6 h-full relative"
+                        className="p-4 relative h-full min-h-[160px]"
                       >
                         {/* Status Badge */}
-                        <div className="absolute top-6 right-6">
+                        <div className="absolute top-4 right-4">
                           {challenge.status === "completed" ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold font-mono bg-success/20 text-success">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold font-mono bg-success/20 text-success">
                               <CheckCircle2 className="h-3 w-3" />
                               Completed
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold font-mono bg-muted text-foreground">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold font-mono bg-muted text-foreground">
                               In Progress
                             </span>
                           )}
                         </div>
 
                         {/* Icon and Title */}
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
-                              <Icon className="h-6 w-6 text-primary" />
-                            </div>
-                            <div>
-                              <h3 className="text-lg font-bold font-mono">{challenge.title}</h3>
-                            </div>
+                        <div className="flex items-start gap-2 mb-2 pr-24">
+                          <div className="flex h-10 w-10 shrink-0 aspect-square items-center justify-center rounded-sm bg-primary/10 border border-primary/30">
+                            <Icon className="h-5 w-5 text-primary" />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-sm font-bold font-mono leading-tight">{challenge.title}</h3>
                           </div>
                         </div>
 
                         {/* Level Badge */}
-                        <div className="mb-4">
-                          <span className={cn(
-                            "inline-block px-2.5 py-1 rounded-full text-xs font-medium font-mono",
-                            isAdvanced
-                              ? "bg-destructive/20 text-destructive"
-                              : isIntermediate
-                              ? "bg-warning/20 text-warning"
-                              : "bg-success/20 text-success"
-                          )}>
+                        <div className="mb-2 ml-[48px]">
+                          <span className="inline-block px-1.5 py-0.5 rounded-full text-xs font-medium font-mono bg-[#7F5539] text-white">
                             {challenge.level}
                           </span>
                         </div>
 
                         {/* Progress Info */}
                         {challenge.status === "in-progress" && (
-                          <div className="space-y-2 mb-4">
-                            <p className="text-sm text-muted-foreground font-mono">
+                          <div className="mb-2 ml-[48px]">
+                            <p className="text-xs text-muted-foreground font-mono">
                               {challenge.totalTasks > 0
-                                ? `${challenge.completedTasks}/${challenge.totalTasks} tasks`
+                                ? `${challenge.completedTasks}/${challenge.totalTasks}`
                                 : "Getting started..."}
                             </p>
-                            {/* Progress Bar */}
-                            <div className="w-full h-2 rounded-full overflow-hidden bg-muted">
-                              <div
-                                className="h-full transition-all duration-300 rounded-full bg-success"
-                                style={{
-                                  width: `${challenge.progressPercentage}%`,
-                                }}
-                              />
-                            </div>
                           </div>
                         )}
 
                         {challenge.status === "completed" && (
-                          <p className="text-sm text-muted-foreground mb-4 font-mono">
-                            {challenge.totalTasks} tasks completed
+                          <p className="text-xs text-muted-foreground mb-2 font-mono ml-[48px]">
+                            {challenge.totalTasks}/{challenge.totalTasks}
                           </p>
                         )}
 
                         {/* Action Buttons - Bottom right */}
-                        <div className="absolute bottom-6 right-6 flex items-center gap-3">
-                          <Link
-                            to={`/challenges/${challenge.id}`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="text-sm text-primary font-medium font-mono"
-                          >
-                            View Details →
-                          </Link>
+                        <div className="absolute bottom-4 right-4 flex items-center gap-2">
                           <button
                             onClick={(e) => {
                               e.preventDefault();
@@ -470,10 +450,11 @@ export function Challenges() {
                             disabled={
                               restartingProjectId === challenge.project.id
                             }
-                            className="text-sm text-muted-foreground font-mono transition-opacity hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center gap-1 text-xs text-muted-foreground font-mono transition-opacity hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
                             title="Restart this module and create a new repository"
                           >
-                            <RotateCcw className="h-4 w-4" />
+                            <RotateCcw className="h-3 w-3" />
+                            Restart
                           </button>
                         </div>
                       </OrganicStep>
@@ -516,12 +497,12 @@ export function Challenges() {
 
       {/* Restart Confirmation Modal */}
       {showRestartConfirm && projectToRestart && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-          onClick={handleRestartCancel}
-        >
           <div
-            className="rounded-lg border-2 p-6 max-w-md w-full shadow-xl"
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onClick={handleRestartCancel}
+          >
+            <div
+              className="rounded-lg border p-6 max-w-md w-full shadow-xl"
             style={{
               backgroundColor: backgroundColor,
               borderColor: borderColor,
@@ -571,7 +552,7 @@ export function Challenges() {
             <div className="flex gap-3 justify-end">
               <button
                 onClick={handleRestartCancel}
-                className="px-4 py-2 rounded border-2 font-mono text-sm transition-opacity hover:opacity-70"
+                className="px-4 py-2 rounded border font-mono text-sm transition-opacity hover:opacity-70"
                 style={{
                   borderColor: borderColor,
                   color: textColor,
@@ -581,7 +562,7 @@ export function Challenges() {
               </button>
               <button
                 onClick={handleRestartConfirm}
-                className="px-4 py-2 rounded border-2 font-mono text-sm transition-opacity hover:opacity-70"
+                className="px-4 py-2 rounded border font-mono text-sm transition-opacity hover:opacity-70"
                 style={{
                   backgroundColor: "#B91C1C",
                   borderColor: "#B91C1C",
