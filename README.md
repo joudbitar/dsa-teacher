@@ -69,6 +69,16 @@ The script downloads the latest sources, builds the CLI locally, and symlinks th
 `dsa` command into `~/.local/bin`. Adjust `DSA_CLI_HOME` or `DSA_CLI_BIN` to customize
 where it installs artifacts or the executable shim.
 
+If your environment restricts Corepack from writing to `/usr/local/bin`, export
+`COREPACK_ENABLE=0` and ensure `pnpm` is available on your PATH before running the
+installer:
+
+```bash
+export COREPACK_ENABLE=0
+pnpm --version   # should succeed
+curl -fsSL https://raw.githubusercontent.com/<org>/dsa-lab/main/scripts/install-cli.sh | bash
+```
+
 ## Environment
 
 - Node.js ≥ 18 (includes npm)

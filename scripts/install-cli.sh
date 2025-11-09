@@ -50,10 +50,27 @@ if ! command -v corepack >/dev/null 2>&1; then
   fi
 fi
 
-command -v corepack >/dev/null 2>&1 || error "corepack is required (ships with modern Node.js)"
+USE_COREPACK=1
+if [[ "${COREPACK_ENABLE:-1}" == "0" ]]; then
+  USE_COREPACK=0
+fi
 
-info "Ensuring pnpm is available via corepack..."
-corepack prepare pnpm@latest --activate >/dev/null 2>&1 || corepack enable pnpm
+if [[ $USE_COREPACK -eq 1 ]]; then
+  command -v corepack >/dev/null 2>&1 || error "corepack is required (ships with modern Node.js)"
+  info "Ensuring pnpm is available via corepack..."
+  corepack prepare pnpm@latest --activate >/dev/null 2>&1 || corepack enable pnpm
+else
+  command -v pnpm >/dev/null 2>&1 || error "pnpm is required when COREPACK_ENABLE=0"
+  info "Using pnpm from PATH (COREPACK_ENABLE=0)"
+fi
+
+run_pnpm() {
+  if [[ $USE_COREPACK -eq 1 ]]; then
+    corepack pnpm "$@"
+  else
+    pnpm "$@"
+  fi
+}
 
 TMP_DIR="$(mktemp -d)"
 cleanup() {
@@ -72,13 +89,13 @@ CLI_DIR="${ARCHIVE_FOLDER}/cli"
 
 info "Installing dependencies..."
 pushd "$CLI_DIR" >/dev/null
-corepack pnpm install
+run_pnpm install
 
 info "Building CLI..."
-corepack pnpm build
+run_pnpm build
 
 info "Pruning dev dependencies..."
-corepack pnpm prune --prod
+run_pnpm prune --prod
 
 info "Preparing installation directory at ${INSTALL_DIR}..."
 rm -rf "$INSTALL_DIR"

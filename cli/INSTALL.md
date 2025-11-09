@@ -32,6 +32,17 @@ rm -f ~/.local/bin/dsa
 
 If you run the installer again it recreates both paths automatically.
 
+> **Permission errors?** If Corepack can’t modify `/usr/local/bin`, export `COREPACK_ENABLE=0`
+> and make sure `pnpm` is on your PATH before running the installer:
+>
+> ```bash
+> export COREPACK_ENABLE=0
+> pnpm --version
+> curl -fsSL https://raw.githubusercontent.com/<org>/dsa-lab/main/scripts/install-cli.sh | bash
+> ```
+>
+> Replace `<org>` with your fork’s owner (e.g. `joudbitar/dsa-teacher`).
+
 ### Installing from npm (future)
 
 Once the package is published to npm:
