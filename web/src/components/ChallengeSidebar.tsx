@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import type { CSSProperties } from "react";
 import { OrganicStep } from "./OrganicStep";
 import { TurtleProgress } from "./TurtleProgress";
 
@@ -72,14 +73,25 @@ export function ChallengeSidebar({
               const isAccessible = index <= maxAccessibleStep;
               const isFutureLocked = !isAccessible;
 
+              const stepInlineStyles: CSSProperties = {
+                cursor: isAccessible ? "pointer" : "not-allowed",
+                transition: "transform 200ms ease, box-shadow 200ms ease",
+              };
+
+              if (isCurrentStep) {
+                stepInlineStyles.transform = "translateY(-2px)";
+                stepInlineStyles.boxShadow =
+                  "0 12px 26px rgba(86, 60, 44, 0.24), 0 0 0 1px rgba(176, 147, 109, 0.28)";
+                stepInlineStyles.borderRadius = "16px";
+                stepInlineStyles.background = "rgba(176, 147, 109, 0.08)";
+              }
+
               return (
                 <div
                   key={sub.id}
                   className="relative group"
                   onClick={() => isAccessible && onStepClick?.(index)}
-                  style={{
-                    cursor: isAccessible ? "pointer" : "not-allowed",
-                  }}
+                  style={stepInlineStyles}
                   aria-disabled={!isAccessible}
                   title={
                     isFutureLocked
@@ -98,8 +110,10 @@ export function ChallengeSidebar({
                     <div className="flex-1 min-w-0 text-center">
                       <p
                         className={cn(
-                          "flex items-baseline justify-center gap-2 text-sm font-medium leading-snug font-mono",
-                          isCurrentStep ? "text-[#3E2723]" : "text-foreground",
+                          "flex items-baseline justify-center gap-2 leading-snug font-mono transition-all duration-200 text-sm font-semibold",
+                          isCurrentStep
+                            ? "text-[#4A2F23] text-base font-bold"
+                            : "text-foreground",
                           !isAccessible && !isCurrentStep && "opacity-50"
                         )}
                       >

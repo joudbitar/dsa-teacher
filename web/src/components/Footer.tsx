@@ -1,4 +1,5 @@
 import { Linkedin, Mail } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { useTheme } from '../theme/ThemeContext'
 
 export function Footer({ className }: { className?: string }) {
@@ -16,6 +17,27 @@ export function Footer({ className }: { className?: string }) {
       }}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-12 text-center">
+          <Link to="/" className="flex items-center gap-4 group">
+            <img
+              src="/turtle_logo.png"
+              alt="DSA Lab logo"
+              className="block h-14 w-auto transition-all group-hover:scale-105 object-contain"
+            />
+            <span
+              className="text-3xl font-bold tracking-tight leading-none"
+              style={{
+                color: textColor,
+                fontFamily: 'JetBrains Mono, monospace',
+              }}
+            >
+              DSA Lab
+            </span>
+          </Link>
+          <p className="text-base font-mono max-w-md" style={{ color: secondaryTextColor }}>
+            Level up your data structures and algorithms with hands-on, guided challenges.
+          </p>
+        </div>
         {/* Team and Connect - Horizontal and Centered */}
         <div className="flex flex-col sm:flex-row justify-center items-center gap-16 mb-8">
           <div className="flex flex-col items-center gap-3">

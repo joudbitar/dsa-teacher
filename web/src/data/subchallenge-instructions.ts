@@ -21,7 +21,7 @@ export const subchallengeInstructions: Record<string, Record<string, Subchalleng
   'min-heap': {
     'Insert': {
       title: 'Implement insert() Method',
-      objective: 'Add a new element to the heap while maintaining the min-heap property',
+      objective: 'Build or initialize your array-backed heap structure and add a new element while maintaining the min-heap property',
       methodSignature: {
         python: 'def insert(self, value: int) -> None:',
         typescript: 'insert(value: number): void',
@@ -31,6 +31,7 @@ export const subchallengeInstructions: Record<string, Record<string, Subchalleng
         'c++': 'void insert(int value)'
       },
       requirements: [
+        'Ensure your heap uses an internal array/list; initialize it if it does not exist yet',
         'Add the new value at the end of the internal array/list',
         'Call heapify_up() to restore the min-heap property',
         'The smallest element should always be at index 0',
@@ -49,6 +50,7 @@ export const subchallengeInstructions: Record<string, Record<string, Subchalleng
         }
       ],
       hints: [
+        'If you haven’t already, set up an empty array/list to represent the heap before inserting',
         'Start by appending the value to your array',
         'Then compare it with its parent: parent index = (i - 1) // 2',
         'Keep swapping with parent while current < parent',

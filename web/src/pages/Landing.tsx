@@ -1,4 +1,5 @@
 import { Navbar } from '@/components/Navbar'
+import { Footer } from '@/components/Footer'
 import { Link } from 'react-router-dom'
 import { ArrowRight, GitBranch, Terminal, Code2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
@@ -272,15 +273,32 @@ export function Landing() {
         {/* Why Section */}
         <section className="py-16 sm:py-24" style={{ backgroundColor: sectionBackgroundColor }}>
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl sm:text-4xl font-bold mb-6" style={{ color: textColor, fontFamily: themeStyle.fontFamily }}>
-                Missing the fundamentals?
-                <br />
-                We've got your back.
-              </h2>
-              <p className="text-xl sm:text-2xl leading-relaxed" style={{ color: secondaryTextColor, fontFamily: themeStyle.fontFamily }}>
-              AI won’t make you great—fundamentals will. Learn how and why data structures and algorithms actually work. Earn the foundation.
-              </p>
+            <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-12">
+              <div className="text-center lg:text-left lg:flex-1">
+                <h2
+                  className="text-3xl sm:text-4xl font-bold mb-6"
+                  style={{ color: textColor, fontFamily: themeStyle.fontFamily }}
+                >
+                  Missing the fundamentals?
+                  <br />
+                  We've got your back.
+                </h2>
+                <p
+                  className="text-xl sm:text-2xl leading-relaxed"
+                  style={{ color: secondaryTextColor, fontFamily: themeStyle.fontFamily }}
+                >
+                  AI won’t transform you into a standout engineer—<span className="font-semibold">mastery of fundamentals will</span>.
+                  Dive deep into <span className="font-semibold">how and why data structures and algorithms work</span> so you can build
+                  with confidence, speed, and impact.
+                </p>
+              </div>
+              <div className="w-full max-w-xs lg:flex-1">
+                <img
+                  src="/gotyourback.png"
+                  alt="Students supporting each other while learning data structures"
+                  className="w-full h-auto"
+                />
+              </div>
             </div>
           </div>
         </section>
@@ -322,7 +340,7 @@ export function Landing() {
                 to="/docs"
                 className="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-bold transition-all hover:opacity-90 hover:scale-105"
                 style={{ 
-                  backgroundColor: accentBlue,
+                  backgroundColor: textColor,
                   color: backgroundColor,
                   fontFamily: themeStyle.fontFamily
                 }}
@@ -378,8 +396,8 @@ export function Landing() {
                 <Link
                   to="/auth?mode=signup"
                   className="inline-flex items-center justify-center rounded-lg px-8 py-4 text-lg font-bold transition-all hover:opacity-90 hover:scale-105"
-                  style={{ 
-                    backgroundColor: textColor, 
+                  style={{
+                    backgroundColor: '#66A056',
                     color: backgroundColor,
                     fontFamily: themeStyle.fontFamily
                   }}
@@ -403,6 +421,7 @@ export function Landing() {
           </div>
         </section>
       </main>
+      <Footer />
     </div>
   )
 }
