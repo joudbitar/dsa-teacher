@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global background color - must be outside Tailwind layers to ensure it takes precedence */
+html, body, #root {
+  background-color: #F0ECDA !important;
+  min-height: 100vh;
+}
+
+html.dark-mode, html.dark-mode body, html.dark-mode #root {
+  background-color: #171512 !important;
+}
+
 @layer base {
   :root {
     /* 
@@ -95,22 +105,36 @@
   * {
     @apply border-border;
   }
+  html {
+    background: #F0ECDA !important;
+    min-height: 100vh;
+  }
   body {
     @apply bg-background text-foreground;
-    background: #F0ECDA;
+    background: #F0ECDA !important;
     min-height: 100vh;
     position: relative;
     transition: background-color 0.2s ease, color 0.2s ease;
+    margin: 0;
+    padding: 0;
+  }
+  #root {
+    background: #F0ECDA !important;
+    min-height: 100vh;
   }
   
   /* Dark mode styles */
   html.dark-mode {
-    background: #171512;
+    background: #171512 !important;
   }
   
   html.dark-mode body {
-    background: #171512;
+    background: #171512 !important;
     color: #F0ECDA;
+  }
+  
+  html.dark-mode #root {
+    background: #171512 !important;
   }
   
   /* Ensure all pages respect dark mode */

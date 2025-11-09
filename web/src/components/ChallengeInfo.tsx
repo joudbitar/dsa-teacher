@@ -1106,7 +1106,6 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
             <ul className="space-y-2">
               {instruction.hints.map((hint, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <span className="text-warning mt-0.5">💡</span>
                   <span className="text-foreground/90">{hint}</span>
                 </li>
               ))}
