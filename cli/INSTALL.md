@@ -13,8 +13,8 @@ Complete guide for installing the DSA Lab CLI tool.
 Use the remote installer script to download, build, and link the CLI without relying on npm:
 
 ```bash
-export DSA_CLI_REPO="https://github.com/joudbitar/dsa-hackathon"
-curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-hackathon/main/scripts/install-cli.sh | bash
+export DSA_CLI_REPO="https://github.com/joudbitar/dsa-teacher"
+curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash
 ```
 
 Replace `<org>` with the GitHub org or username that hosts your fork.
