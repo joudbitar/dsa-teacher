@@ -135,44 +135,16 @@ export function ChallengesGrid({ modules }: ChallengesGridProps) {
                 {/* Icon and Title */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
+                    <div className="flex h-12 w-12 shrink-0 aspect-square items-center justify-center rounded-sm bg-primary/10 border border-primary/20">
                       <Icon className="h-6 w-6 text-primary" />
                     </div>
                     <div>
                       <h3 className="text-lg font-bold font-mono">{module.title}</h3>
-                      <p className="text-xs text-muted-foreground font-mono">{module.time}</p>
                     </div>
                   </div>
-                  <span className={cn(
-                    "rounded-full px-2.5 py-1 text-xs font-medium font-mono",
-                    isAdvanced
-                      ? "bg-destructive/20 text-destructive"
-                      : isIntermediate
-                      ? "bg-warning/20 text-warning"
-                      : "bg-success/20 text-success"
-                  )}>
+                  <span className="rounded-full px-2.5 py-1 text-xs font-medium font-mono bg-[#7F5539] text-white">
                     {module.level}
                   </span>
-                </div>
-
-                {/* Summary */}
-                <p className="text-sm text-muted-foreground mb-4 font-mono">{module.summary}</p>
-
-                {/* Subchallenges */}
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {module.subchallenges.slice(0, 3).map((sub, i) => (
-                    <span
-                      key={i}
-                      className="text-xs px-2 py-1 rounded-full bg-primary text-primary-foreground font-medium font-mono"
-                    >
-                      {sub}
-                    </span>
-                  ))}
-                  {module.subchallenges.length > 3 && (
-                    <span className="text-xs px-2 py-1 rounded-full bg-primary text-primary-foreground font-medium font-mono">
-                      +{module.subchallenges.length - 3} more
-                    </span>
-                  )}
                 </div>
 
                 {/* Turtle Progress */}
