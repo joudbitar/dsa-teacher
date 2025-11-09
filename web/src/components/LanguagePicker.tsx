@@ -3,7 +3,6 @@ import { Code2, ChevronDown, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SiPython } from 'react-icons/si'
 import { FaJava } from 'react-icons/fa'
-import { useTheme } from '@/theme/ThemeContext'
 
 // JavaScript logo - yellow square with black JS text (like Sanity.io style)
 const JavaScriptLogo = ({ size = 32 }: { size?: number }) => (
@@ -519,7 +518,6 @@ interface LanguagePickerProps {
 export function LanguagePicker({ selectedLanguage, onSelect, dataStructureId: _dataStructureId = 'stack' }: LanguagePickerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const { backgroundColor, textColor, borderColor, secondaryTextColor } = useTheme()
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -550,12 +548,11 @@ export function LanguagePicker({ selectedLanguage, onSelect, dataStructureId: _d
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "w-full rounded-xl border p-4",
+          "w-full rounded-xl border border-border bg-card p-4",
           "flex items-center justify-between",
-          "hover:opacity-90 transition-opacity",
+          "hover:bg-muted transition-colors",
           "text-left"
         )}
-        style={{ borderColor, backgroundColor: textColor, color: backgroundColor }}
       >
         <div className="flex items-center gap-3">
           <Code2 className="h-5 w-5 text-accent flex-shrink-0" />
@@ -572,21 +569,20 @@ export function LanguagePicker({ selectedLanguage, onSelect, dataStructureId: _d
                 <span className="font-medium font-mono truncate">{selectedLang.name}</span>
               </>
             ) : (
-              <span className="font-mono" style={{ color: secondaryTextColor }}>Choose Your Language</span>
+              <span className="text-muted-foreground font-mono">Choose Your Language</span>
             )}
           </div>
         </div>
         <ChevronDown 
           className={cn(
-            "h-5 w-5 flex-shrink-0 transition-transform",
+            "h-5 w-5 text-muted-foreground flex-shrink-0 transition-transform",
             isOpen && "transform rotate-180"
-          )}
-          style={{ color: secondaryTextColor }}
+          )} 
         />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 rounded-xl border shadow-lg z-50 max-h-80 overflow-y-auto" style={{ borderColor, backgroundColor: textColor }}>
+        <div className="absolute top-full left-0 right-0 mt-2 rounded-xl border border-border bg-card shadow-lg z-50 max-h-80 overflow-y-auto">
           <div className="p-2">
             {languages.map((lang) => {
               const isSelected = selectedLanguage === lang.id
@@ -598,13 +594,10 @@ export function LanguagePicker({ selectedLanguage, onSelect, dataStructureId: _d
                   onClick={() => handleLanguageSelect(lang.id)}
                   className={cn(
                     "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg",
-                    "hover:opacity-90 transition-opacity",
-                    "text-left"
+                    "hover:bg-muted transition-colors",
+                    "text-left",
+                    isSelected && "bg-accent/10"
                   )}
-                  style={{ 
-                    backgroundColor: isSelected ? 'rgba(150, 191, 189, 0.1)' : 'transparent',
-                    color: backgroundColor
-                  }}
                 >
                   <div className="flex-shrink-0">
                     {lang.isCustom ? (

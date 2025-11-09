@@ -18,12 +18,7 @@ import {
 export function ChallengeDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const {
-    backgroundColor,
-    textColor,
-    borderColor,
-    secondaryTextColor,
-  } = useTheme();
+  const { backgroundColor } = useTheme();
   const { user, session } = useAuth();
   const [selectedLanguage, setSelectedLanguage] = useState<string | undefined>(
     undefined
@@ -52,13 +47,10 @@ export function ChallengeDetail() {
         <Navbar className="relative z-10" />
         <main className="flex-1 relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4" style={{ color: backgroundColor }}>
-              Challenge not found
-            </h1>
+            <h1 className="text-2xl font-bold mb-4">Challenge not found</h1>
             <button
               onClick={() => navigate("/challenges")}
-              className="hover:underline"
-              style={{ color: backgroundColor }}
+              className="text-primary hover:underline"
             >
               Back to Challenges
             </button>
@@ -234,10 +226,7 @@ export function ChallengeDetail() {
               // Create a temporary toast notification
               const toast = document.createElement("div");
               toast.className =
-                "fixed top-20 right-4 px-6 py-3 rounded-lg shadow-lg z-50 animate-in slide-in-from-right";
-              toast.style.backgroundColor = textColor;
-              toast.style.color = backgroundColor;
-              toast.style.border = `1px solid ${borderColor}`;
+                "fixed top-20 right-4 bg-success text-success-foreground px-6 py-3 rounded-lg shadow-lg z-50 animate-in slide-in-from-right";
               
               if (isLastStep) {
                 toast.innerHTML = `
@@ -518,7 +507,7 @@ export function ChallengeDetail() {
         <Navbar className="relative z-10" />
         <main className="flex-1 relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
-            <p className="text-lg" style={{ color: backgroundColor }}>Loading challenge...</p>
+            <p className="text-lg">Loading challenge...</p>
           </div>
         </main>
         <Footer className="relative z-10 mt-auto" />
@@ -527,25 +516,24 @@ export function ChallengeDetail() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: textColor, color: backgroundColor }}>
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
       <Navbar />
 
       {/* Repository Command Modal */}
       {showRepoCommand && savedRepoUrl && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-          <div className="rounded-xl p-8 max-w-2xl w-full mx-4 border" style={{ backgroundColor: textColor, borderColor }}>
-            <h2 className="text-2xl font-bold mb-4" style={{ color: backgroundColor }}>🎉 Repository Created!</h2>
-            <p className="mb-6" style={{ color: secondaryTextColor }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-background border border-border rounded-xl p-8 max-w-2xl w-full mx-4">
+            <h2 className="text-2xl font-bold mb-4">🎉 Repository Created!</h2>
+            <p className="text-muted-foreground mb-6">
               Your project repository has been created. Clone it to get started:
             </p>
 
-            <div className="rounded-lg p-4 mb-6 font-mono text-sm" style={{ backgroundColor: backgroundColor }}>
+            <div className="bg-muted rounded-lg p-4 mb-6 font-mono text-sm">
               <div className="flex items-center justify-between">
-                <code className="flex-1" style={{ color: textColor }}>git clone {savedRepoUrl}</code>
+                <code className="flex-1">git clone {savedRepoUrl}</code>
                 <button
                   onClick={handleCopy}
-                  className="ml-4 px-3 py-1 rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2"
-                  style={{ backgroundColor: borderColor, color: backgroundColor }}
+                  className="ml-4 px-3 py-1 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors flex items-center gap-2"
                 >
                   {copied ? (
                     <>
@@ -563,9 +551,9 @@ export function ChallengeDetail() {
             </div>
 
             <div className="space-y-4">
-              <p className="text-sm" style={{ color: secondaryTextColor }}>
+              <p className="text-sm text-muted-foreground">
                 After cloning, run{" "}
-                <code className="px-2 py-1 rounded" style={{ backgroundColor: backgroundColor, color: textColor }}>
+                <code className="px-2 py-1 rounded bg-muted text-accent">
                   dsa test
                 </code>{" "}
                 to check your progress.
@@ -573,8 +561,7 @@ export function ChallengeDetail() {
 
               <button
                 onClick={handleContinueToChallenge}
-                className="w-full px-6 py-3 rounded-lg hover:opacity-90 font-medium transition-opacity"
-                style={{ backgroundColor: backgroundColor, color: textColor }}
+                className="w-full px-6 py-3 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 font-medium transition-colors"
               >
                 Continue to Challenge
               </button>
@@ -585,17 +572,17 @@ export function ChallengeDetail() {
 
       {/* Step revisit confirmation modal */}
       {showStepWarning && pendingStepIndex !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-          <div className="rounded-2xl shadow-2xl max-w-lg w-full p-8 space-y-6 border" style={{ backgroundColor: textColor, borderColor }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="bg-background border border-border rounded-2xl shadow-2xl max-w-lg w-full p-8 space-y-6">
             <div className="space-y-2">
-              <p className="text-sm uppercase tracking-wide font-mono" style={{ color: secondaryTextColor }}>
+              <p className="text-sm uppercase tracking-wide text-muted-foreground font-mono">
                 Review completed step
               </p>
-              <h2 className="text-2xl font-bold font-mono" style={{ color: backgroundColor }}>
+              <h2 className="text-2xl font-bold font-mono">
                 Revisit &ldquo;{timelineSteps[pendingStepIndex]?.name}&rdquo;?
               </h2>
             </div>
-            <p className="leading-relaxed" style={{ color: secondaryTextColor }}>
+            <p className="text-muted-foreground leading-relaxed">
               You&rsquo;ve already finished this challenge. You can review your
               notes or code without losing progress, but make sure to return to
               your current step when you&rsquo;re ready to continue.
@@ -603,15 +590,13 @@ export function ChallengeDetail() {
             <div className="grid gap-3 sm:grid-cols-2">
               <button
                 onClick={handleCancelStepNavigate}
-                className="px-6 py-3 rounded-lg border hover:opacity-80 transition-opacity font-medium"
-                style={{ borderColor, backgroundColor: backgroundColor, color: textColor }}
+                className="px-6 py-3 rounded-lg border border-border bg-muted text-foreground hover:bg-muted/80 transition-colors font-medium"
               >
                 Stay on current step
               </button>
               <button
                 onClick={handleConfirmStepNavigate}
-                className="px-6 py-3 rounded-lg hover:opacity-90 transition-opacity font-medium"
-                style={{ backgroundColor: backgroundColor, color: textColor }}
+                className="px-6 py-3 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors font-medium"
               >
                 Review completed step
               </button>
@@ -622,7 +607,7 @@ export function ChallengeDetail() {
 
       <div className="flex flex-1">
         {/* Sidebar - Desktop only */}
-        <aside className="hidden lg:block w-96 border-r p-8 overflow-y-auto" style={{ borderColor, backgroundColor: textColor }}>
+        <aside className="hidden lg:block w-96 border-r border-border bg-card p-8 overflow-y-auto">
           <ChallengeSidebar
             title={challenge.title}
             subchallenges={timelineSteps}
@@ -637,13 +622,12 @@ export function ChallengeDetail() {
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 p-8 overflow-y-auto" style={{ backgroundColor: textColor }}>
+        <main className="flex-1 p-8 overflow-y-auto">
           <div className="max-w-4xl mx-auto">
             {/* Back Button - Top of Page */}
             <Link
               to="/challenges"
-              className="inline-flex items-center gap-2 text-sm hover:opacity-80 transition-opacity mb-6"
-              style={{ color: backgroundColor }}
+              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Challenges
