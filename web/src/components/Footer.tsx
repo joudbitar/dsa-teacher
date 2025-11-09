@@ -17,7 +17,7 @@ export function Footer({ className }: { className?: string }) {
       }}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-12 text-center">
+        <div className="flex justify-center mb-12">
           <Link to="/" className="flex items-center gap-4 group">
             <img
               src="/turtle_logo.png"
@@ -34,9 +34,6 @@ export function Footer({ className }: { className?: string }) {
               DSA Lab
             </span>
           </Link>
-          <p className="text-base font-mono max-w-md" style={{ color: secondaryTextColor }}>
-            Level up your data structures and algorithms with hands-on, guided challenges.
-          </p>
         </div>
         {/* Team and Connect - Horizontal and Centered */}
         <div className="flex flex-col sm:flex-row justify-center items-center gap-16 mb-8">

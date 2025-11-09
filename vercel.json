@@ -2,6 +2,12 @@
   "installCommand": "pnpm install",
   "buildCommand": "pnpm --filter dsa-lab-web build",
   "outputDirectory": "web/dist",
-  "framework": "vite"
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
 
