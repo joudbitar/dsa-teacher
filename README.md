@@ -53,30 +53,22 @@ packaged release) and then executes the script. Always audit before piping into 
 
 ### One-line remote install (no npm registry)
 
-1. Set the repository URL for your fork/organization:
-
-   ```bash
-   export DSA_CLI_REPO="https://github.com/<org>/dsa-lab"
-   ```
-
-2. Run the remote installer:
-
-   ```bash
-   curl -fsSL https://raw.githubusercontent.com/<org>/dsa-lab/main/scripts/install-cli.sh | bash
-   ```
-
-The script downloads the latest sources, builds the CLI locally, and symlinks the
-`dsa` command into `~/.local/bin`. Adjust `DSA_CLI_HOME` or `DSA_CLI_BIN` to customize
-where it installs artifacts or the executable shim.
-
-If your environment restricts Corepack from writing to `/usr/local/bin`, export
-`COREPACK_ENABLE=0` and ensure `pnpm` is available on your PATH before running the
-installer:
+Run the one-liner:
 
 ```bash
-export COREPACK_ENABLE=0
-pnpm --version   # should succeed
-curl -fsSL https://raw.githubusercontent.com/<org>/dsa-lab/main/scripts/install-cli.sh | bash
+curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-lab/main/scripts/install-cli.sh | env DSA_CLI_REPO="https://github.com/<org>/dsa-lab" COREPACK_ENABLE=0 bash
+```
+
+The script downloads the latest sources, builds the CLI locally, and symlinks the
+`dsa` command into `~/.local/bin`. It automatically falls back to the `pnpm` on your
+PATH if Corepack cannot access `/usr/local/bin`. Adjust `DSA_CLI_HOME` or `DSA_CLI_BIN`
+to customize artifact and symlink locations.
+
+After installation, make sure `~/.local/bin` is in your PATH:
+
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc    # or restart your terminal
 ```
 
 ## Environment

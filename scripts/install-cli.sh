@@ -55,13 +55,31 @@ if [[ "${COREPACK_ENABLE:-1}" == "0" ]]; then
   USE_COREPACK=0
 fi
 
-if [[ $USE_COREPACK -eq 1 ]]; then
-  command -v corepack >/dev/null 2>&1 || error "corepack is required (ships with modern Node.js)"
+ensure_corepack_pnpm() {
   info "Ensuring pnpm is available via corepack..."
-  corepack prepare pnpm@latest --activate >/dev/null 2>&1 || corepack enable pnpm
-else
-  command -v pnpm >/dev/null 2>&1 || error "pnpm is required when COREPACK_ENABLE=0"
-  info "Using pnpm from PATH (COREPACK_ENABLE=0)"
+  if ! corepack prepare pnpm@latest --activate >/dev/null 2>&1; then
+    if ! corepack enable pnpm >/dev/null 2>&1; then
+      return 1
+    fi
+  fi
+  return 0
+}
+
+if [[ $USE_COREPACK -eq 1 ]]; then
+  if command -v corepack >/dev/null 2>&1; then
+    if ! ensure_corepack_pnpm; then
+      warn "Corepack could not manage pnpm (permission issue?). Falling back to pnpm on PATH."
+      USE_COREPACK=0
+    fi
+  else
+    warn "Corepack not available; falling back to pnpm on PATH."
+    USE_COREPACK=0
+  fi
+fi
+
+if [[ $USE_COREPACK -eq 0 ]]; then
+  command -v pnpm >/dev/null 2>&1 || error "pnpm is required when Corepack is unavailable"
+  info "Using pnpm from PATH"
 fi
 
 run_pnpm() {

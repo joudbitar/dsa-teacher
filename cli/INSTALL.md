@@ -10,14 +10,15 @@ Complete guide for installing the DSA Lab CLI tool.
 
 ## Quick Install (Recommended) 🚀
 
-Use the remote installer script to download, build, and link the CLI without relying on npm:
+Use the remote installer script (single command, replace `<org>` as needed):
 
 ```bash
-export DSA_CLI_REPO="https://github.com/joudbitar/dsa-teacher"
-curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash
+curl -fsSL https://raw.githubusercontent.com/<org>/dsa-lab/main/scripts/install-cli.sh | env DSA_CLI_REPO="https://github.com/<org>/dsa-lab" COREPACK_ENABLE=0 bash
 ```
 
-Replace `<org>` with the GitHub org or username that hosts your fork.
+The script clones the repo, installs dependencies, builds the CLI, and links the `dsa`
+command into `~/.local/bin`. If Corepack cannot modify global binaries, it falls back to
+the `pnpm` already on your PATH.
 
 ### Updating
 
@@ -32,16 +33,12 @@ rm -f ~/.local/bin/dsa
 
 If you run the installer again it recreates both paths automatically.
 
-> **Permission errors?** If Corepack can’t modify `/usr/local/bin`, export `COREPACK_ENABLE=0`
-> and make sure `pnpm` is on your PATH before running the installer:
+> **PATH reminder:** Ensure `~/.local/bin` is in your PATH so the `dsa` command resolves:
 >
 > ```bash
-> export COREPACK_ENABLE=0
-> pnpm --version
-> curl -fsSL https://raw.githubusercontent.com/<org>/dsa-lab/main/scripts/install-cli.sh | bash
+> echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+> source ~/.zshrc
 > ```
->
-> Replace `<org>` with your fork’s owner (e.g. `joudbitar/dsa-teacher`).
 
 ### Installing from npm (future)
 
