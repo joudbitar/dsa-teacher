@@ -2,14 +2,15 @@ import { useState, useEffect, useMemo } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ChallengesGrid } from "@/components/ChallengesGrid";
+import { OrganicStep } from "@/components/OrganicStep";
 import { useTheme } from "@/theme/ThemeContext";
 import { fetchUserProjects, apiClient, type Project } from "@/lib/api";
 import { useAuth } from "@/auth/useAuth";
 import { Link, useLocation } from "react-router-dom";
 import { challengeData } from "@/data/challenges";
 import { clearChallengeProgress } from "@/utils/challengeProgress";
+import { cn } from "@/lib/utils";
 import {
-  ArrowRight,
   Layers,
   Search,
   Minus,
@@ -18,14 +19,6 @@ import {
   RotateCcw,
   X,
 } from "lucide-react";
-
-// Helper function to convert hex to rgba
-function hexToRgba(hex: string, alpha: number) {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
 
 // Icon mapping for different data structures
 const iconMap: Record<string, any> = {
@@ -39,10 +32,10 @@ const iconMap: Record<string, any> = {
 export function Challenges() {
   const {
     backgroundColor,
+    sectionBackgroundColor,
     textColor,
     borderColor,
     secondaryTextColor,
-    accentGreen,
   } = useTheme();
   const location = useLocation();
   const { user } = useAuth();
@@ -82,14 +75,18 @@ export function Challenges() {
 
   // Fetch projects from API for Your Library section
   useEffect(() => {
-    const loadProjects = async () => {
+    const loadProjects = async (isInitial: boolean) => {
       if (!user) {
         setProjects([])
         setProjectsLoading(false)
         return
       }
 
-      setProjectsLoading(true)
+      // Only show loading state on initial load, not on background polling
+      if (isInitial) {
+        setProjectsLoading(true)
+      }
+
       try {
         const fetchedProjects = await fetchUserProjects()
         setProjects(fetchedProjects)
@@ -97,14 +94,19 @@ export function Challenges() {
         console.error('Error loading projects:', error)
         setProjects([])
       } finally {
-        setProjectsLoading(false)
+        if (isInitial) {
+          setProjectsLoading(false)
+        }
       }
     }
 
-    loadProjects()
+    // Initial load
+    loadProjects(true)
 
-    // Poll for updates every 10 seconds to catch CLI submissions
-    const interval = setInterval(loadProjects, 10000)
+    // Poll for updates every 10 seconds to catch CLI submissions (silently in background)
+    const interval = setInterval(() => {
+      loadProjects(false)
+    }, 10000)
 
     return () => clearInterval(interval)
   }, [user, location.pathname])
@@ -308,7 +310,7 @@ export function Challenges() {
           <div
             className="mb-8 rounded-lg border-2 p-8"
             style={{
-              backgroundColor: backgroundColor,
+              backgroundColor: sectionBackgroundColor,
               borderColor: borderColor,
             }}
           >
@@ -363,168 +365,119 @@ export function Challenges() {
                 </p>
               </div>
             ) : libraryChallenges.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {libraryChallenges.map((challenge) => {
                   const Icon = iconMap[challenge.id] || Code2;
                   const isIntermediate = challenge.level === "Intermediate";
                   const isAdvanced = challenge.level === "Advanced";
 
                   return (
-                    <div
+                    <Link
                       key={challenge.id}
-                      className="group relative rounded-lg border-2 p-4 transition-all hover:shadow-lg hover:-translate-y-1"
-                      style={{
-                        backgroundColor: backgroundColor,
-                        borderColor: borderColor,
-                      }}
+                      to={`/challenges/${challenge.id}`}
+                      className="block"
+                      style={{ transform: 'none' }}
                     >
-                      {/* Status Badge */}
-                      <div className="absolute top-3 right-3">
-                        {challenge.status === "completed" ? (
-                          <span
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold font-mono"
-                            style={{
-                              backgroundColor: accentGreen,
-                              color: backgroundColor,
-                            }}
-                          >
-                            <CheckCircle2 className="h-3 w-3" />
-                            Completed
-                          </span>
-                        ) : (
-                          <span
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold font-mono"
-                            style={{
-                              backgroundColor: hexToRgba(textColor, 0.15),
-                              color: textColor,
-                            }}
-                          >
-                            In Progress
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Icon */}
-                      <div className="mb-3">
-                        <div
-                          className="flex h-10 w-10 items-center justify-center rounded-lg"
-                          style={{
-                            backgroundColor: hexToRgba(textColor, 0.1),
-                            borderColor: borderColor,
-                            borderWidth: "1px",
-                          }}
-                        >
-                          <Icon
-                            className="h-5 w-5"
-                            style={{ color: textColor }}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Title */}
-                      <h3
-                        className="text-lg font-semibold font-mono mb-2 group-hover:opacity-80 transition-opacity"
-                        style={{ color: textColor }}
+                      <OrganicStep
+                        isCurrent={false}
+                        isCompleted={challenge.status === "completed"}
+                        className="p-6 h-full relative"
                       >
-                        {challenge.title}
-                      </h3>
+                        {/* Status Badge */}
+                        <div className="absolute top-6 right-6">
+                          {challenge.status === "completed" ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold font-mono bg-success/20 text-success">
+                              <CheckCircle2 className="h-3 w-3" />
+                              Completed
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold font-mono bg-muted text-foreground">
+                              In Progress
+                            </span>
+                          )}
+                        </div>
 
-                      {/* Level Badge */}
-                      <div className="mb-3">
-                        <span
-                          className="inline-block px-2.5 py-1 rounded text-xs font-semibold font-mono"
-                          style={{
-                            backgroundColor: isAdvanced
-                              ? hexToRgba("#B91C1C", 0.2)
-                              : isIntermediate
-                              ? hexToRgba("#F4A300", 0.2)
-                              : hexToRgba(accentGreen, 0.2),
-                            color: isAdvanced
-                              ? "#B91C1C"
-                              : isIntermediate
-                              ? "#F4A300"
-                              : accentGreen,
-                          }}
-                        >
-                          {challenge.level}
-                        </span>
-                      </div>
-
-                      {/* Progress Info */}
-                      {challenge.status === "in-progress" && (
-                        <div className="space-y-2">
-                          <p
-                            className="text-sm font-mono"
-                            style={{ color: secondaryTextColor }}
-                          >
-                            {challenge.totalTasks > 0
-                              ? `${challenge.completedTasks}/${challenge.totalTasks} tasks`
-                              : "Getting started..."}
-                          </p>
-                          {/* Progress Bar */}
-                          <div
-                            className="w-full h-2 rounded-full overflow-hidden"
-                            style={{
-                              backgroundColor: hexToRgba(textColor, 0.1),
-                            }}
-                          >
-                            <div
-                              className="h-full transition-all duration-300 rounded-full"
-                              style={{
-                                width: `${challenge.progressPercentage}%`,
-                                backgroundColor: accentGreen,
-                              }}
-                            />
+                        {/* Icon and Title */}
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
+                              <Icon className="h-6 w-6 text-primary" />
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-bold font-mono">{challenge.title}</h3>
+                            </div>
                           </div>
                         </div>
-                      )}
 
-                      {challenge.status === "completed" && (
-                        <p
-                          className="text-sm font-mono"
-                          style={{ color: secondaryTextColor }}
-                        >
-                          {challenge.totalTasks} tasks completed
-                        </p>
-                      )}
+                        {/* Level Badge */}
+                        <div className="mb-4">
+                          <span className={cn(
+                            "inline-block px-2.5 py-1 rounded-full text-xs font-medium font-mono",
+                            isAdvanced
+                              ? "bg-destructive/20 text-destructive"
+                              : isIntermediate
+                              ? "bg-warning/20 text-warning"
+                              : "bg-success/20 text-success"
+                          )}>
+                            {challenge.level}
+                          </span>
+                        </div>
 
-                      {/* Action Buttons */}
-                      <div
-                        className="flex items-center justify-between mt-4 pt-3 border-t"
-                        style={{ borderColor: borderColor }}
-                      >
-                        <Link
-                          to={`/challenges/${challenge.id}`}
-                          className="flex items-center gap-1.5 text-sm font-mono transition-opacity hover:opacity-70"
-                          style={{ color: textColor }}
-                        >
-                          View Details
-                          <ArrowRight className="h-3.5 w-3.5" />
-                        </Link>
+                        {/* Progress Info */}
+                        {challenge.status === "in-progress" && (
+                          <div className="space-y-2 mb-4">
+                            <p className="text-sm text-muted-foreground font-mono">
+                              {challenge.totalTasks > 0
+                                ? `${challenge.completedTasks}/${challenge.totalTasks} tasks`
+                                : "Getting started..."}
+                            </p>
+                            {/* Progress Bar */}
+                            <div className="w-full h-2 rounded-full overflow-hidden bg-muted">
+                              <div
+                                className="h-full transition-all duration-300 rounded-full bg-success"
+                                style={{
+                                  width: `${challenge.progressPercentage}%`,
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )}
 
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleRestartClick(
-                              challenge.project.id,
-                              challenge.title
-                            );
-                          }}
-                          disabled={
-                            restartingProjectId === challenge.project.id
-                          }
-                          className="flex items-center gap-1.5 text-sm font-mono transition-opacity hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
-                          style={{ color: secondaryTextColor }}
-                          title="Restart this module and create a new repository"
-                        >
-                          <RotateCcw className="h-3.5 w-3.5" />
-                          {restartingProjectId === challenge.project.id
-                            ? "Restarting..."
-                            : "Restart"}
-                        </button>
-                      </div>
-                    </div>
+                        {challenge.status === "completed" && (
+                          <p className="text-sm text-muted-foreground mb-4 font-mono">
+                            {challenge.totalTasks} tasks completed
+                          </p>
+                        )}
+
+                        {/* Action Buttons - Bottom right */}
+                        <div className="absolute bottom-6 right-6 flex items-center gap-3">
+                          <Link
+                            to={`/challenges/${challenge.id}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-sm text-primary font-medium font-mono"
+                          >
+                            View Details →
+                          </Link>
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleRestartClick(
+                                challenge.project.id,
+                                challenge.title
+                              );
+                            }}
+                            disabled={
+                              restartingProjectId === challenge.project.id
+                            }
+                            className="text-sm text-muted-foreground font-mono transition-opacity hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Restart this module and create a new repository"
+                          >
+                            <RotateCcw className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </OrganicStep>
+                    </Link>
                   );
                 })}
               </div>

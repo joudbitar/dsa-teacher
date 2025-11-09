@@ -1,7 +1,7 @@
-import React from 'react'
-import { Code2, X, Check } from 'lucide-react'
+import React, { useState, useRef, useEffect } from 'react'
+import { Code2, ChevronDown, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { SiTypescript, SiPython, SiGo, SiCplusplus } from 'react-icons/si'
+import { SiPython } from 'react-icons/si'
 import { FaJava } from 'react-icons/fa'
 
 // JavaScript logo - yellow square with black JS text (like Sanity.io style)
@@ -504,12 +504,9 @@ const languages: Array<{
   color: string
   isCustom?: boolean
 }> = [
-  { id: 'typescript', name: 'TypeScript', ext: 'ts', logo: SiTypescript, color: '#3178C6' },
   { id: 'python', name: 'Python', ext: 'py', logo: SiPython, color: '#3776AB' },
   { id: 'javascript', name: 'JavaScript', ext: 'js', logo: JavaScriptLogo, color: '#F7DF1E', isCustom: true },
-  { id: 'go', name: 'Go', ext: 'go', logo: SiGo, color: '#00ADD8' },
   { id: 'java', name: 'Java', ext: 'java', logo: FaJava, color: '#ED8B00' },
-  { id: 'cpp', name: 'C++', ext: 'cpp', logo: SiCplusplus, color: '#00599C' },
 ]
 
 interface LanguagePickerProps {
@@ -519,75 +516,111 @@ interface LanguagePickerProps {
 }
 
 export function LanguagePicker({ selectedLanguage, onSelect, dataStructureId: _dataStructureId = 'stack' }: LanguagePickerProps) {
-  const handleLanguageClick = (langId: string) => {
-    if (selectedLanguage === langId) {
-      onSelect(undefined)
-    } else {
-      onSelect(langId)
+  const [isOpen, setIsOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
     }
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen])
+
+  const handleLanguageSelect = (langId: string) => {
+    onSelect(langId)
+    setIsOpen(false)
   }
 
+  const selectedLang = languages.find(lang => lang.id === selectedLanguage)
+
   return (
-    <div className="rounded-xl border border-border bg-muted p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <Code2 className="h-5 w-5 text-accent" />
-          <h2 className="text-xl font-bold font-mono">Choose Your Language</h2>
-        </div>
-        {selectedLanguage && (
-          <button
-            onClick={() => onSelect(undefined)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-background hover:bg-muted text-sm text-muted-foreground hover:text-foreground transition-colors font-mono"
-          >
-            <X className="h-4 w-4" />
-            Clear
-          </button>
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={cn(
+          "w-full rounded-xl border border-border bg-card p-4",
+          "flex items-center justify-between",
+          "hover:bg-muted transition-colors",
+          "text-left"
         )}
-      </div>
-      
-      <p className="text-sm text-muted-foreground mb-6 font-mono">
-        Select the programming language you want to use for this challenge. You'll get a template repository with starter code and tests.
-      </p>
-
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-        {languages.map((lang) => {
-          const isSelected = selectedLanguage === lang.id
-          const Logo = lang.logo
-          
-          return (
-            <button
-              key={lang.id}
-              onClick={() => handleLanguageClick(lang.id)}
-              className={cn(
-                "text-center transition-all flex flex-col items-center justify-center gap-1 relative bg-transparent",
-                "hover:opacity-80"
-              )}
-            >
-              <div className="flex h-12 w-12 items-center justify-center">
-                {lang.isCustom ? (
-                  <Logo size={44} />
-                ) : (
-                  <Logo size={44} color={lang.color} />
-                )}
-              </div>
-              <div className="flex flex-col items-center">
-                <p className={cn(
-                  "font-semibold text-[9px] leading-tight font-mono",
-                  isSelected ? "text-accent" : "text-foreground"
-                )}>
-                  {lang.name}
-                </p>
-              </div>
-              {isSelected && (
-                <div className="absolute top-0 right-0">
-                  <Check className="h-2.5 w-2.5 text-accent" />
+      >
+        <div className="flex items-center gap-3">
+          <Code2 className="h-5 w-5 text-accent flex-shrink-0" />
+          <div className="flex items-center gap-2 min-w-0">
+            {selectedLang ? (
+              <>
+                <div className="flex-shrink-0">
+                  {selectedLang.isCustom ? (
+                    <selectedLang.logo size={24} />
+                  ) : (
+                    <selectedLang.logo size={24} color={selectedLang.color} />
+                  )}
                 </div>
-              )}
-            </button>
-          )
-        })}
-      </div>
+                <span className="font-medium font-mono truncate">{selectedLang.name}</span>
+              </>
+            ) : (
+              <span className="text-muted-foreground font-mono">Choose Your Language</span>
+            )}
+          </div>
+        </div>
+        <ChevronDown 
+          className={cn(
+            "h-5 w-5 text-muted-foreground flex-shrink-0 transition-transform",
+            isOpen && "transform rotate-180"
+          )} 
+        />
+      </button>
 
+      {isOpen && (
+        <div className="absolute top-full left-0 right-0 mt-2 rounded-xl border border-border bg-card shadow-lg z-50 max-h-80 overflow-y-auto">
+          <div className="p-2">
+            {languages.map((lang) => {
+              const isSelected = selectedLanguage === lang.id
+              const Logo = lang.logo
+              
+              return (
+                <button
+                  key={lang.id}
+                  onClick={() => handleLanguageSelect(lang.id)}
+                  className={cn(
+                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg",
+                    "hover:bg-muted transition-colors",
+                    "text-left",
+                    isSelected && "bg-accent/10"
+                  )}
+                >
+                  <div className="flex-shrink-0">
+                    {lang.isCustom ? (
+                      <Logo size={24} />
+                    ) : (
+                      <Logo size={24} color={lang.color} />
+                    )}
+                  </div>
+                  <span className={cn(
+                    "font-medium font-mono flex-1",
+                    isSelected && "text-accent"
+                  )}>
+                    {lang.name}
+                  </span>
+                  {isSelected && (
+                    <Check className="h-4 w-4 text-accent flex-shrink-0" />
+                  )}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -31,9 +31,6 @@ export function ChallengeSidebar({
   onStepClick,
   maxAccessibleStep = 0,
 }: ChallengeSidebarProps) {
-  const isIntermediate = level === "Intermediate";
-  const isAdvanced = level === "Advanced";
-
   const languageNames: Record<string, string> = {
     typescript: "TypeScript",
     python: "Python",
@@ -50,28 +47,6 @@ export function ChallengeSidebar({
         {/* Header */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold mb-4 font-mono">{title}</h2>
-          <div className="flex items-center gap-3 mb-6 flex-wrap">
-            <span
-              className={cn(
-                "rounded-full px-3 py-1.5 text-sm font-medium font-mono",
-                isAdvanced
-                  ? "bg-destructive/20 text-destructive"
-                  : isIntermediate
-                  ? "bg-warning/20 text-warning"
-                  : "bg-success/20 text-success"
-              )}
-            >
-              {level}
-            </span>
-            <span className="text-base text-muted-foreground font-mono">
-              {time}
-            </span>
-            {selectedLanguage && (
-              <span className="rounded-full px-3 py-1.5 text-sm font-medium bg-accent/20 text-accent border border-accent/30 font-mono">
-                {languageNames[selectedLanguage] || selectedLanguage}
-              </span>
-            )}
-          </div>
 
           {/* Progress */}
           <div className="space-y-3">

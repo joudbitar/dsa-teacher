@@ -34,10 +34,7 @@ export function OrganicStep({
       className={cn(
         "relative rounded-lg border-2",
         paddingClasses,
-        "shadow-[0_2px_4px_rgba(0,0,0,0.1)]",
-        "hover:shadow-[0_8px_16px_rgba(0,0,0,0.25)]",
-        "active:shadow-[0_4px_12px_rgba(0,0,0,0.2)]",
-        "transition-shadow duration-200 ease-in-out",
+        "shadow-[0_8px_16px_rgba(0,0,0,0.25)]",
         className
       )}
       style={{

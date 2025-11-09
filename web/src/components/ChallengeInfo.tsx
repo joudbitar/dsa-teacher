@@ -71,6 +71,52 @@ export function ChallengeInfo({
       ? getSubchallengeInstruction(moduleId, subchallengeName)
       : null;
 
+  // Helper to generate dynamic page title
+  const getPageTitle = (): string => {
+    // If on language selection step, show simplified challenge name
+    if (isLanguageStep) {
+      // Remove "Build a " prefix if present, otherwise just use the title
+      return title.replace(/^Build a /i, "").replace(/^Build /i, "");
+    }
+    
+    // If we have instruction with a title, use that
+    if (instruction?.title) {
+      // Extract the main action from instruction title
+      // e.g., "Implement enqueue() Method" -> "Implement enqueue()"
+      // e.g., "Create Queue Class" -> "Create Queue Class"
+      return instruction.title.replace(/ Method$/, "").replace(/ Helper Method$/, "");
+    }
+    
+    // If we have a subchallenge name, format it nicely
+    if (subchallengeName && subchallengeName !== "Choose Language") {
+      // Capitalize and format the subchallenge name
+      const formatted = subchallengeName
+        .split(/(?=[A-Z])/)
+        .join(" ")
+        .replace(/\b\w/g, (l) => l.toUpperCase());
+      return formatted;
+    }
+    
+    // Fallback to simplified challenge name
+    return title.replace(/^Build a /i, "").replace(/^Build /i, "");
+  };
+
+  // Helper to generate dynamic page subheading
+  const getPageSubheading = (): string => {
+    // If on language selection step, show challenge summary
+    if (isLanguageStep) {
+      return summary;
+    }
+    
+    // If we have instruction with an objective, use that
+    if (instruction?.objective) {
+      return instruction.objective;
+    }
+    
+    // Fallback to challenge summary
+    return summary;
+  };
+
   // Helper to get display name for language
   const getLanguageDisplayName = (lang: string) => {
     const displayNames: Record<string, string> = {
@@ -659,10 +705,50 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
 
   return (
     <div className="flex-1 space-y-8">
+      {/* Repository Box - Show at top if repo exists */}
+      {githubRepoUrl && (
+        <div className="rounded-xl border border-border bg-card p-6 space-y-4 text-center">
+          <h2 className="text-2xl font-bold">Repository Created!</h2>
+          <p className="text-muted-foreground">
+            Your project repository has been created. Clone it to get started:
+          </p>
+
+          <div className="bg-muted rounded-lg p-4 font-mono text-sm">
+            <div className="flex items-center justify-between">
+              <code className="flex-1 text-foreground">git clone {githubRepoUrl}</code>
+              <button
+                onClick={handleCopy}
+                className="ml-4 px-3 py-1 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors flex items-center gap-2"
+              >
+                {copied ? (
+                  <>
+                    <Check className="h-4 w-4" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-4 w-4" />
+                    Copy
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          <p className="text-sm text-muted-foreground">
+            After cloning, run{" "}
+            <code className="px-2 py-1 rounded bg-muted text-accent">
+              dsa test
+            </code>{" "}
+            to check your progress.
+          </p>
+        </div>
+      )}
+
       {/* Header */}
       <div>
-        <h1 className="text-4xl font-bold mb-4">{title}</h1>
-        <p className="text-xl text-muted-foreground">{summary}</p>
+        <h1 className="text-4xl font-bold mb-4">{getPageTitle()}</h1>
+        <p className="text-xl text-muted-foreground">{getPageSubheading()}</p>
       </div>
 
       {/* Step 0: Language Selection - Show general info */}
@@ -887,75 +973,34 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
             </div>
           )}
 
-          {/* Start Button or Existing Repo Info */}
-          <div className="py-4">
-            {githubRepoUrl ? (
-              /* User already has a repo - show clone instructions */
-              <div className="rounded-xl border border-border bg-card p-6 space-y-4 text-center">
-                <h2 className="text-2xl font-bold">🎉 Repository Created!</h2>
-                <p className="text-muted-foreground">
-                  Your project repository has been created. Clone it to get started:
-                </p>
-
-                <div className="bg-muted rounded-lg p-4 font-mono text-sm">
-                  <div className="flex items-center justify-between">
-                    <code className="flex-1 text-foreground">git clone {githubRepoUrl}</code>
-                    <button
-                      onClick={handleCopy}
-                      className="ml-4 px-3 py-1 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors flex items-center gap-2"
-                    >
-                      {copied ? (
-                        <>
-                          <Check className="h-4 w-4" />
-                          Copied!
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="h-4 w-4" />
-                          Copy
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <p className="text-sm text-muted-foreground">
-                  After cloning, run{" "}
-                  <code className="px-2 py-1 rounded bg-muted text-accent">
-                    dsa test
-                  </code>{" "}
-                  to check your progress.
-                </p>
-              </div>
-            ) : (
-              /* No repo yet - show start button */
-              <>
-            {!selectedLanguage ? (
-              <button
-                disabled
-                className="px-6 py-3 rounded-lg bg-muted text-muted-foreground cursor-not-allowed font-medium"
-              >
-                Select a language to continue
-              </button>
-            ) : (
-              <button
-                onClick={() => onStartChallenge?.(selectedLanguage)}
-                disabled={isCreatingProject}
-                className="px-6 py-3 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 font-medium transition-colors font-mono disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isCreatingProject ? (
-                  <span className="flex items-center gap-2">
-                    <span className="animate-spin">⏳</span>
-                    Creating repository...
-                  </span>
-                ) : (
-                  `Start with ${getLanguageDisplayName(selectedLanguage)}`
-                )}
-              </button>
-                )}
-              </>
-            )}
-          </div>
+          {/* Start Button */}
+          {!githubRepoUrl && (
+            <div className="py-4">
+              {!selectedLanguage ? (
+                <button
+                  disabled
+                  className="px-6 py-3 rounded-lg bg-muted text-muted-foreground cursor-not-allowed font-medium"
+                >
+                  Select a language to continue
+                </button>
+              ) : (
+                <button
+                  onClick={() => onStartChallenge?.(selectedLanguage)}
+                  disabled={isCreatingProject}
+                  className="px-6 py-3 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 font-medium transition-colors font-mono disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isCreatingProject ? (
+                    <span className="flex items-center gap-2">
+                      <span className="animate-spin">⏳</span>
+                      Creating repository...
+                    </span>
+                  ) : (
+                    `Start with ${getLanguageDisplayName(selectedLanguage)}`
+                  )}
+                </button>
+              )}
+            </div>
+          )}
         </>
       )}
 
@@ -1098,45 +1143,6 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
         />
       )}
 
-      {/* GitHub Repo (if available) */}
-      {githubRepoUrl && !isLanguageStep && (
-        <div className="rounded-xl border border-border bg-card p-6 space-y-4 text-center">
-          <h2 className="text-2xl font-bold">🎉 Repository Created!</h2>
-          <p className="text-muted-foreground">
-            Your project repository has been created. Clone it to get started:
-          </p>
-
-          <div className="bg-muted rounded-lg p-4 font-mono text-sm">
-            <div className="flex items-center justify-between">
-              <code className="flex-1 text-foreground">git clone {githubRepoUrl}</code>
-              <button
-                onClick={handleCopy}
-                className="ml-4 px-3 py-1 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors flex items-center gap-2"
-              >
-                {copied ? (
-                  <>
-                    <Check className="h-4 w-4" />
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-4 w-4" />
-                    Copy
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-
-          <p className="text-sm text-muted-foreground">
-            After cloning, run{" "}
-            <code className="px-2 py-1 rounded bg-muted text-accent">
-              dsa test
-            </code>{" "}
-            to check your progress.
-          </p>
-        </div>
-      )}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { ArrowRight, Layers, Search, Minus, Code2 } from 'lucide-react'
+import { Layers, Search, Minus, Code2 } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { cn } from '@/lib/utils'
 import { OrganicStep } from './OrganicStep'
@@ -22,7 +22,6 @@ interface ChallengesGridProps {
 }
 
 export function ChallengesGrid({ modules }: ChallengesGridProps) {
-  const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [moduleProgress, setModuleProgress] = useState<Record<string, number>>({})
   const location = useLocation()
 
@@ -113,7 +112,6 @@ export function ChallengesGrid({ modules }: ChallengesGridProps) {
     <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-2 challenges-page">
       {modules.map((module) => {
         const Icon = iconMap[module.id] || Code2
-        const isHovered = hoveredId === module.id
         const isIntermediate = module.level === 'Intermediate'
         const isAdvanced = module.level === 'Advanced'
         const progress = moduleProgress[module.id] || 0
@@ -121,8 +119,6 @@ export function ChallengesGrid({ modules }: ChallengesGridProps) {
         return (
           <div
             key={module.id}
-            onMouseEnter={() => setHoveredId(module.id)}
-            onMouseLeave={() => setHoveredId(null)}
             className="transition-none"
             style={{ transform: 'none' }}
           >
@@ -134,7 +130,7 @@ export function ChallengesGrid({ modules }: ChallengesGridProps) {
               <OrganicStep
                 isCurrent={false}
                 isCompleted={progress === 100}
-                className="p-6 h-full"
+                className="p-6 h-full relative"
               >
                 {/* Icon and Title */}
                 <div className="flex items-start justify-between mb-4">
@@ -184,13 +180,10 @@ export function ChallengesGrid({ modules }: ChallengesGridProps) {
                   <TurtleProgress progress={progress} />
                 </div>
 
-                {/* Hover Effect */}
-                {isHovered && (
-                  <div className="flex items-center justify-between text-sm text-primary font-medium font-mono">
-                    <span>Start building →</span>
-                    <ArrowRight className="h-4 w-4" />
-                  </div>
-                )}
+                {/* Start Building - Bottom right */}
+                <div className="absolute bottom-6 right-6 text-sm text-primary font-medium font-mono">
+                  <span>Start building →</span>
+                </div>
               </OrganicStep>
             </Link>
           </div>
