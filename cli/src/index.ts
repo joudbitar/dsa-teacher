@@ -3,6 +3,7 @@
 import { Command } from 'commander';
 import { testCommand } from './commands/test.js';
 import { submitCommand } from './commands/submit.js';
+import { hintCommand } from './commands/hint.js';
 
 const program = new Command();
 
@@ -29,6 +30,18 @@ program
   .action(async () => {
     try {
       await submitCommand();
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : 'Unknown error');
+      process.exit(1);
+    }
+  });
+
+program
+  .command('hint')
+  .description('Display hints from HINTS.md for the current challenge')
+  .action(async () => {
+    try {
+      await hintCommand();
     } catch (error) {
       console.error(error instanceof Error ? error.message : 'Unknown error');
       process.exit(1);
