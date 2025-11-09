@@ -15,10 +15,18 @@ import {
   getChallengeProgress,
 } from "@/utils/challengeProgress";
 
+type ProgressModalState = {
+  isLastStep: boolean;
+  nextStepName?: string;
+  previousStepIndex: number;
+  nextStepIndex: number;
+  completedStepsSnapshot: number[];
+};
+
 export function ChallengeDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { backgroundColor } = useTheme();
+  const { backgroundColor, borderColor, textColor, accentGreen } = useTheme();
   const { user, session } = useAuth();
   const [selectedLanguage, setSelectedLanguage] = useState<string | undefined>(
     undefined
@@ -37,6 +45,62 @@ export function ChallengeDetail() {
   const [moduleData, setModuleData] = useState<Module | null>(null);
   const [showStepWarning, setShowStepWarning] = useState(false);
   const [pendingStepIndex, setPendingStepIndex] = useState<number | null>(null);
+  const [progressModal, setProgressModal] = useState<ProgressModalState | null>(
+    null
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    let interval: number | undefined;
+    let timeout: number | undefined;
+
+    if (progressModal?.isLastStep) {
+      import("canvas-confetti").then(({ default: confetti }) => {
+        if (cancelled) return;
+
+        const duration = 2500;
+        const animationEnd = Date.now() + duration;
+        const defaults = {
+          spread: 60,
+          ticks: 200,
+          gravity: 0.35,
+          scalar: 0.6,
+          zIndex: 30,
+        };
+
+        const shoot = () => {
+          if (cancelled || Date.now() > animationEnd) {
+            if (interval) clearInterval(interval);
+            return;
+          }
+
+          confetti({
+            ...defaults,
+            particleCount: 20,
+            origin: { x: 0.35, y: 0.25 },
+          });
+
+          confetti({
+            ...defaults,
+            particleCount: 18,
+            origin: { x: 0.65, y: 0.25 },
+          });
+        };
+
+        shoot();
+        interval = window.setInterval(shoot, 340);
+        timeout = window.setTimeout(() => {
+          if (interval) clearInterval(interval);
+        }, duration + 200);
+      });
+    }
+
+    return () => {
+      cancelled = true;
+      if (interval) clearInterval(interval);
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [progressModal]);
 
   if (!id || !challengeData[id]) {
     return (
@@ -226,39 +290,13 @@ export function ChallengeDetail() {
                 updatedProject.currentChallengeIndex >=
                 (moduleData?.subchallenges?.length || 0);
 
-              // Create a temporary toast notification
-              const toast = document.createElement("div");
-              toast.className =
-                "fixed top-20 right-4 bg-success text-success-foreground px-6 py-3 rounded-lg shadow-lg z-50 animate-in slide-in-from-right";
-
-              if (isLastStep) {
-                toast.innerHTML = `
-                  <div class="flex items-center gap-2">
-                    <span class="text-xl">🎉</span>
-                    <span class="font-semibold">Challenge Complete!</span>
-                  </div>
-                  <div class="text-sm mt-1">Congratulations! You finished all steps!</div>
-                `;
-              } else {
-                toast.innerHTML = `
-                  <div class="flex items-center gap-2">
-                    <span class="text-xl">✅</span>
-                    <span class="font-semibold">Step completed!</span>
-                  </div>
-                  <div class="text-sm mt-1">Moving to: ${
-                    nextStepName || "Next step"
-                  }</div>
-                `;
-              }
-
-              document.body.appendChild(toast);
-
-              // Remove after 4 seconds
-              setTimeout(() => {
-                toast.style.opacity = "0";
-                toast.style.transition = "opacity 0.3s";
-                setTimeout(() => toast.remove(), 300);
-              }, 4000);
+              setProgressModal({
+                isLastStep,
+                nextStepName: nextStepName || "Next step",
+                previousStepIndex: Math.max(newIndex - 1, 0),
+                nextStepIndex: newIndex,
+                completedStepsSnapshot: completed,
+              });
             }
 
             hasShownInitialState = true;
@@ -495,6 +533,46 @@ export function ChallengeDetail() {
     setShowStepWarning(false);
   };
 
+  const handleProgressModalStay = () => {
+    if (!progressModal) return;
+    if (progressModal.isLastStep) {
+      setProgressModal(null);
+      return;
+    }
+    const stayIndex = Math.max(progressModal.previousStepIndex, 0);
+    setCurrentStepIndex(stayIndex);
+    if (id) {
+      saveChallengeProgress(id, {
+        completedSteps: progressModal.completedStepsSnapshot,
+        currentStepIndex: stayIndex,
+        selectedLanguage,
+        lastUpdated: Date.now(),
+      });
+    }
+    setProgressModal(null);
+  };
+
+  const handleProgressModalContinue = () => {
+    if (progressModal) {
+      if (progressModal.isLastStep) {
+        setProgressModal(null);
+        navigate("/challenges");
+        return;
+      }
+
+      setCurrentStepIndex(progressModal.nextStepIndex);
+      if (id) {
+        saveChallengeProgress(id, {
+          completedSteps: progressModal.completedStepsSnapshot,
+          currentStepIndex: progressModal.nextStepIndex,
+          selectedLanguage,
+          lastUpdated: Date.now(),
+        });
+      }
+    }
+    setProgressModal(null);
+  };
+
   const handleCancelStepNavigate = () => {
     setPendingStepIndex(null);
     setShowStepWarning(false);
@@ -519,20 +597,10 @@ export function ChallengeDetail() {
     return (
       <div className="min-h-screen flex flex-col" style={{ backgroundColor }}>
         <Navbar className="relative z-10" />
-        <main className="flex-1 relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-12 flex items-center justify-center">
-          <div className="flex flex-col items-center gap-4 rounded-2xl border border-border/60 bg-card/80 px-10 py-12 shadow-[0_12px_32px_rgba(0,0,0,0.12)] backdrop-blur-sm">
-            <span className="relative flex h-12 w-12">
-              <span className="absolute inset-0 rounded-full border-2 border-border/60" />
-              <span className="absolute inset-0 rounded-full border-t-2 border-primary animate-spin" />
-            </span>
-            <div className="space-y-2 text-center">
-              <p className="text-lg font-semibold tracking-tight text-foreground">
-                Preparing your challenge
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Just a moment while we load your progress and workspace.
-              </p>
-            </div>
+        <main className="flex-1 relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-20 flex items-center justify-center">
+          <div className="relative flex h-16 w-16 items-center justify-center">
+            <span className="absolute inset-0 rounded-full border-2 border-border/50" />
+            <span className="absolute inset-0 rounded-full border-t-2 border-primary animate-spin" />
           </div>
         </main>
         <Footer className="relative z-10 mt-auto" />
@@ -541,7 +609,10 @@ export function ChallengeDetail() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col text-foreground" style={{ backgroundColor }}>
+    <div
+      className="min-h-screen flex flex-col text-foreground"
+      style={{ backgroundColor }}
+    >
       <Navbar />
 
       {/* Repository Command Modal */}
@@ -597,31 +668,44 @@ export function ChallengeDetail() {
 
       {/* Step revisit confirmation modal */}
       {showStepWarning && pendingStepIndex !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="bg-background border border-border rounded-2xl shadow-2xl max-w-lg w-full p-8 space-y-6">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
+          onClick={handleCancelStepNavigate}
+        >
+          <div
+            className="rounded-lg border shadow-xl max-w-md w-full p-6 space-y-6"
+            style={{ backgroundColor, borderColor }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="space-y-2">
               <p className="text-sm uppercase tracking-wide text-muted-foreground font-mono">
                 Review completed step
               </p>
               <h2 className="text-2xl font-bold font-mono">
-                Revisit &ldquo;{timelineSteps[pendingStepIndex]?.name}&rdquo;?
+                Revisit “{timelineSteps[pendingStepIndex]?.name}”?
               </h2>
             </div>
-            <p className="text-muted-foreground leading-relaxed">
-              You&rsquo;ve already finished this challenge. You can review your
-              notes or code without losing progress, but make sure to return to
-              your current step when you&rsquo;re ready to continue.
+            <p className="text-muted-foreground leading-relaxed font-mono">
+              You’ve already finished this challenge. You can review your notes
+              or code without losing progress, but make sure to return to your
+              current step when you’re ready to continue.
             </p>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="flex gap-3 justify-end">
               <button
                 onClick={handleCancelStepNavigate}
-                className="px-6 py-3 rounded-lg border border-border bg-muted text-foreground hover:bg-muted/80 transition-colors font-medium"
+                className="px-4 py-2 rounded border font-mono text-sm transition-opacity hover:opacity-70"
+                style={{ borderColor, color: textColor }}
               >
                 Stay on current step
               </button>
               <button
                 onClick={handleConfirmStepNavigate}
-                className="px-6 py-3 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors font-medium"
+                className="px-4 py-2 rounded border font-mono text-sm transition-opacity hover:opacity-80"
+                style={{
+                  backgroundColor: accentGreen,
+                  borderColor: accentGreen,
+                  color: backgroundColor,
+                }}
               >
                 Review completed step
               </button>
@@ -633,6 +717,15 @@ export function ChallengeDetail() {
       <div className="flex flex-1">
         {/* Sidebar - Desktop only */}
         <aside className="hidden lg:block w-96 border-r border-border bg-card p-8 overflow-y-auto">
+          <div className="mb-6">
+            <Link
+              to="/challenges"
+              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Challenges
+            </Link>
+          </div>
           <ChallengeSidebar
             title={challenge.title}
             subchallenges={timelineSteps}
@@ -647,16 +740,25 @@ export function ChallengeDetail() {
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 p-8 overflow-y-auto">
-          <div className="max-w-4xl mx-auto">
+        <main className="relative flex-1 p-8 overflow-y-auto">
+          <div
+            className={`relative max-w-4xl mx-auto ${
+              progressModal ? "pointer-events-none" : ""
+            }`}
+            style={{
+              filter: progressModal ? "blur(4px)" : "none",
+            }}
+          >
             {/* Back Button - Top of Page */}
-            <Link
-              to="/challenges"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Challenges
-            </Link>
+            {existingProject && displayStepIndex > 0 && (
+              <button
+                onClick={() => handleStepClick(0)}
+                className="inline-flex items-center gap-2 text-sm font-mono text-muted-foreground hover:text-foreground transition-colors mb-6"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to Setup
+              </button>
+            )}
             {/* Main Content */}
             <div className="space-y-6">
               {/* Language Picker - Show on step 0 only, or always allow changing */}
@@ -687,6 +789,58 @@ export function ChallengeDetail() {
               />
             </div>
           </div>
+
+          {progressModal && (
+            <div
+              className="fixed inset-0 z-40 flex items-center justify-center p-4"
+              onClick={handleProgressModalStay}
+            >
+              <div
+                className="rounded-lg border shadow-xl max-w-md w-full p-6 space-y-6"
+                style={{ backgroundColor, borderColor }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="space-y-2">
+                  <h2 className="text-2xl font-bold font-mono">
+                    {progressModal.isLastStep
+                      ? "Module Complete!"
+                      : "Step Completed!"}
+                  </h2>
+                  <p className="text-muted-foreground leading-relaxed font-mono">
+                    {progressModal.isLastStep
+                      ? "Congratulations! You finished this module. Explore more modules or stay here to review your work."
+                      : `Ready to move on to ${
+                          progressModal.nextStepName || "the next step"
+                        }?`}
+                  </p>
+                </div>
+                <div className="flex gap-3 justify-end">
+                  <button
+                    onClick={handleProgressModalStay}
+                    className="px-4 py-2 rounded border font-mono text-sm transition-opacity hover:opacity-70"
+                    style={{ borderColor, color: textColor }}
+                  >
+                    {progressModal.isLastStep
+                      ? "Stay here"
+                      : "Stay on current step"}
+                  </button>
+                  <button
+                    onClick={handleProgressModalContinue}
+                    className="px-4 py-2 rounded border font-mono text-sm transition-opacity hover:opacity-80"
+                    style={{
+                      backgroundColor: accentGreen,
+                      borderColor: accentGreen,
+                      color: backgroundColor,
+                    }}
+                  >
+                    {progressModal.isLastStep
+                      ? "Explore more modules"
+                      : "Continue to next step"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </main>
       </div>
 

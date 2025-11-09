@@ -98,13 +98,30 @@ export function ChallengeSidebar({
                     <div className="flex-1 min-w-0 text-center">
                       <p
                         className={cn(
-                          "text-sm font-medium leading-snug font-mono",
+                          "flex items-baseline justify-center gap-2 text-sm font-medium leading-snug font-mono",
                           isCurrentStep ? "text-[#3E2723]" : "text-foreground",
                           !isAccessible && !isCurrentStep && "opacity-50"
                         )}
                       >
-                        {sub.name}
-                        {isCompleted && index <= maxAccessibleStep && " ✓"}
+                        {index === 0 ? (
+                          <span>{sub.name}</span>
+                        ) : (
+                          <>
+                            <span
+                              style={{
+                                fontFeatureSettings: '"tnum"',
+                                minWidth: "2ch",
+                                textAlign: "right",
+                              }}
+                            >
+                              {index}.
+                            </span>
+                            <span className="text-left">{sub.name}</span>
+                          </>
+                        )}
+                        {isCompleted && index <= maxAccessibleStep && (
+                          <span className="ml-1">✓</span>
+                        )}
                       </p>
                       {isCurrentStep && selectedLanguage && index === 0 && (
                         <p

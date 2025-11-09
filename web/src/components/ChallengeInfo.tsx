@@ -13,6 +13,7 @@ import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { ChallengeSteps } from "./ChallengeSteps";
 import { ChallengeData } from "@/data/challenges/types";
 import { getSubchallengeInstruction } from "@/data/subchallenge-instructions";
+import { useTheme } from "@/theme/ThemeContext";
 
 interface TimelineStep {
   id: string;
@@ -58,6 +59,7 @@ export function ChallengeInfo({
   subchallengeName,
 }: ChallengeInfoProps) {
   const [copied, setCopied] = React.useState(false);
+  const { accentGreen } = useTheme();
   // Step 0 = Choose Language
   // Step 1+ = Challenge steps
   const isLanguageStep = currentStepIndex === 0;
@@ -101,6 +103,14 @@ export function ChallengeInfo({
 
     // Fallback to simplified challenge name
     return title.replace(/^Build a /i, "").replace(/^Build /i, "");
+  };
+
+  const getCurrentStepNumber = (): number | null => {
+    if (isLanguageStep) return null;
+    if (challengeStepIndex >= 0) {
+      return challengeStepIndex + 1;
+    }
+    return null;
   };
 
   // Helper to generate dynamic page subheading
@@ -708,7 +718,7 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
   return (
     <div className="flex-1 space-y-8">
       {/* Repository Box - Show at top if repo exists */}
-      {githubRepoUrl && (
+      {githubRepoUrl && isLanguageStep && (
         <div className="rounded-xl border border-border bg-card p-6 space-y-4 text-center">
           <h2 className="text-2xl font-bold">Repository Created!</h2>
           <p className="text-muted-foreground">
@@ -750,9 +760,46 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
       )}
 
       {/* Header */}
-      <div>
-        <h1 className="text-4xl font-bold mb-4">{getPageTitle()}</h1>
-        <p className="text-xl text-muted-foreground">{getPageSubheading()}</p>
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-bold mb-2 sm:mb-4">
+            {isLanguageStep ? (
+              getPageTitle()
+            ) : (
+              <span className="inline-flex items-baseline gap-3">
+                <span
+                  className="text-4xl font-bold"
+                  style={{ fontFeatureSettings: '"tnum"', minWidth: "2ch" }}
+                >
+                  {getCurrentStepNumber()}.
+                </span>
+                <span>{getPageTitle()}</span>
+              </span>
+            )}
+          </h1>
+          <p className="text-xl text-muted-foreground">{getPageSubheading()}</p>
+        </div>
+        {isLanguageStep && !githubRepoUrl && (
+          <button
+            onClick={() =>
+              selectedLanguage && onStartChallenge?.(selectedLanguage)
+            }
+            disabled={!selectedLanguage || isCreatingProject}
+            className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium font-mono text-white transition-transform duration-150 hover:opacity-90 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ backgroundColor: accentGreen }}
+          >
+            {!selectedLanguage ? (
+              "Select a language to continue"
+            ) : isCreatingProject ? (
+              <span className="flex items-center gap-2">
+                <span className="animate-spin">⏳</span>
+                Creating repository...
+              </span>
+            ) : (
+              `Start with ${getLanguageDisplayName(selectedLanguage)}`
+            )}
+          </button>
+        )}
       </div>
 
       {/* Step 0: Language Selection - Show general info */}
@@ -1011,7 +1058,8 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
                 <button
                   onClick={() => onStartChallenge?.(selectedLanguage)}
                   disabled={isCreatingProject}
-                  className="px-6 py-3 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 font-medium transition-colors font-mono disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium font-mono text-white transition-transform duration-150 hover:opacity-90 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ backgroundColor: accentGreen }}
                 >
                   {isCreatingProject ? (
                     <span className="flex items-center gap-2">
@@ -1140,16 +1188,16 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
           <div className="rounded-xl border border-border bg-muted p-6">
             <div className="flex items-center gap-3 mb-4">
               <AlertCircle className="h-5 w-5 text-destructive" />
-              <h3 className="text-xl font-bold">Edge Cases to Test</h3>
+              <h3 className="text-xl font-bold">Edge Cases to Test!</h3>
             </div>
-            <ul className="space-y-2">
+            <div className="space-y-2">
               {instruction.edgeCases.map((edge, i) => (
-                <li key={i} className="flex items-start gap-3">
+                <div key={i} className="flex items-start gap-3">
                   <AlertCircle className="h-5 w-5 text-destructive mt-0.5 flex-shrink-0" />
                   <span className="text-foreground/90">{edge}</span>
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         </div>
       )}
