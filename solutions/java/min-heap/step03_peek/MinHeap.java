@@ -20,6 +20,10 @@ public class MinHeap {
         return items.get(0);
     }
 
+    public boolean isEmpty() {
+        return items.isEmpty();
+    }
+
     private void bubbleUp(int index) {
         int current = index;
         while (current > 0) {
@@ -38,4 +42,3 @@ public class MinHeap {
         items.set(j, temp);
     }
 }
-

@@ -17,9 +17,9 @@ class MinHeap:
             parent = (current - 1) // 2
             if self._items[parent] <= self._items[current]:
                 break
-            self._items[parent], self._items[current] = (
-                self._items[current],
-                self._items[parent],
-            )
+            # Swap parent and current
+            temp = self._items[current]
+            self._items[current] = self._items[parent]
+            self._items[parent] = temp
             current = parent
 

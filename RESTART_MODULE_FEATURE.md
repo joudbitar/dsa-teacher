@@ -79,17 +79,20 @@ The `UNIQUE(userId, moduleId)` constraint ensures users can only have one projec
 ### What Gets Reset When Restarting?
 
 **✅ Deleted/Reset:**
+
 - Database project entry (removed from projects table)
 - All submissions history (cascade delete)
 - LocalStorage progress data (checkmarks, completed steps cleared)
 - UI state (project removed from "Your Library")
 
 **❌ Preserved (Untouched):**
+
 - Old GitHub repository (remains in organization)
 - User can reference previous work
 - No data loss from old attempts
 
 This allows users to:
+
 - Keep their old work for reference
 - Have a backup of their previous attempts
 - Compare old and new implementations

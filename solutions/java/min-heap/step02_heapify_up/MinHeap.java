@@ -13,6 +13,10 @@ public class MinHeap {
         bubbleUp(items.size() - 1);
     }
 
+    public boolean isEmpty() {
+        return items.isEmpty();
+    }
+
     private void bubbleUp(int index) {
         int current = index;
         while (current > 0) {

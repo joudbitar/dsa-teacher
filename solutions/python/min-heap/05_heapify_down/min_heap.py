@@ -27,10 +27,10 @@ class MinHeap:
             parent = (current - 1) // 2
             if self._items[parent] <= self._items[current]:
                 break
-            self._items[parent], self._items[current] = (
-                self._items[current],
-                self._items[parent],
-            )
+            # Swap parent and current
+            temp = self._items[current]
+            self._items[current] = self._items[parent]
+            self._items[parent] = temp
             current = parent
 
     def _bubble_down(self, index: int) -> None:
@@ -47,9 +47,9 @@ class MinHeap:
                 smallest = right
             if smallest == current:
                 break
-            self._items[current], self._items[smallest] = (
-                self._items[smallest],
-                self._items[current],
-            )
+            # Swap current and smallest
+            temp = self._items[current]
+            self._items[current] = self._items[smallest]
+            self._items[smallest] = temp
             current = smallest
 

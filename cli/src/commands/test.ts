@@ -153,9 +153,8 @@ export async function testCommand(cwd: string = process.cwd()): Promise<DSARepor
 
   await new Promise(resolve => setTimeout(resolve, 200));
 
-  // Progress indicator
-  const progressBar = '█'.repeat(currentIndex) + '░'.repeat(report.cases.length - currentIndex);
-  console.log(chalk.gray(`  Progress: [${progressBar}] ${currentIndex}/${report.cases.length} completed`));
+  // Show current challenge being worked on (not completion count)
+  console.log(chalk.cyan(`  📝 Working on Challenge ${currentIndex + 1} of ${report.cases.length}`));
   console.log('');
 
   await new Promise(resolve => setTimeout(resolve, 250));

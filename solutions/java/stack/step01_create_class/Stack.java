@@ -1,10 +1,10 @@
-import java.util.ArrayList;
-import java.util.List;
-
 public class Stack<T> {
-    private final List<T> items;
+    private Object[] items;
+    private int top;
+    private static final int INITIAL_CAPACITY = 10;
 
     public Stack() {
-        this.items = new ArrayList<>();
+        this.items = new Object[INITIAL_CAPACITY];
+        this.top = -1;
     }
 }

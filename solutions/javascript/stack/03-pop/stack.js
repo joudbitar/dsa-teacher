@@ -1,4 +1,4 @@
-class Stack {
+export class Stack {
   constructor() {
     this._items = [];
   }
@@ -14,5 +14,3 @@ class Stack {
     return this._items.pop();
   }
 }
-
-module.exports = Stack;

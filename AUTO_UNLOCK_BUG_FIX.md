@@ -52,6 +52,7 @@ Only `dsa submit` should update the config after successful API submission:
 ## Files That Had The Bug
 
 All test runners had this auto-unlock code:
+
 - ✅ `template-dsa-{module}-py/tests/run.py` (Python)
 - ✅ `template-dsa-{module}-js/tests/run.js` (JavaScript)
 - ✅ `template-dsa-{module}-ts/tests/run.ts` (TypeScript)
@@ -76,6 +77,7 @@ For ALL modules: stack, queue, binary-search, min-heap
 **File**: `cli/src/commands/submit.ts`
 
 Fixed array indexing bug (separate issue):
+
 - Was using filtered array with full array index
 - Now uses full array directly
 - Added explicit locked challenge check
@@ -107,6 +109,7 @@ dsa test
 ## Expected Output
 
 ### First `dsa test`:
+
 ```
 Progress: [░░░░░] 0/5 completed
 Challenge 1 of 5
@@ -115,6 +118,7 @@ Challenge 1 of 5
 ```
 
 ### `dsa submit`:
+
 ```
 Running tests before submission...
 Progress: [░░░░░] 0/5 completed  ← Same index! ✅
@@ -127,6 +131,7 @@ Submitting results to API...
 ```
 
 ### Second `dsa test` (after submit):
+
 ```
 Progress: [█░░░░] 1/5 completed  ← Now incremented ✅
 Challenge 2 of 5                 ← Now shows push ✅
@@ -137,12 +142,15 @@ Challenge 2 of 5                 ← Now shows push ✅
 ## Fixing Other Users' Repositories
 
 ### Option 1: Update Templates & Recreate
+
 1. Run `remove-auto-unlock-from-templates.sh` on templates
 2. Push updated templates to GitHub
 3. Users restart modules (creates new repos from fixed templates)
 
 ### Option 2: Manual Fix Script
+
 Users can run:
+
 ```bash
 cd their-project-repo
 # Remove auto-unlock from tests/run.py (or run.js, run.sh)
@@ -151,19 +159,23 @@ dsa test && dsa submit
 ```
 
 ### Option 3: Database Sync
+
 If config is wrong but database is correct:
+
 1. Restart module (clears everything)
 2. Start fresh with fixed template
 
 ## Prevention
 
 ✅ **Test runners** should:
+
 - Read `currentChallengeIndex` from config
 - Run tests up to current index
 - Report results with current index
 - **NOT** modify the config file
 
 ✅ **Submit command** should:
+
 - Run tests to validate current challenge
 - Send results to API
 - Wait for API success response
@@ -187,14 +199,15 @@ The bug affected all languages and all modules, but the fix is straightforward: 
 ## Impact
 
 **Before Fix:**
+
 - 🔴 `dsa submit` fails even when tests pass
 - 🔴 Index gets out of sync
 - 🔴 Confusing error messages
 - 🔴 Users think their code is wrong when it's not
 
 **After Fix:**
+
 - ✅ `dsa submit` works when tests pass
 - ✅ Index stays synchronized
 - ✅ Clear workflow: test → submit → repeat
 - ✅ Proper progressive unlock
-

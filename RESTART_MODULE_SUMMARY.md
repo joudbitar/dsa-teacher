@@ -111,17 +111,17 @@ User Flow:
 
 ## 🔍 What Happens During Restart
 
-| Action                     | Result                         |
-| -------------------------- | ------------------------------ |
-| User clicks "Restart"      | Confirmation modal opens       |
-| User confirms              | API DELETE request sent        |
-| Backend receives request   | Verifies auth and ownership    |
-| Backend deletes project    | Database entry removed         |
-| Backend responds           | Success message sent           |
-| Frontend receives response | Project removed from UI        |
-| Frontend clears storage    | **All checkmarks removed** ✅  |
-| User starts module again   | New project can be created     |
-| Old GitHub repo            | **Remains untouched** ✅       |
+| Action                     | Result                        |
+| -------------------------- | ----------------------------- |
+| User clicks "Restart"      | Confirmation modal opens      |
+| User confirms              | API DELETE request sent       |
+| Backend receives request   | Verifies auth and ownership   |
+| Backend deletes project    | Database entry removed        |
+| Backend responds           | Success message sent          |
+| Frontend receives response | Project removed from UI       |
+| Frontend clears storage    | **All checkmarks removed** ✅ |
+| User starts module again   | New project can be created    |
+| Old GitHub repo            | **Remains untouched** ✅      |
 
 ## 🎁 Key Benefits
 

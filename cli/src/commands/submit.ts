@@ -99,6 +99,10 @@ export async function submitCommand(cwd: string = process.cwd()): Promise<void> 
     // Check if there are more challenges
     const nextIndex = currentIndex + 1;
     
+    // Show completion progress AFTER successful submission
+    console.log('');
+    console.log(chalk.bold.cyan(`  ✨ Challenges completed: ${nextIndex} of ${report.cases.length}`));
+    
     // 7. Update local config file with new challenge index
     try {
       const configPath = resolve(projectRoot, 'dsa.config.json');

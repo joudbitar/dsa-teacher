@@ -297,30 +297,14 @@ export async function handlePost(req: Request): Promise<Response> {
     const suffix = languageToSuffix[language];
     const templateRepo = `template-dsa-${moduleId}-${suffix}`;
     
-    // Generate meaningful repo name from user's email or fallback to userId
-    let repoUsername = userId.split('-')[0]; // Use first segment of UUID as fallback
-    if (user.email) {
-      // Extract username from email (e.g., john.doe@example.com -> john-doe)
-      const emailUsername = user.email.split('@')[0];
-      repoUsername = emailUsername.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
-    }
-    
-    // Count existing projects for this user to create unique names (e.g., john-stack-1, john-stack-2)
-    const { count } = await supabase
-      .from('projects')
-      .select('*', { count: 'exact', head: true })
-      .eq('userId', userId)
-      .eq('moduleId', moduleId);
-    
-    const projectNumber = (count || 0) + 1;
-    const newRepoName = `${repoUsername}-${moduleId}-${projectNumber}`;
+    // Generate simple repo name: shelly-cli-{moduleId}-{language}
+    const repoName = `shelly-cli-${moduleId}-${suffix}`;
 
     console.log('Template Request:', {
       template_owner: githubOrg,
       template_repo: templateRepo,
       owner: githubOrg,
-      name: newRepoName,
-      generated_from: user.email || userId,
+      name: repoName,
     });
 
     // Verify template exists and is accessible
@@ -345,14 +329,14 @@ export async function handlePost(req: Request): Promise<Response> {
     }
 
     // Check if repo already exists
-    console.log(`Checking if repo already exists: ${githubOrg}/${newRepoName}...`);
+    console.log(`Checking if repo already exists: ${githubOrg}/${repoName}...`);
     let repo;
     let repoAlreadyExisted = false;
     
     try {
       const { data: existingRepo } = await octokit.repos.get({
         owner: githubOrg!,
-        repo: newRepoName,
+        repo: repoName,
       });
       
       console.log(`⚠️  Repo already exists: ${existingRepo.html_url}`);
@@ -362,7 +346,7 @@ export async function handlePost(req: Request): Promise<Response> {
       try {
         await octokit.repos.delete({
           owner: githubOrg!,
-          repo: newRepoName,
+          repo: repoName,
         });
         console.log(`  ✓ Old repo deleted, will create fresh from template`);
         
@@ -377,7 +361,7 @@ export async function handlePost(req: Request): Promise<Response> {
           console.log(`  Converting repo to public...`);
           await octokit.repos.update({
             owner: githubOrg!,
-            repo: newRepoName,
+            repo: repoName,
             private: false,
           });
           console.log(`  ✓ Repo is now public`);
@@ -393,14 +377,14 @@ export async function handlePost(req: Request): Promise<Response> {
     
     // Create repo from template if we deleted the old one or it never existed
     if (!repoAlreadyExisted) {
-      console.log(`Creating: ${githubOrg}/${newRepoName} from template: ${templateRepo}`);
+      console.log(`Creating: ${githubOrg}/${repoName} from template: ${templateRepo}`);
       
       try {
         const { data: newRepo } = await octokit.repos.createUsingTemplate({
           template_owner: githubOrg!,
           template_repo: templateRepo,
           owner: githubOrg!,
-          name: newRepoName,
+          name: repoName,
           private: false, // Make public so users can clone without being collaborators
           description: `DSA Lab: ${moduleId} challenge in ${language}`,
         });
@@ -419,10 +403,10 @@ export async function handlePost(req: Request): Promise<Response> {
     }
 
     // Get the default branch
-    console.log(`Getting default branch for ${newRepoName}...`);
+    console.log(`Getting default branch for ${repoName}...`);
     const { data: repoData } = await octokit.repos.get({
       owner: githubOrg!,
-      repo: newRepoName,
+      repo: repoName,
     });
     const defaultBranch = repoData.default_branch;
     console.log(`Default branch: ${defaultBranch}`);
@@ -441,14 +425,14 @@ export async function handlePost(req: Request): Promise<Response> {
 
     const encodedContent = btoa(JSON.stringify(configContent, null, 2));
 
-    console.log(`Committing dsa.config.json to ${newRepoName} on branch ${defaultBranch}`);
+    console.log(`Committing dsa.config.json to ${repoName} on branch ${defaultBranch}`);
 
     // Check if file already exists and get its SHA
     let fileSha: string | undefined;
     try {
       const { data: existingFile } = await octokit.repos.getContent({
         owner: githubOrg!,
-        repo: newRepoName,
+        repo: repoName,
         path: 'dsa.config.json',
       });
       if ('sha' in existingFile) {
@@ -461,7 +445,7 @@ export async function handlePost(req: Request): Promise<Response> {
 
     await octokit.repos.createOrUpdateFileContents({
       owner: githubOrg!,
-      repo: newRepoName,
+      repo: repoName,
       path: 'dsa.config.json',
       message: 'Configure DSA Lab project',
       content: encodedContent,

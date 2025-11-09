@@ -11,4 +11,8 @@ public class MinHeap {
     public void insert(int value) {
         items.add(value);
     }
+
+    public boolean isEmpty() {
+        return items.isEmpty();
+    }
 }

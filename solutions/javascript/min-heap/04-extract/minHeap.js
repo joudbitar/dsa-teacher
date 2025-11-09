@@ -23,7 +23,7 @@ class MinHeap {
     const end = this._items.pop();
     if (this._items.length > 0) {
       this._items[0] = end;
-      // Bubble down not implemented yet.
+      // Bubble down will be implemented in step 5
     }
     return min;
   }
