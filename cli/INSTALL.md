@@ -20,6 +20,31 @@ The script downloads the CLI source, installs dependencies, builds the CLI, and 
 command into `~/.local/bin`. If Corepack cannot modify global binaries, it falls back to
 the `pnpm` already on your PATH.
 
+### Troubleshooting Installation Errors
+
+If you encounter a `400 Bad Request` or other HTTP error when running the install command:
+
+1. **Check your internet connection** - Ensure you can access GitHub
+2. **Try without the `-f` flag** to see the full error:
+   ```bash
+   curl -sSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash
+   ```
+3. **Check if GitHub is accessible** from your location:
+   ```bash
+   curl -I https://github.com
+   ```
+4. **Try downloading the script first**, then running it:
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh -o install-cli.sh
+   bash install-cli.sh
+   rm install-cli.sh
+   ```
+5. **If you have the repository cloned**, you can install from local source:
+   ```bash
+   cd /path/to/dsa-teacher
+   DSA_CLI_LOCAL_DIR="$(pwd)/cli" bash scripts/install-cli.sh
+   ```
+
 ### Updating
 
 Re-run the same one-liner; the script replaces the previous installation with the latest commit from `main`.
