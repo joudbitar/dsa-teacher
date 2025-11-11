@@ -1,6 +1,5 @@
 import { type ReactNode, useState, useEffect } from "react";
 import {
-  BookOpen,
   Bug,
   Command,
   Copy,
@@ -9,9 +8,7 @@ import {
   Info,
   Layers,
   LifeBuoy,
-  ListChecks,
   Network,
-  Settings,
   Shield,
   Terminal,
   Workflow,
