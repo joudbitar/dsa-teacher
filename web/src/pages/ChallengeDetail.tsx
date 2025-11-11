@@ -42,6 +42,7 @@ export function ChallengeDetail() {
     undefined
   );
   const [copied, setCopied] = useState(false);
+  const [cliCopied, setCliCopied] = useState(false);
   const [moduleData, setModuleData] = useState<Module | null>(null);
   const [showStepWarning, setShowStepWarning] = useState(false);
   const [pendingStepIndex, setPendingStepIndex] = useState<number | null>(null);
@@ -484,6 +485,18 @@ export function ChallengeDetail() {
     }
   };
 
+  // Copy CLI install command to clipboard
+  const handleCopyCLI = async () => {
+    try {
+      const installCommand = "curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash";
+      await navigator.clipboard.writeText(installCommand);
+      setCliCopied(true);
+      setTimeout(() => setCliCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
+
   // Continue to challenge after viewing repo modal
   const handleContinueToChallenge = () => {
     setShowRepoCommand(false);
@@ -647,8 +660,33 @@ export function ChallengeDetail() {
             </div>
 
             <div className="space-y-4">
+              <div className="rounded-lg border border-border bg-muted/50 p-4">
+                <p className="text-sm font-medium mb-2">Install the DSA CLI</p>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Install the CLI tool to run tests and submit your solutions:
+                </p>
+                <div className="bg-background rounded-lg p-3 font-mono text-xs">
+                  <div className="flex items-center justify-between gap-2">
+                    <code className="flex-1 break-all">
+                      curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash
+                    </code>
+                    <button
+                      onClick={handleCopyCLI}
+                      className="px-2 py-1 rounded bg-accent/10 hover:bg-accent/20 border border-accent/20 transition-colors shrink-0 flex items-center gap-1"
+                      title="Copy install command"
+                    >
+                      {cliCopied ? (
+                        <Check className="h-3 w-3 text-accent" />
+                      ) : (
+                        <Copy className="h-3 w-3" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               <p className="text-sm text-muted-foreground">
-                After cloning, run{" "}
+                After cloning and installing the CLI, run{" "}
                 <code className="px-2 py-1 rounded bg-muted text-accent">
                   dsa test
                 </code>{" "}

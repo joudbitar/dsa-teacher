@@ -10,19 +10,19 @@ Complete guide for installing the DSA Lab CLI tool.
 
 ## Quick Install (Recommended) 🚀
 
-Use the remote installer script (single command, replace `<org>` as needed):
+Install with a single command (no configuration needed):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/<org>/dsa-lab/main/scripts/install-cli.sh | env DSA_CLI_REPO="https://github.com/<org>/dsa-lab" COREPACK_ENABLE=0 bash
+curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash
 ```
 
-The script clones the repo, installs dependencies, builds the CLI, and links the `dsa`
+The script downloads the CLI source, installs dependencies, builds the CLI, and links the `dsa`
 command into `~/.local/bin`. If Corepack cannot modify global binaries, it falls back to
 the `pnpm` already on your PATH.
 
 ### Updating
 
-Re-run the same one-liner after exporting `DSA_CLI_REPO`; the script replaces the previous installation with the latest commit from `main`.
+Re-run the same one-liner; the script replaces the previous installation with the latest commit from `main`.
 
 ### Uninstalling
 
@@ -39,64 +39,26 @@ If you run the installer again it recreates both paths automatically.
 > echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
 > source ~/.zshrc
 > ```
+>
+> Or for bash:
+> ```bash
+> echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+> source ~/.bashrc
+> ```
 
-### Installing from npm (future)
+### Installing from npm (Coming Soon)
 
-Once the package is published to npm:
+The CLI will be available via npm in the future:
 
 ```bash
 npm install -g @dsa/cli
 ```
 
-Updating stays the same:
+Check the README for release announcements when npm installation becomes available.
 
-```bash
-npm update -g @dsa/cli
-```
+## Install from source (For Contributors Only)
 
-Check the README for release announcements before relying on the npm workflow.
-
-## Install from source (advanced)
-
-If you're developing the CLI locally or contributing changes, you can link it from the repository.
-
-### Automated install script
-
-#### macOS / Linux / WSL
-
-```bash
-# From the project root directory
-./cli/scripts/install.sh
-```
-
-#### Windows (PowerShell)
-
-```powershell
-# From the project root directory
-cd cli
-.\scripts\install.ps1
-```
-
-### Manual steps
-
-If you prefer to run the steps yourself:
-
-```bash
-# Starting in the project root
-cd cli
-
-# 1. Install pnpm if needed
-npm install -g pnpm
-
-# 2. Install dependencies
-pnpm install
-
-# 3. Build the CLI
-pnpm build
-
-# 4. Link globally
-pnpm link --global
-```
+If you're developing the CLI locally or contributing changes, see the [CLI README](../cli/README.md) for contributor installation instructions.
 
 ## Verify Installation
 
@@ -192,7 +154,7 @@ chmod +x cli/scripts/install.sh
 
 ## Updating
 
-For npm installations, run `npm update -g @dsa/cli`.
+For quick install, re-run the curl command.
 
 For local development installs, pull latest changes and rerun the build/link flow:
 
@@ -247,7 +209,7 @@ After installation:
 **Easiest installation:**
 
 ```bash
-npm install -g @dsa/cli
+curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash
 ```
 
 **Verify:**

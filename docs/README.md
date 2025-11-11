@@ -6,14 +6,15 @@ Welcome to the DSA Lab knowledge base. This manual explains every component of t
 
 ## Quick Start: Install the CLI
 
-If you simply need the CLI, follow these steps before diving into the rest of the documentation:
+Install the CLI with a single command:
 
-1. From the repository root (macOS/Linux/WSL), run `make install-cli`. This compiles the local `cli/` package and symlinks the resulting `dsa` binary into your PATH without downloading anything.
-2. Need the latest from `main` instead of your checkout? Use `make install-cli-remote` to fetch sources via `scripts/install-cli.sh`.
-3. On Windows, open PowerShell 7 and run `pwsh -File cli/scripts/install.ps1`.
-4. Confirm the installation with `dsa --version`.
+```bash
+curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash
+```
 
-For deeper options, environment variables, and troubleshooting tips, continue with [Installing the CLI](#installing-the-cli).
+After installation, verify with `dsa --version`. If the command is not found, add `~/.local/bin` to your PATH and restart your terminal.
+
+For troubleshooting and more details, continue with [Installing the CLI](#installing-the-cli).
 
 ---
 
@@ -115,25 +116,13 @@ corepack --version  # optional
 
 ## Installing the CLI
 
-Choose the path that matches your environment and security posture.
+Install the CLI with a single command:
 
-| Scenario                               | Steps                                                                                                    | Notes                                                                                                                                        |
-| -------------------------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Local workspace (recommended)**      | `make install-cli`                                                                                       | Uses your checked-out `cli/` package, builds it, and installs to `~/.local/bin` via the helper script’s local mode.                          |
-| **Remote fetch (macOS/Linux/WSL)**     | `make install-cli-remote`                                                                                | Downloads the latest sources defined by `DSA_CLI_REPO`/`DSA_CLI_REF`, then runs the same build-and-link flow.                                |
-| **Published npm package**              | `npm install -g @dsa/cli`                                                                                | Fastest route for learners. Requires npm registry access. Update with `npm update -g @dsa/cli`.                                              |
-| **Helper script (manual invocation)**  | `./scripts/install-cli.sh`                                                                               | Builds TypeScript locally, installs under `~/.local/share/dsa-cli`, and symlinks to `~/.local/bin/dsa`. Respects Corepack/pnpm availability. |
-| **Remote one-liner (no npm registry)** | `curl -fsSL https://raw.githubusercontent.com/<org>/<repo>/main/scripts/install-cli.sh \| ENV_VARS bash` | Explicitly set `DSA_CLI_REPO`, `DSA_CLI_HOME`, `DSA_CLI_BIN`. Audit the script before piping into `bash`.                                    |
-| **Windows (PowerShell)**               | `pwsh -File cli/scripts/install.ps1`                                                                     | Equivalent functionality for Windows. Run `Set-ExecutionPolicy RemoteSigned` if execution is blocked.                                        |
-| **Air-gapped / Manual fallback**       | `cd cli && pnpm install && pnpm build && pnpm link --global`                                             | Requires local access to the repo and pnpm. Ideal for contributors working off the main branch.                                              |
+```bash
+curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash
+```
 
-### Environment Variables Supported by `install-cli.sh`
-
-- `DSA_CLI_REPO` – Git URL used to fetch sources (defaults to the public GitHub repo).
-- `DSA_CLI_HOME` – Build artifact directory (`~/.local/share/dsa-cli` default).
-- `DSA_CLI_BIN` – Directory for the `dsa` symlink (`~/.local/bin` default).
-- `DSA_CLI_BRANCH` – Checkout branch or tag (defaults to `main`).
-- `COREPACK_ENABLE` – Set to `0` to force pnpm from PATH.
+This downloads the CLI source, builds it, and installs the `dsa` command to `~/.local/bin`. No configuration needed.
 
 ---
 
@@ -154,11 +143,7 @@ echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-To update:
-
-- npm install: `npm update -g @dsa/cli`
-- Script install: re-run `./scripts/install-cli.sh`
-- Manual install: `pnpm build && pnpm link --global`
+To update: Re-run the curl command above.
 
 The CLI prints the filesystem path it was invoked from when run with `--version`. Confirm it matches the intended location.
 

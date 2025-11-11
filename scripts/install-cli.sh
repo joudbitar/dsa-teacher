@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 # Remote installer for the DSA Lab CLI without relying on npm publishes.
-# Usage (replace <org> with your GitHub org or user):
-#   curl -fsSL https://raw.githubusercontent.com/<org>/dsa-lab/main/scripts/install-cli.sh | bash
+# Usage (one-liner, no configuration needed):
+#   curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash
 #
-# Environment variables:
-#   DSA_CLI_REPO    Git clone URL (default: https://github.com/<org>/dsa-lab)
+# Environment variables (optional):
+#   DSA_CLI_REPO    Git clone URL (default: https://github.com/joudbitar/dsa-teacher)
 #   DSA_CLI_REF     Git ref to install (default: main). Supports branches or tags.
 #   DSA_CLI_HOME    Installation directory (default: ~/.local/share/dsa-cli)
 #   DSA_CLI_BIN     Directory for the executable symlink (default: ~/.local/bin)
@@ -15,6 +15,7 @@ set -euo pipefail
 info()  { printf '\033[0;34m[INFO]\033[0m %s\n' "$*"; }
 warn()  { printf '\033[0;33m[WARN]\033[0m %s\n' "$*" >&2; }
 error() { printf '\033[0;31m[ERROR]\033[0m %s\n' "$*" >&2; exit 1; }
+success() { printf '\033[0;32m[SUCCESS]\033[0m %s\n' "$*"; }
 
 REPO_URL_DEFAULT="https://github.com/joudbitar/dsa-teacher"
 REPO_URL="${DSA_CLI_REPO:-$REPO_URL_DEFAULT}"
@@ -32,9 +33,7 @@ elif [[ "$REPO_URL" == "local" ]]; then
   USE_LOCAL_SOURCE=1
 fi
 
-if [[ $USE_LOCAL_SOURCE -eq 0 && "$REPO_URL" == *"<org>"* ]]; then
-  error "Set DSA_CLI_REPO to your GitHub repository URL (e.g., https://github.com/acme/dsa-lab)."
-fi
+# No need to check for <org> placeholder since we have a default repo URL
 
 if [[ $USE_LOCAL_SOURCE -eq 0 ]]; then
   ARCHIVE_URL="${REPO_URL}/archive/refs/heads/${REPO_REF}.tar.gz"
@@ -165,12 +164,47 @@ popd >/dev/null
 mkdir -p "$BIN_DIR"
 ln -sf "$INSTALL_DIR/bin/dsa" "$BIN_DIR/dsa"
 
-if ! command -v dsa >/dev/null 2>&1; then
-  warn "dsa command not detected on PATH. Ensure ${BIN_DIR} is in your PATH."
+# Check if BIN_DIR is in PATH
+if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then
+  warn "dsa command installed to ${BIN_DIR}, but this directory is not in your PATH."
+  warn ""
+  warn "To add it to your PATH, run one of the following:"
+  
+  # Detect shell and provide appropriate command
+  if [[ -n "${ZSH_VERSION:-}" ]]; then
+    warn "  echo 'export PATH=\"$BIN_DIR:\$PATH\"' >> ~/.zshrc"
+    warn "  source ~/.zshrc"
+  elif [[ -n "${BASH_VERSION:-}" ]]; then
+    warn "  echo 'export PATH=\"$BIN_DIR:\$PATH\"' >> ~/.bashrc"
+    warn "  source ~/.bashrc"
+  else
+    warn "  export PATH=\"$BIN_DIR:\$PATH\""
+    warn "  (Add this to your shell profile to make it permanent)"
+  fi
+  warn ""
+  warn "Or restart your terminal."
+  warn ""
+  warn "For now, you can run the CLI directly with:"
+  warn "  $BIN_DIR/dsa --version"
+else
+  info "✓ ${BIN_DIR} is already in your PATH"
 fi
 
-VERSION="$("$BIN_DIR/dsa" --version 2>/dev/null || echo 'unknown')"
-info "Installation complete. dsa version: ${VERSION}"
-info "Add the following to your shell profile if needed:"
-printf '  export PATH="%s:$PATH"\n' "$BIN_DIR"
+# Try to verify installation
+if command -v dsa >/dev/null 2>&1; then
+  VERSION=$(dsa --version 2>/dev/null || echo 'unknown')
+  success "Installation complete! dsa version: ${VERSION}"
+  info ""
+  info "You can now use the 'dsa' command:"
+  info "  dsa --version"
+  info "  dsa test"
+  info "  dsa submit"
+  info "  dsa --help"
+elif [[ -f "$BIN_DIR/dsa" ]]; then
+  VERSION=$("$BIN_DIR/dsa" --version 2>/dev/null || echo 'unknown')
+  info "Installation complete. dsa version: ${VERSION}"
+  warn "Note: You may need to restart your terminal or add ${BIN_DIR} to PATH to use 'dsa' command."
+else
+  error "Installation failed - dsa binary not found at ${BIN_DIR}/dsa"
+fi
 

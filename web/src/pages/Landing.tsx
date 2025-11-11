@@ -213,6 +213,9 @@ export function Landing() {
     fontFamily: "JetBrains Mono, monospace",
   };
 
+  const darkBrown = "#2B1B12";
+  const darkBrownText = "#3A281D";
+
   return (
     <div className="min-h-screen flex flex-col" style={themeStyle}>
       <Navbar />
@@ -416,7 +419,10 @@ export function Landing() {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <h2
               className="text-3xl sm:text-4xl font-bold mb-12 text-center"
-              style={themeStyle}
+              style={{
+                color: darkBrown,
+                fontFamily: themeStyle.fontFamily,
+              }}
             >
               How it works.
             </h2>
@@ -432,7 +438,7 @@ export function Landing() {
                 >
                   <div
                     className="flex h-12 w-12 items-center justify-center rounded-full mx-auto mb-4"
-                    style={{ backgroundColor: textColor }}
+                    style={{ backgroundColor: darkBrown }}
                   >
                     <span
                       className="text-2xl font-bold"
@@ -444,13 +450,19 @@ export function Landing() {
                       {step.number}
                     </span>
                   </div>
-                  <h3 className="text-lg font-bold mb-2" style={themeStyle}>
+                  <h3
+                    className="text-lg font-bold mb-2"
+                    style={{
+                      color: darkBrown,
+                      fontFamily: themeStyle.fontFamily,
+                    }}
+                  >
                     {step.title}
                   </h3>
                   <p
                     className="text-sm"
                     style={{
-                      color: secondaryTextColor,
+                      color: darkBrownText,
                       fontFamily: themeStyle.fontFamily,
                     }}
                   >
@@ -460,7 +472,7 @@ export function Landing() {
                     <div className="hidden lg:block absolute top-1/2 -right-6 transform -translate-y-1/2">
                       <ArrowRight
                         className="h-6 w-6"
-                        style={{ color: secondaryTextColor }}
+                        style={{ color: darkBrownText }}
                       />
                     </div>
                   )}
@@ -472,7 +484,7 @@ export function Landing() {
                 to="/docs"
                 className="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-bold transition-all hover:opacity-90 hover:scale-105"
                 style={{
-                  backgroundColor: textColor,
+                  backgroundColor: accentGreen,
                   color: backgroundColor,
                   fontFamily: themeStyle.fontFamily,
                 }}

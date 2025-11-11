@@ -4,7 +4,27 @@ DSA Lab command-line tool for testing and submitting solutions locally.
 
 ## Installation
 
-### Install from this monorepo (macOS/Linux/WSL)
+### Quick Install (Recommended) 🚀
+
+Install with a single command:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash
+```
+
+After installation, verify the CLI is available:
+
+```bash
+dsa --version
+```
+
+#### Updating
+
+Re-run the same install command to get the latest version.
+
+### Install from this monorepo (For Contributors)
+
+If you're working on the CLI itself:
 
 ```bash
 make install-cli      # run from repository root
@@ -12,32 +32,6 @@ dsa --version
 ```
 
 Need to pull the latest sources directly? Use `make install-cli-remote`.
-
-### Install from npm (Recommended) 🚀
-
-```
-npm install -g @dsa/cli
-```
-
-After installation, verify the CLI is available:
-
-```
-dsa --version
-```
-
-#### Updating
-
-Already installed the CLI? Grab the latest version with:
-
-```
-npm update -g @dsa/cli
-```
-
-To check what version you have locally:
-
-```
-npm ls -g @dsa/cli --depth=0
-```
 
 ### Alternative: Install from source step-by-step
 
@@ -73,8 +67,9 @@ If `dsa` command is not found after installation:
 1. **Restart your terminal**
 2. **Or add to PATH:**
    ```bash
-   export PATH="$(npm config get prefix)/bin:$PATH"
+   export PATH="$HOME/.local/bin:$PATH"
    ```
+   Then add this to your shell profile (`~/.zshrc` or `~/.bashrc`) to make it permanent.
 
 See `INSTALL.md` for detailed troubleshooting guide.
 

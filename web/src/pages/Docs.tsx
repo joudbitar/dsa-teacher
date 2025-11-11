@@ -3,6 +3,8 @@ import {
   BookOpen,
   Bug,
   Command,
+  Copy,
+  Check,
   Download,
   Info,
   Layers,
@@ -65,52 +67,111 @@ function Callout({
   );
 }
 
-const docSections: DocSection[] = [
+// Create doc sections function that receives copy handler
+const createDocSections = (handleCopyInstall: () => void, copiedInstall: boolean): DocSection[] => [
   {
-    id: "overview",
-    title: "Platform Overview",
+    id: "getting-started",
+    title: "Getting Started",
     summary:
-      "Understand how the dashboard, CLI, challenge templates, and Supabase work together to deliver the Shelly learning experience.",
+      "Learn how to sign up, create your first challenge project, install the CLI, and start coding.",
     icon: <Layers className="h-6 w-6 text-emerald-300" />,
     link: {
-      href: "/docs/README.md",
-      label: "Open docs/README.md",
+      href: "/auth?mode=signup",
+      label: "Sign up now",
     },
     content: (
       <>
         <p>
-          Shelly blends a React dashboard, per-learner challenge repositories, a
-          TypeScript CLI, and Supabase Edge Functions. Learners work locally,
-          while submissions and hints sync with the hosted services.
+          Get started with DSA Lab in just a few steps. You'll be coding your first data structure in minutes.
         </p>
-        <ul className="marker:text-emerald-300">
+        <ol className="list-decimal space-y-4 pl-5 marker:text-emerald-400">
           <li>
-            <strong>Dashboard</strong> – provisions repositories, unlocks
-            subchallenges, and surfaces analytics.
+            <strong>Sign up</strong> – Create an account on the dashboard. It's free and takes seconds.
           </li>
           <li>
-            <strong>CLI</strong> – executes template tests, displays hints, and
-            submits results.
+            <strong>Choose a challenge</strong> – Browse available challenges (Stack, Queue, Binary Search, Min-Heap, and more).
           </li>
           <li>
-            <strong>Supabase Edge Functions</strong> – validate tokens, persist
-            submissions, and notify the dashboard.
+            <strong>Select your language</strong> – Pick from JavaScript, TypeScript, Python, Java, or C++.
           </li>
-        </ul>
-        <Callout title="Quick Facts" icon={<Info className="h-4 w-4" />}>
-          <ul className="marker:text-emerald-300">
-            <li>
-              Every repo includes a `dsa.config.json` with project metadata.
-            </li>
-            <li>
-              CLI commands exit with `0` on success and `1` on configuration or
-              runtime errors.
-            </li>
-            <li>
-              Supabase APIs require both `projectId` and `projectToken`; rotate
-              tokens when regenerating repos.
-            </li>
-          </ul>
+          <li>
+            <strong>Get your repository</strong> – The dashboard creates a private GitHub repository with starter code and tests.
+          </li>
+          <li>
+            <strong>Install the CLI</strong> – Use the one-liner command to install the <code>dsa</code> tool.
+          </li>
+          <li>
+            <strong>Clone and code</strong> – Clone your repo, implement the solution, and test locally.
+          </li>
+        </ol>
+        <Callout title="Pro Tip" icon={<Info className="h-4 w-4" />}>
+          <p>
+            Each challenge repository comes with everything you need: starter code, comprehensive tests, 
+            and hints. Just clone, code, and submit!
+          </p>
+        </Callout>
+      </>
+    ),
+  },
+  {
+    id: "how-it-works",
+    title: "How It Works",
+    summary:
+      "Understand the technology behind DSA Lab and how the dashboard, CLI, and backend work together.",
+    icon: <Network className="h-6 w-6 text-blue-300" />,
+    link: {
+      href: "#",
+      label: "",
+    },
+    content: (
+      <>
+        <p>
+          DSA Lab is built with modern web technologies to give you a seamless learning experience. 
+          Here's how everything connects:
+        </p>
+        <div className="space-y-4">
+          <div className="rounded-lg p-4" style={{ backgroundColor: colors.background.surface, border: `1px solid ${colors.border.divider}` }}>
+            <h4 className="font-semibold mb-2" style={{ color: colors.text.primary }}>
+              🎨 Dashboard (React + TypeScript)
+            </h4>
+            <p className="text-sm" style={{ color: colors.text.secondary }}>
+              The web interface where you browse challenges, create projects, and track your progress. 
+              Built with React and deployed on Vercel for fast, reliable access.
+            </p>
+          </div>
+          <div className="rounded-lg p-4" style={{ backgroundColor: colors.background.surface, border: `1px solid ${colors.border.divider}` }}>
+            <h4 className="font-semibold mb-2" style={{ color: colors.text.primary }}>
+              💻 CLI Tool (Node.js + TypeScript)
+            </h4>
+            <p className="text-sm" style={{ color: colors.text.secondary }}>
+              The <code>dsa</code> command-line tool runs tests locally, shows hints, and submits your progress. 
+              It works entirely offline for testing, then syncs results when you submit.
+            </p>
+          </div>
+          <div className="rounded-lg p-4" style={{ backgroundColor: colors.background.surface, border: `1px solid ${colors.border.divider}` }}>
+            <h4 className="font-semibold mb-2" style={{ color: colors.text.primary }}>
+              🗄️ Backend (Supabase)
+            </h4>
+            <p className="text-sm" style={{ color: colors.text.secondary }}>
+              Supabase handles authentication, stores your progress, and manages challenge repositories. 
+              Edge Functions process submissions and update your dashboard in real-time.
+            </p>
+          </div>
+          <div className="rounded-lg p-4" style={{ backgroundColor: colors.background.surface, border: `1px solid ${colors.border.divider}` }}>
+            <h4 className="font-semibold mb-2" style={{ color: colors.text.primary }}>
+              📦 Challenge Repositories (GitHub)
+            </h4>
+            <p className="text-sm" style={{ color: colors.text.secondary }}>
+              Each challenge is a real GitHub repository with starter code, test suites, and documentation. 
+              You work in your own private repo, just like a real software project.
+            </p>
+          </div>
+        </div>
+        <Callout title="Why This Architecture?" icon={<Info className="h-4 w-4" />}>
+          <p>
+            By using real repositories and a CLI tool, you learn in an environment that mirrors real-world 
+            software development. No browser-based editors—just real code, real tests, and real Git workflows.
+          </p>
         </Callout>
       </>
     ),
@@ -128,155 +189,74 @@ const docSections: DocSection[] = [
     content: (
       <>
         <p>
-          Learners typically install via npm; contributors build from source.
-          All installers place the `dsa` binary in a user-owned directory so no
-          superuser privileges are required.
+          Install the DSA CLI with a single command. The installer downloads the CLI source,
+          builds it, and installs the <code>dsa</code> command to <code>~/.local/bin</code>.
+          No superuser privileges are required.
         </p>
+
+        {/* Quick Install - Prominent */}
         <div
-          className="overflow-hidden rounded-xl text-xs"
+          className="rounded-xl p-6 mb-6"
           style={{
-            border: `1px solid ${colors.border.divider}`,
+            border: `2px solid ${colors.accent.primary}`,
             backgroundColor: colors.background.surface,
-            color: colors.text.primary,
           }}
         >
-          <table
-            className="min-w-full divide-y"
-            style={{ borderColor: colors.border.divider }}
+          <div className="flex items-center gap-2 mb-3">
+            <Download className="h-5 w-5" style={{ color: colors.accent.primary }} />
+            <h3 className="text-lg font-bold" style={{ color: colors.text.primary }}>
+              Quick Install (Recommended)
+            </h3>
+          </div>
+          <p className="text-sm mb-4" style={{ color: colors.text.secondary }}>
+            Copy and paste this command into your terminal:
+          </p>
+          <div
+            className="rounded-lg p-4 font-mono text-sm relative"
+            style={{
+              backgroundColor: colors.background.base,
+              border: `1px solid ${colors.border.divider}`,
+            }}
           >
-            <thead
-              className="text-[0.75rem] uppercase tracking-wide"
+            <code
+              className="block break-all pr-20"
+              style={{ color: colors.text.primary }}
+            >
+              curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash
+            </code>
+            <button
+              onClick={handleCopyInstall}
+              className="absolute top-3 right-3 flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors"
               style={{
-                backgroundColor: colors.background.base,
-                color: colors.text.secondary,
+                backgroundColor: copiedInstall
+                  ? colors.accent.primary
+                  : colors.background.surface,
+                border: `1px solid ${colors.border.divider}`,
+                color: copiedInstall
+                  ? colors.background.base
+                  : colors.text.primary,
               }}
+              title="Copy install command"
             >
-              <tr>
-                <th
-                  className="px-4 py-3 text-left font-semibold"
-                  style={{ color: colors.text.primary }}
-                >
-                  Scenario
-                </th>
-                <th
-                  className="px-4 py-3 text-left font-semibold"
-                  style={{ color: colors.text.primary }}
-                >
-                  Command
-                </th>
-                <th
-                  className="px-4 py-3 text-left font-semibold"
-                  style={{ color: colors.text.primary }}
-                >
-                  Notes
-                </th>
-              </tr>
-            </thead>
-            <tbody
-              className="divide-y"
-              style={{ borderColor: colors.border.divider }}
-            >
-              <tr>
-                <td className="px-4 py-3 font-medium">
-                  Local workspace (recommended)
-                </td>
-                <td className="px-4 py-3">
-                  <code>make install-cli</code>
-                </td>
-                <td className="px-4 py-3">
-                  Builds from your checkout and links <code>dsa</code> into{" "}
-                  <code>~/.local/bin</code>.
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-3 font-medium">Remote fetch helper</td>
-                <td className="px-4 py-3">
-                  <code>make install-cli-remote</code>
-                </td>
-                <td className="px-4 py-3">
-                  Downloads the latest sources before running the helper script.
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-3 font-medium">
-                  npm registry (default)
-                </td>
-                <td className="px-4 py-3">
-                  <code>npm install -g @dsa/cli</code>
-                </td>
-                <td className="px-4 py-3">
-                  Update with <code>npm update -g @dsa/cli</code>.
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-3 font-medium">Local helper script</td>
-                <td className="px-4 py-3">
-                  <code>./scripts/install-cli.sh</code>
-                </td>
-                <td className="px-4 py-3">
-                  Builds from source, links to <code>~/.local/bin/dsa</code>.
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-3 font-medium">Remote one-liner</td>
-                <td className="px-4 py-3">
-                  <code>
-                    curl -fsSL
-                    https://raw.githubusercontent.com/&lt;org&gt;/&lt;repo&gt;/main/scripts/install-cli.sh
-                    | env
-                    DSA_CLI_REPO="https://github.com/&lt;org&gt;/&lt;repo&gt;"
-                    bash
-                  </code>
-                </td>
-                <td className="px-4 py-3">
-                  Set <code>DSA_CLI_HOME</code> and <code>DSA_CLI_BIN</code> for
-                  custom directories.
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-3 font-medium">Windows PowerShell</td>
-                <td className="px-4 py-3">
-                  <code>cd cli; .\scripts\install.ps1</code>
-                </td>
-                <td className="px-4 py-3">
-                  Run elevated on first install to satisfy execution policy.
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-3 font-medium">Manual fallback</td>
-                <td className="px-4 py-3">
-                  <code>pnpm install && pnpm build && pnpm link --global</code>
-                </td>
-                <td className="px-4 py-3">
-                  Requires local repository and pnpm; ideal for contributors.
-                </td>
-              </tr>
-            </tbody>
-          </table>
+              {copiedInstall ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  <span className="text-xs font-medium">Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="h-4 w-4" />
+                  <span className="text-xs font-medium">Copy</span>
+                </>
+              )}
+            </button>
+          </div>
+          <p className="text-xs mt-3" style={{ color: colors.text.secondary }}>
+            After installation, verify with <code>dsa --version</code>. If the command is not found,
+            add <code>~/.local/bin</code> to your PATH and restart your terminal.
+          </p>
         </div>
-        <Callout
-          title="Environment Variables"
-          icon={<Settings className="h-4 w-4" />}
-        >
-          <ul className="marker:text-sky-300">
-            <li>
-              <code>DSA_CLI_REPO</code> – git URL to clone (defaults to public
-              repo).
-            </li>
-            <li>
-              <code>DSA_CLI_HOME</code> – artifact cache directory (defaults to{" "}
-              <code>~/.local/share/dsa-cli</code>).
-            </li>
-            <li>
-              <code>DSA_CLI_BIN</code> – directory for the `dsa` symlink
-              (defaults to <code>~/.local/bin</code>).
-            </li>
-            <li>
-              <code>COREPACK_ENABLE=0</code> – force pnpm from PATH when
-              Corepack is unavailable.
-            </li>
-          </ul>
-        </Callout>
+
         <Callout
           title="Verify Installation"
           icon={<Terminal className="h-4 w-4" />}
@@ -300,123 +280,114 @@ echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc`}
     ),
   },
   {
-    id: "config",
-    title: "Configuration & Repository Setup",
+    id: "using-platform",
+    title: "Using the Platform",
     summary:
-      "Understand challenge repo anatomy, the dsa.config.json schema, and what to adjust when tokens or environments change.",
-    icon: <Settings className="h-6 w-6 text-purple-300" />,
+      "Learn the daily workflow for solving challenges, testing your code, and submitting progress.",
+    icon: <Workflow className="h-6 w-6 text-amber-300" />,
     link: {
-      href: "/docs/README.md#configuration-reference-dsaconfigjson",
-      label: "Configuration deep dive",
+      href: "#",
+      label: "",
     },
     content: (
       <>
         <p>
-          Every template ships with a `dsa.config.json` that identifies the
-          learner project, the Supabase endpoint, and the test command. The CLI
-          searches upward from your working directory until it locates this
-          file.
+          Here's the typical workflow for solving a challenge. Follow these steps to make steady progress:
         </p>
-        <pre
-          className="overflow-x-auto rounded-lg p-4 text-xs"
-          style={{
-            backgroundColor: colors.background.surface,
-            color: colors.text.primary,
-          }}
-        >
-          <code>
-            {`{
-  "projectId": "uuid-string",
-  "projectToken": "secure-token",
-  "moduleId": "min-heap",
-  "language": "TypeScript",
-  "apiUrl": "https://<region>.supabase.co/functions/v1",
-  "testCommand": "pnpm test",
-  "reportFile": ".dsa-report.json",
-  "currentChallengeIndex": 0
-}`}
-          </code>
-        </pre>
-        <ul className="marker:text-purple-300">
+        <ol className="list-decimal space-y-4 pl-5 marker:text-amber-400">
           <li>
-            Update <code>apiUrl</code> to target staging or local Supabase
-            during development.
+            <strong>Clone your repository</strong> – After creating a project, clone the GitHub repository to your local machine.
           </li>
           <li>
-            Keep <code>projectToken</code> secret; rotate via the dashboard if
-            it leaks.
+            <strong>Install dependencies</strong> – Run <code>npm install</code> or <code>pnpm install</code> to set up the project.
           </li>
           <li>
-            <code>currentChallengeIndex</code> is maintained by the CLI—do not
-            edit manually unless restoring from a backup.
+            <strong>Read the challenge</strong> – Check the README and code comments to understand what you need to implement.
           </li>
-        </ul>
-        <Callout
-          title="Repository Checklist"
-          icon={<ListChecks className="h-4 w-4" />}
-        >
-          <ul className="marker:text-purple-300">
-            <li>Clone the provisioned repository before running installers.</li>
-            <li>
-              Install template dependencies (`pnpm install`, `npm install`,
-              etc.) before running `dsa test`.
-            </li>
-            <li>
-              Leave `HINTS.md` and `.dsa-report.json` untouched unless updating
-              templates.
-            </li>
-          </ul>
+          <li>
+            <strong>Write your solution</strong> – Implement the required functions or classes in the solution files.
+          </li>
+          <li>
+            <strong>Test frequently</strong> – Run <code>dsa test</code> to see which tests pass and which need work.
+          </li>
+          <li>
+            <strong>Get hints when stuck</strong> – Use <code>dsa hint</code> for guidance without spoiling the solution.
+          </li>
+          <li>
+            <strong>Submit when ready</strong> – Once all tests pass, run <code>dsa submit</code> to unlock the next challenge.
+          </li>
+        </ol>
+        <Callout title="Best Practice" icon={<Info className="h-4 w-4" />}>
+          <p>
+            Test early and often! Don't wait until you've written everything. Run <code>dsa test</code> after each 
+            function you implement to catch bugs early and see your progress in real-time.
+          </p>
         </Callout>
       </>
     ),
   },
   {
-    id: "workflow",
-    title: "Daily Workflow",
+    id: "best-practices",
+    title: "Best Practices",
     summary:
-      "Adopt a repeatable loop for implementing solutions, running tests, requesting hints, and submitting progress.",
-    icon: <Workflow className="h-6 w-6 text-amber-300" />,
+      "Tips and strategies for learning effectively and making the most of your DSA Lab experience.",
+    icon: <Shield className="h-6 w-6 text-purple-300" />,
     link: {
-      href: "/docs/README.md#daily-workflow",
-      label: "View workflow details",
+      href: "#",
+      label: "",
     },
     content: (
       <>
-        <ol className="list-decimal space-y-2 pl-5 marker:text-amber-400">
-          <li>Pull the latest template updates before starting work.</li>
-          <li>
-            Implement your solution inside the designated `solutions/` path.
-          </li>
-          <li>
-            Run <code>dsa test</code> frequently; the CLI regenerates
-            `.dsa-report.json` and highlights unlocked subchallenges.
-          </li>
-          <li>
-            Use <code>dsa hint</code> for contextual guidance when you get
-            stuck.
-          </li>
-          <li>
-            After tests pass, run <code>dsa submit</code> to re-run the suite,
-            post results, and unlock the next challenge.
-          </li>
-          <li>
-            Review the dashboard to confirm Supabase recorded the submission.
-          </li>
-        </ol>
-        <Callout title="Automation Tip" icon={<Terminal className="h-4 w-4" />}>
-          <pre
-            className="overflow-x-auto rounded-lg p-4 text-xs"
-            style={{
-              backgroundColor: colors.background.surface,
-              color: colors.text.primary,
-            }}
-          >
-            <code>
-              {`pnpm lint && dsa test && git commit -am "Solve heap insert"
-dsa submit && open https://dashboard.dsa-lab.dev/projects/<projectId>`}
-            </code>
-          </pre>
-        </Callout>
+        <p>
+          Follow these best practices to maximize your learning and avoid common pitfalls:
+        </p>
+        <div className="space-y-4">
+          <div className="rounded-lg p-4" style={{ backgroundColor: colors.background.surface, border: `1px solid ${colors.border.divider}` }}>
+            <h4 className="font-semibold mb-2" style={{ color: colors.text.primary }}>
+              ✅ Test-Driven Development
+            </h4>
+            <p className="text-sm" style={{ color: colors.text.secondary }}>
+              Write a small piece of code, then immediately run <code>dsa test</code>. This helps you catch 
+              errors early and understand what each function should do before moving on.
+            </p>
+          </div>
+          <div className="rounded-lg p-4" style={{ backgroundColor: colors.background.surface, border: `1px solid ${colors.border.divider}` }}>
+            <h4 className="font-semibold mb-2" style={{ color: colors.text.primary }}>
+              ✅ Use Hints Strategically
+            </h4>
+            <p className="text-sm" style={{ color: colors.text.secondary }}>
+              Try solving the problem yourself first. Use <code>dsa hint</code> when you're genuinely stuck, 
+              not as a first resort. The struggle is where real learning happens.
+            </p>
+          </div>
+          <div className="rounded-lg p-4" style={{ backgroundColor: colors.background.surface, border: `1px solid ${colors.border.divider}` }}>
+            <h4 className="font-semibold mb-2" style={{ color: colors.text.primary }}>
+              ✅ Understand Before Moving On
+            </h4>
+            <p className="text-sm" style={{ color: colors.text.secondary }}>
+              Don't just make tests pass. Make sure you understand <em>why</em> your solution works. 
+              This deep understanding will help you solve similar problems in the future.
+            </p>
+          </div>
+          <div className="rounded-lg p-4" style={{ backgroundColor: colors.background.surface, border: `1px solid ${colors.border.divider}` }}>
+            <h4 className="font-semibold mb-2" style={{ color: colors.text.primary }}>
+              ✅ Commit Your Progress
+            </h4>
+            <p className="text-sm" style={{ color: colors.text.secondary }}>
+              Use Git to commit your work regularly. This creates a history of your learning journey 
+              and helps you recover if something goes wrong.
+            </p>
+          </div>
+          <div className="rounded-lg p-4" style={{ backgroundColor: colors.background.surface, border: `1px solid ${colors.border.divider}` }}>
+            <h4 className="font-semibold mb-2" style={{ color: colors.text.primary }}>
+              ✅ Read the Test Cases
+            </h4>
+            <p className="text-sm" style={{ color: colors.text.secondary }}>
+              The test files are excellent documentation. They show exactly what your code should do 
+              and what edge cases to handle.
+            </p>
+          </div>
+        </div>
       </>
     ),
   },
@@ -528,17 +499,16 @@ dsa submit && open https://dashboard.dsa-lab.dev/projects/<projectId>`}
             </tbody>
           </table>
         </div>
-        <Callout title="Flag Highlights" icon={<Info className="h-4 w-4" />}>
+        <Callout title="Quick Tips" icon={<Info className="h-4 w-4" />}>
           <ul className="marker:text-blue-300">
             <li>
-              <code>--report &lt;path&gt;</code>: override the report file
-              location.
+              Run <code>dsa test</code> from anywhere inside your challenge repository.
             </li>
             <li>
-              <code>--skip-test</code>: reuse a fresh report during submissions.
+              Use <code>dsa hint</code> to see hints for your current challenge step.
             </li>
             <li>
-              <code>--ci</code>: suppress interactive prompts in automation.
+              The CLI automatically detects which challenge you're working on based on your progress.
             </li>
           </ul>
         </Callout>
@@ -652,149 +622,14 @@ dsa submit && open https://dashboard.dsa-lab.dev/projects/<projectId>`}
           </table>
         </div>
         <Callout
-          title="Deep-Dive Checklist"
-          icon={<Shield className="h-4 w-4" />}
-        >
-          <ul className="marker:text-rose-300">
-            <li>
-              Enable verbose logs with <code>DEBUG=dsa:*</code> (if
-              implemented).
-            </li>
-            <li>
-              Inspect `.dsa-report.json` for schema mismatches or null values.
-            </li>
-            <li>Use `supabase functions logs` to catch backend errors.</li>
-            <li>
-              Verify network access with <code>curl {"{apiUrl}"}/health</code>.
-            </li>
-          </ul>
-        </Callout>
-      </>
-    ),
-  },
-  {
-    id: "architecture",
-    title: "Architecture & Internals",
-    summary:
-      "Dive into CLI module responsibilities, Supabase integrations, and the release pipeline for maintainers.",
-    icon: <Network className="h-6 w-6 text-teal-300" />,
-    link: {
-      href: "/docs/README.md#how-the-cli-works-internally",
-      label: "Architecture overview",
-    },
-    content: (
-      <>
-        <p>
-          The CLI is composed of modular files under <code>cli/src</code>, each
-          handling a dedicated concern. Understanding the layout accelerates
-          debugging and feature work.
-        </p>
-        <ul className="marker:text-teal-300">
-          <li>
-            <code>index.ts</code> – registers commands with{" "}
-            <code>commander</code>
-            and centralizes error handling.
-          </li>
-          <li>
-            <code>commands/</code> – `test`, `submit`, and `hint` orchestrators.
-          </li>
-          <li>
-            <code>lib/loadConfig.ts</code> – validates and normalizes config
-            files.
-          </li>
-          <li>
-            <code>lib/runCommand.ts</code> – executes <code>testCommand</code>{" "}
-            and streams output.
-          </li>
-          <li>
-            <code>lib/parseReport.ts</code> – normalizes `.dsa-report.json`.
-          </li>
-          <li>
-            <code>lib/http.ts</code> – signs Supabase requests with
-            <code>projectToken</code>.
-          </li>
-          <li>
-            <code>lib/git.ts</code> – captures the latest commit SHA when
-            available.
-          </li>
-        </ul>
-        <Callout
-          title="Release Strategy"
-          icon={<BookOpen className="h-4 w-4" />}
+          title="Still Having Issues?"
+          icon={<LifeBuoy className="h-4 w-4" />}
         >
           <p>
-            The CLI follows semantic versioning. Update `cli/package.json`, run{" "}
-            <code>pnpm --filter ./cli build</code>, publish to npm, tag the
-            repository, and refresh documentation. Deprecate commands gradually
-            and communicate via release notes.
+            If you're still stuck, make sure you're in the correct directory (the root of your challenge repository), 
+            that you've installed dependencies, and that your code is saved. Most issues are resolved by 
+            checking these basics first.
           </p>
-        </Callout>
-      </>
-    ),
-  },
-  {
-    id: "support",
-    title: "Support Playbook & Resources",
-    summary:
-      "Equip instructors and maintainers with a repeatable triage process, token rotation guidance, and links to deeper references.",
-    icon: <LifeBuoy className="h-6 w-6 text-indigo-300" />,
-    link: {
-      href: "/docs/README.md#support-playbook",
-      label: "Read the support playbook",
-    },
-    content: (
-      <>
-        <p>
-          Collect context, reproduce locally, and escalate fix ownership to the
-          right subsystem—configuration, template, or backend.
-        </p>
-        <Callout title="Support Flow" icon={<ListChecks className="h-4 w-4" />}>
-          <ol className="list-decimal space-y-2 pl-5 marker:text-indigo-300">
-            <li>
-              Capture environment details: OS, Node/pnpm versions, CLI version,
-              command output.
-            </li>
-            <li>Reproduce using the same template and `dsa.config.json`.</li>
-            <li>
-              Rotate tokens or regenerate projects when authentication fails.
-            </li>
-            <li>Report template bugs with reproducible steps and logs.</li>
-            <li>Document lessons learned to expand the knowledge base.</li>
-          </ol>
-        </Callout>
-        <Callout
-          title="Further Reading"
-          icon={<BookOpen className="h-4 w-4" />}
-        >
-          <ul className="marker:text-indigo-300">
-            <li>
-              <a
-                href="/docs/guides/QUICK_START.md"
-                className="underline decoration-dotted underline-offset-4"
-              >
-                `guides/QUICK_START.md`
-              </a>{" "}
-              – instructor onboarding and provisioning.
-            </li>
-            <li>
-              <a
-                href="/docs/guides/RUN_APP.md"
-                className="underline decoration-dotted underline-offset-4"
-              >
-                `guides/RUN_APP.md`
-              </a>{" "}
-              – running the dashboard and Supabase locally.
-            </li>
-            <li>
-              <a
-                href="/docs/command-line-tips.md"
-                className="underline decoration-dotted underline-offset-4"
-              >
-                `command-line-tips.md`
-              </a>{" "}
-              – terminal productivity notes.
-            </li>
-          </ul>
         </Callout>
       </>
     ),
@@ -802,6 +637,20 @@ dsa submit && open https://dashboard.dsa-lab.dev/projects/<projectId>`}
 ];
 
 export function Docs() {
+  const [copiedInstall, setCopiedInstall] = useState(false);
+
+  const handleCopyInstall = async () => {
+    try {
+      const installCommand = "curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash";
+      await navigator.clipboard.writeText(installCommand);
+      setCopiedInstall(true);
+      setTimeout(() => setCopiedInstall(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
+
+  const docSections = createDocSections(handleCopyInstall, copiedInstall);
   const { backgroundColor, textColor } = useTheme();
   const themeStyle = {
     backgroundColor,
@@ -863,16 +712,14 @@ export function Docs() {
               className="text-4xl font-bold leading-tight md:text-5xl"
               style={{ color: colors.text.primary }}
             >
-              Shelly Platform Manual
+              DSA Lab Documentation
             </h1>
             <p
               className="mt-4 max-w-3xl text-lg leading-relaxed"
               style={{ color: colors.text.secondary }}
             >
-              A single reference for learners, instructors, and maintainers.
-              Learn how the dashboard, CLI, templates, and Supabase services
-              collaborate, and keep installation, configuration,
-              troubleshooting, and support guides within reach.
+              Everything you need to know to use DSA Lab effectively. Learn how to get started, 
+              use the platform, master the CLI commands, and follow best practices for learning data structures and algorithms.
             </p>
             <div className="mt-8 max-w-3xl">
               <Callout

@@ -20,61 +20,26 @@ git --version
 pnpm --version   # optional; needed for local builds
 ```
 
-### 1.2 Recommended Installation (npm)
+### 1.2 Recommended Installation (curl)
 
 ```bash
-npm install -g @dsa/cli
+curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash
 ```
 
-This downloads the published package, installs it globally, and adds the `dsa` command to your PATH. Confirm the installation with `dsa --version`.
+This downloads the CLI source, builds it, and installs the `dsa` command to `~/.local/bin`. Confirm the installation with `dsa --version`.
 
-To update later on:
-
-```bash
-npm update -g @dsa/cli
-```
+To update later on, re-run the same command.
 
 To remove it:
 
 ```bash
-npm uninstall -g @dsa/cli
+rm -rf ~/.local/share/dsa-cli
+rm -f ~/.local/bin/dsa
 ```
 
-### 1.3 Install from source (contributors)
+### 1.3 For Contributors
 
-If you need to test unpublished changes locally, link the CLI from the repo.
-
-#### macOS / Linux / WSL
-
-```bash
-./cli/scripts/install.sh
-```
-
-#### Windows PowerShell
-
-```powershell
-cd cli
-.\scripts\install.ps1
-```
-
-The PowerShell script mirrors the bash installer. Run PowerShell as administrator on first use to avoid policy issues.
-
-### 1.4 Manual Installation (Fallback)
-
-```bash
-cd cli
-pnpm install
-pnpm build
-pnpm link --global
-```
-
-Re-run `pnpm build` after pulling CLI code changes. If `dsa` disappears, link it again with `pnpm link --global`.
-
-### 1.5 Uninstall (local link)
-
-```bash
-pnpm unlink --global @dsa/cli
-```
+If you're contributing to the CLI, see the [CLI README](../cli/README.md) for local development setup instructions.
 
 ---
 

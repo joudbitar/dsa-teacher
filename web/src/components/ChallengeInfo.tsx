@@ -137,6 +137,7 @@ export function ChallengeInfo({
   subchallengeName,
 }: ChallengeInfoProps) {
   const [copied, setCopied] = React.useState(false);
+  const [cliCopied, setCliCopied] = React.useState(false);
   const { accentGreen } = useTheme();
   // Step 0 = Choose Language
   // Step 1+ = Challenge steps
@@ -793,6 +794,18 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
     }
   };
 
+  // Copy CLI install command to clipboard
+  const handleCopyCLI = async () => {
+    try {
+      const installCommand = "curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash";
+      await navigator.clipboard.writeText(installCommand);
+      setCliCopied(true);
+      setTimeout(() => setCliCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
+
   return (
     <div className="flex-1 space-y-8">
       {/* Repository Box - Show at top if repo exists */}
@@ -1124,39 +1137,46 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
               and{" "}
               <code className="px-1 py-0.5 rounded bg-background">
                 dsa submit
-              </code>{" "}
+              </code>
               .
             </p>
-            <div className="rounded-lg border border-border bg-background p-4 font-mono text-sm text-foreground space-y-2">
-              <code className="block whitespace-pre-wrap break-words">
-                {`make install-cli\n# verify\ndsa --version`}
-              </code>
-              <code className="block whitespace-pre-wrap break-words text-muted-foreground">
-                {`# Need the latest remote build?\nmake install-cli-remote`}
-              </code>
+            <div className="rounded-lg border border-border bg-background p-4 font-mono text-sm text-foreground">
+              <div className="flex items-start justify-between gap-4">
+                <code className="block whitespace-pre-wrap break-words flex-1">
+                  curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash
+                </code>
+                <button
+                  onClick={handleCopyCLI}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-accent/10 hover:bg-accent/20 border border-accent/20 transition-colors shrink-0"
+                  title="Copy install command"
+                >
+                  {cliCopied ? (
+                    <>
+                      <Check className="h-4 w-4 text-accent" />
+                      <span className="text-sm text-accent">Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-4 w-4" />
+                      <span className="text-sm">Copy</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
             <p className="text-sm text-muted-foreground mt-3">
-              If your shell cannot find the command after running{" "}
+              After installation, verify with{" "}
               <code className="px-1 py-0.5 rounded bg-background">
-                make install-cli
+                dsa --version
               </code>
-              , add{" "}
+              . If the command is not found, add{" "}
               <code className="px-1 py-0.5 rounded bg-background">
                 ~/.local/bin
               </code>{" "}
               to your{" "}
               <code className="px-1 py-0.5 rounded bg-background">PATH</code>{" "}
-              and re-open the terminal.
+              and restart your terminal.
             </p>
-            <div className="mt-4 flex gap-3 rounded-lg border border-border bg-background/80 p-4 text-sm text-muted-foreground">
-              <AlertCircle className="h-5 w-5 text-warning shrink-0" />
-              <p>
-                Heads up: the CLI install flow is still in a limited demo phase,
-                so this command may not work yet in your environment. If you
-                want to see the full workflow in action, find one of the
-                founders and ask for a live demo.
-              </p>
-            </div>
           </div>
 
           {/* Error Display */}
