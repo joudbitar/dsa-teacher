@@ -149,18 +149,15 @@ The CLI prints the filesystem path it was invoked from when run with `--version`
 
 ---
 
-## Uninstalling & Reinstalling
+## Uninstalling
 
-- **npm**: `npm uninstall -g @dsa/cli`
-- **Script install**: Remove the artifact directory (default `~/.local/share/dsa-cli`) and delete the `dsa` symlink under `~/.local/bin`.
+To remove the CLI:
 
 ```bash
 rm -rf ~/.local/share/dsa-cli
 rm -f ~/.local/bin/dsa
 hash -r  # clear shell command cache
 ```
-
-- **pnpm link**: `pnpm unlink --global @dsa/cli`
 
 Always close and reopen the terminal after uninstalling to avoid stale PATH cache.
 
