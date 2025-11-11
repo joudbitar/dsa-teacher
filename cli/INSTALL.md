@@ -10,40 +10,40 @@ Complete guide for installing the DSA Lab CLI tool.
 
 ## Quick Install (Recommended) 🚀
 
-Install with a single command (no configuration needed):
+### Option 1: Direct Install (One-liner)
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash
 ```
 
+### Option 2: Download & Verify First (Recommended if you encounter errors)
+
+If you get HTML errors (like `bash: line 2: html: No such file or directory`) or 400 Bad Request, GitHub is returning an error page instead of the script. Download and verify first:
+
+```bash
+# Download the script
+curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh -o install-cli.sh
+
+# Verify it's a bash script (should show "#!/usr/bin/env bash")
+# If you see HTML tags like "<html>" or "<head>", the download failed
+head -1 install-cli.sh
+
+# If it shows the bash shebang, run it
+bash install-cli.sh
+
+# Clean up
+rm install-cli.sh
+```
+
+**If you see HTML instead of a bash script:**
+- Check your internet connection and try again
+- Try accessing GitHub in a browser: https://github.com/joudbitar/dsa-teacher
+- Your network may be blocking or proxying GitHub requests
+- Try using a VPN or different network
+
 The script downloads the CLI source, installs dependencies, builds the CLI, and links the `dsa`
 command into `~/.local/bin`. If Corepack cannot modify global binaries, it falls back to
 the `pnpm` already on your PATH.
-
-### Troubleshooting Installation Errors
-
-If you encounter a `400 Bad Request` or other HTTP error when running the install command:
-
-1. **Check your internet connection** - Ensure you can access GitHub
-2. **Try without the `-f` flag** to see the full error:
-   ```bash
-   curl -sSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash
-   ```
-3. **Check if GitHub is accessible** from your location:
-   ```bash
-   curl -I https://github.com
-   ```
-4. **Try downloading the script first**, then running it:
-   ```bash
-   curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh -o install-cli.sh
-   bash install-cli.sh
-   rm install-cli.sh
-   ```
-5. **If you have the repository cloned**, you can install from local source:
-   ```bash
-   cd /path/to/dsa-teacher
-   DSA_CLI_LOCAL_DIR="$(pwd)/cli" bash scripts/install-cli.sh
-   ```
 
 ### Updating
 
@@ -66,6 +66,7 @@ If you run the installer again it recreates both paths automatically.
 > ```
 >
 > Or for bash:
+>
 > ```bash
 > echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 > source ~/.bashrc
