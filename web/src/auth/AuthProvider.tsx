@@ -42,14 +42,52 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: `${getSiteUrl()}/auth?mode=login`,
       },
     });
-    return { error };
+    
+    // Check for duplicate user errors
+    if (error) {
+      const errorCode = (error as any).code || (error as any).status;
+      const errorMessage = error.message?.toLowerCase() || '';
+      
+      // Check for duplicate user error codes
+      if (
+        errorCode === 'user_already_registered' ||
+        errorCode === 422 ||
+        errorMessage.includes('already registered') ||
+        errorMessage.includes('user already exists') ||
+        errorMessage.includes('email already')
+      ) {
+        return {
+          error: {
+            ...error,
+            message: 'Email is already in use',
+            code: 'user_already_registered',
+          },
+        };
+      }
+    }
+    
+    // When email confirmation is ON, Supabase returns success for duplicates
+    // to prevent email enumeration. We detect this by checking if identities array is empty.
+    // Empty identities means the email is already registered.
+    if (!error && data?.user) {
+      if (data.user.identities && data.user.identities.length === 0) {
+        return {
+          error: {
+            message: 'Email is already in use',
+            code: 'user_already_registered',
+          } as any,
+        };
+      }
+    }
+    
+    return { data, error };
   };
 
   const signOut = async () => {
