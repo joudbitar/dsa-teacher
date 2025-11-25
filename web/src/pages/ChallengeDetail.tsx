@@ -10,6 +10,7 @@ import { challengeData } from "@/data/challenges";
 import { useTheme } from "@/theme/ThemeContext";
 import { apiClient, Project, Module } from "@/lib/api";
 import { useAuth } from "@/auth/useAuth";
+import { toGitCloneUrl } from "@/lib/utils";
 import {
   saveChallengeProgress,
   getChallengeProgress,
@@ -479,7 +480,8 @@ export function ChallengeDetail() {
   // Copy to clipboard handler
   const handleCopy = async () => {
     if (savedRepoUrl) {
-      await navigator.clipboard.writeText(`git clone ${savedRepoUrl}`);
+      const gitCloneUrl = toGitCloneUrl(savedRepoUrl);
+      await navigator.clipboard.writeText(`git clone ${gitCloneUrl}`);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -639,7 +641,7 @@ export function ChallengeDetail() {
 
             <div className="bg-muted rounded-lg p-4 mb-6 font-mono text-sm">
               <div className="flex items-center justify-between">
-                <code className="flex-1">git clone {savedRepoUrl}</code>
+                <code className="flex-1">git clone {savedRepoUrl ? toGitCloneUrl(savedRepoUrl) : ''}</code>
                 <button
                   onClick={handleCopy}
                   className="ml-4 px-3 py-1 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors flex items-center gap-2"

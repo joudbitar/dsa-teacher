@@ -14,6 +14,7 @@ import { ChallengeSteps } from "./ChallengeSteps";
 import { ChallengeData } from "@/data/challenges/types";
 import { getSubchallengeInstruction } from "@/data/subchallenge-instructions";
 import { useTheme } from "@/theme/ThemeContext";
+import { toGitCloneUrl } from "@/lib/utils";
 
 // Custom light syntax highlighting theme matching site colors
 const customLightTheme: any = {
@@ -788,7 +789,8 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
   // Copy to clipboard handler
   const handleCopy = async () => {
     if (githubRepoUrl) {
-      await navigator.clipboard.writeText(`git clone ${githubRepoUrl}`);
+      const gitCloneUrl = toGitCloneUrl(githubRepoUrl);
+      await navigator.clipboard.writeText(`git clone ${gitCloneUrl}`);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -819,7 +821,7 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
           <div className="bg-muted rounded-lg p-4 font-mono text-sm">
             <div className="flex items-center justify-between">
               <code className="flex-1 text-foreground">
-                git clone {githubRepoUrl}
+                git clone {githubRepoUrl ? toGitCloneUrl(githubRepoUrl) : ''}
               </code>
               <button
                 onClick={handleCopy}

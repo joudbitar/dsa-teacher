@@ -9,6 +9,7 @@ import {
   validateLanguageSupport,
   getTestCommand,
   generateToken,
+  generateUserCode,
 } from './utils.ts';
 
 export async function handlePost(req: Request): Promise<Response> {
@@ -102,46 +103,77 @@ export async function handlePost(req: Request): Promise<Response> {
   if (existingProjects && existingProjects.length > 0) {
     const existingProject = existingProjects[0];
     
-    // If GitHub repo URL exists, verify it's accessible before returning
+    // If GitHub repo URL exists, verify it's accessible and has the new format
     if (existingProject.githubRepoUrl) {
       console.log('Found existing project with GitHub repo:', existingProject.githubRepoUrl);
       
-      // Try to verify the repo exists and is accessible (at least publicly visible)
-      // Extract owner and repo name from URL
-      const urlMatch = existingProject.githubRepoUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
+      // Check if repo name follows the new format (includes user code)
+      // New format: shelly-cli-{moduleId}-{suffix}-{userCode}
+      // Old format: shelly-cli-{moduleId}-{suffix}
+      const suffix = languageToSuffix[language];
+      const expectedOldFormat = `shelly-cli-${moduleId}-${suffix}`;
+      const userCode = generateUserCode(userId);
+      const expectedNewFormat = `shelly-cli-${moduleId}-${suffix}-${userCode}`;
+      
+      // Extract repo name from URL (remove .git if present)
+      const urlMatch = existingProject.githubRepoUrl.match(/github\.com\/([^\/]+)\/([^\/]+?)(?:\.git)?$/);
       if (urlMatch) {
         const [, owner, repoName] = urlMatch;
         
-        try {
-          // Quick check if repo is accessible via GitHub API (public repos don't need auth)
-          const checkResponse = await fetch(`https://api.github.com/repos/${owner}/${repoName}`, {
-            headers: { 'User-Agent': 'DSA-Lab' }
-          });
+        console.log(`Checking repo format: found="${repoName}", expectedOld="${expectedOldFormat}", expectedNew="${expectedNewFormat}", userCode="${userCode}"`);
+        
+        // Check if repo name matches old format (without user code)
+        // Old format ends with: shelly-cli-{moduleId}-{suffix}
+        // New format ends with: shelly-cli-{moduleId}-{suffix}-{userCode}
+        const isOldFormat = repoName === expectedOldFormat || 
+                           (repoName.startsWith(`shelly-cli-${moduleId}-${suffix}`) && 
+                            !repoName.endsWith(`-${userCode}`) &&
+                            repoName.length === expectedOldFormat.length);
+        
+        console.log(`Format check: isOldFormat=${isOldFormat}, repoName.length=${repoName.length}, expectedOld.length=${expectedOldFormat.length}`);
+        
+        if (isOldFormat) {
+          console.log(`⚠️  Found old-format repository (${repoName}), will recreate with new format (${expectedNewFormat})`);
+          // Delete the old project record so we can create a new one
+          await supabase
+            .from('projects')
+            .delete()
+            .eq('id', existingProject.id);
           
-          if (checkResponse.ok) {
-            console.log('✓ Existing repo is accessible, returning existing project');
+          console.log('Old project record deleted, will create new repository with user code');
+          // Continue to create new project below
+        } else {
+          // Repo has new format or different format, verify it's accessible
+          try {
+            const checkResponse = await fetch(`https://api.github.com/repos/${owner}/${repoName}`, {
+              headers: { 'User-Agent': 'DSA-Lab' }
+            });
+            
+            if (checkResponse.ok) {
+              console.log('✓ Existing repo is accessible, returning existing project');
+              return jsonResponse({
+                id: existingProject.id,
+                githubRepoUrl: existingProject.githubRepoUrl,
+                status: existingProject.status,
+                progress: existingProject.progress,
+              }, 200);
+            } else if (checkResponse.status === 404 || checkResponse.status === 403) {
+              console.log('✗ Existing repo is not accessible (404/403), will delete and recreate');
+              await supabase
+                .from('projects')
+                .delete()
+                .eq('id', existingProject.id);
+            }
+          } catch (error) {
+            console.log('Failed to verify repo accessibility:', error);
+            // If verification fails, assume repo is fine and return it
             return jsonResponse({
               id: existingProject.id,
               githubRepoUrl: existingProject.githubRepoUrl,
               status: existingProject.status,
               progress: existingProject.progress,
             }, 200);
-          } else if (checkResponse.status === 404 || checkResponse.status === 403) {
-            console.log('✗ Existing repo is not accessible (404/403), will delete and recreate');
-            await supabase
-              .from('projects')
-              .delete()
-              .eq('id', existingProject.id);
           }
-        } catch (error) {
-          console.log('Failed to verify repo accessibility:', error);
-          // If verification fails, assume repo is fine and return it
-          return jsonResponse({
-            id: existingProject.id,
-            githubRepoUrl: existingProject.githubRepoUrl,
-            status: existingProject.status,
-            progress: existingProject.progress,
-          }, 200);
         }
       } else {
         // If URL doesn't match expected format, delete and recreate
@@ -297,8 +329,19 @@ export async function handlePost(req: Request): Promise<Response> {
     const suffix = languageToSuffix[language];
     const templateRepo = `template-dsa-${moduleId}-${suffix}`;
     
-    // Generate simple repo name: shelly-cli-{moduleId}-{language}
-    const repoName = `shelly-cli-${moduleId}-${suffix}`;
+    // Generate unique repo name per user: shelly-cli-{moduleId}-{language}-{userCode}
+    const userCode = generateUserCode(userId);
+    const repoName = `shelly-cli-${moduleId}-${suffix}-${userCode}`;
+
+    console.log('Repository Name Generation:', {
+      userId: userId.substring(0, 8) + '...',
+      userCode: userCode,
+      moduleId: moduleId,
+      language: language,
+      suffix: suffix,
+      repoName: repoName,
+      templateRepo: templateRepo,
+    });
 
     console.log('Template Request:', {
       template_owner: githubOrg,

@@ -24,3 +24,23 @@ if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KE
   )
 }
 
+/**
+ * Get the site URL for redirects (email verification, password reset, etc.)
+ * Uses VITE_SITE_URL if set, otherwise falls back to window.location.origin
+ * This ensures production URLs work correctly instead of defaulting to localhost
+ */
+export function getSiteUrl(): string {
+  // Check for explicit site URL in environment (for production)
+  if (import.meta.env.VITE_SITE_URL) {
+    return import.meta.env.VITE_SITE_URL
+  }
+  
+  // Fall back to current origin (works in both dev and production)
+  if (typeof window !== 'undefined') {
+    return window.location.origin
+  }
+  
+  // Server-side fallback (shouldn't happen in client-side code)
+  return 'http://localhost:3000'
+}
+

@@ -36,6 +36,7 @@ rm install-cli.sh
 ```
 
 **If you see HTML instead of a bash script:**
+
 - Check your internet connection and try again
 - Try accessing GitHub in a browser: https://github.com/joudbitar/dsa-teacher
 - Your network may be blocking or proxying GitHub requests
