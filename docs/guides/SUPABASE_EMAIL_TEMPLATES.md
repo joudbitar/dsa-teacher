@@ -31,9 +31,16 @@ The redirect URL issue has been fixed in code. The `signUp` function now automat
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Welcome to Shelly</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <style>
       body {
-        font-family: "JetBrains Mono", "Courier New", monospace;
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono",
+          Menlo, Consolas, "Liberation Mono", "Courier New", monospace;
         background-color: #f0ecda;
         color: #171512;
         line-height: 1.6;
@@ -102,17 +109,26 @@ The redirect URL issue has been fixed in code. The `signUp` function now automat
         margin: 8px 0;
       }
       .logo {
-        font-size: 24px;
-        font-weight: 700;
-        color: #ffffff;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
+      }
+      .logo img {
+        height: 60px;
+        width: auto;
+        display: block;
+        margin: 0 auto;
       }
     </style>
   </head>
   <body>
     <div class="container">
       <div class="header">
-        <div class="logo">🐢 Shelly</div>
+        <div class="logo">
+          <img
+            src="https://shellycli.tech/turtle_logo.png"
+            alt="Shelly Logo"
+            style="height: 60px; width: auto; display: block; margin: 0 auto;"
+          />
+        </div>
         <h1>Welcome to Shelly!</h1>
       </div>
       <div class="content">
@@ -170,9 +186,17 @@ The redirect URL issue has been fixed in code. The `signUp` function now automat
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Reset Your Password - Shelly</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <style>
+      @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap");
       body {
-        font-family: "JetBrains Mono", "Courier New", monospace;
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono",
+          Menlo, Consolas, "Liberation Mono", "Courier New", monospace !important;
         background-color: #f0ecda;
         color: #171512;
         line-height: 1.6;
@@ -186,6 +210,7 @@ The redirect URL issue has been fixed in code. The `signUp` function now automat
         border-radius: 8px;
         overflow: hidden;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 2px solid #000000;
       }
       .header {
         background: linear-gradient(135deg, #7f5539 0%, #b08968 100%);
@@ -198,6 +223,8 @@ The redirect URL issue has been fixed in code. The `signUp` function now automat
         font-size: 28px;
         font-weight: 700;
         letter-spacing: -0.5px;
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono",
+          Menlo, Consolas, "Liberation Mono", "Courier New", monospace !important;
       }
       .content {
         padding: 40px 30px;
@@ -208,11 +235,15 @@ The redirect URL issue has been fixed in code. The `signUp` function now automat
         font-size: 22px;
         margin-top: 0;
         margin-bottom: 20px;
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono",
+          Menlo, Consolas, "Liberation Mono", "Courier New", monospace !important;
       }
       .content p {
         color: #4b463f;
         font-size: 16px;
         margin-bottom: 16px;
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono",
+          Menlo, Consolas, "Liberation Mono", "Courier New", monospace !important;
       }
       .button {
         display: inline-block;
@@ -225,6 +256,8 @@ The redirect URL issue has been fixed in code. The `signUp` function now automat
         font-size: 16px;
         margin: 24px 0;
         transition: background-color 0.2s;
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono",
+          Menlo, Consolas, "Liberation Mono", "Courier New", monospace !important;
       }
       .button:hover {
         background-color: #b08968;
@@ -239,12 +272,17 @@ The redirect URL issue has been fixed in code. The `signUp` function now automat
         color: #4b463f;
         font-size: 14px;
         margin: 8px 0;
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono",
+          Menlo, Consolas, "Liberation Mono", "Courier New", monospace !important;
       }
       .logo {
-        font-size: 24px;
-        font-weight: 700;
-        color: #ffffff;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
+      }
+      .logo img {
+        height: 60px;
+        width: auto;
+        display: block;
+        margin: 0 auto;
       }
       .warning {
         background-color: #fff4e5;
@@ -263,7 +301,13 @@ The redirect URL issue has been fixed in code. The `signUp` function now automat
   <body>
     <div class="container">
       <div class="header">
-        <div class="logo">🐢 Shelly</div>
+        <div class="logo">
+          <img
+            src="https://shellycli.tech/turtle_logo.png"
+            alt="Shelly Logo"
+            style="height: 60px; width: auto; display: block; margin: 0 auto;"
+          />
+        </div>
         <h1>Reset Your Password</h1>
       </div>
       <div class="content">
@@ -354,13 +398,52 @@ After updating templates:
 3. Verify the confirmation link redirects to the correct URL
 4. Test password reset flow
 
+## Supabase Site URL Configuration
+
+To fix redirect URLs pointing to localhost, you must configure the Site URL in Supabase Dashboard:
+
+### Step 1: Configure Site URL
+
+1. Go to your Supabase project dashboard: https://app.supabase.com
+2. Navigate to **Authentication** → **URL Configuration**
+3. Set **Site URL** to your production domain (MUST include `https://`):
+   ```
+   https://shellycli.tech
+   ```
+   **Important**: The Site URL must be a full absolute URL starting with `https://`. Do NOT use just `shellycli.tech` without the protocol.
+4. Click **Save**
+
+### Step 2: Add Redirect URLs
+
+In the same **URL Configuration** page:
+
+1. Under **Redirect URLs**, add your auth callback URLs (MUST include `https://`):
+   ```
+   https://shellycli.tech/auth*
+   ```
+   Or be more specific:
+   ```
+   https://shellycli.tech/auth
+   https://shellycli.tech/auth?mode=login
+   https://shellycli.tech/auth?mode=signup
+   ```
+   **Important**: All redirect URLs must be full absolute URLs starting with `https://`. Wildcards (`*`) are supported.
+2. Click **Add** after each URL
+3. Click **Save**
+
+**Note**: If you see redirect URLs like `https://your-project.supabase.co/shellycli.tech` in emails, it means the Site URL or Redirect URLs are not configured correctly. Double-check that both use full URLs with `https://`.
+
+**Important**: The Site URL setting is what Supabase uses to generate the `{{ .ConfirmationURL }}` in email templates. Without this configured correctly, all confirmation links will redirect to localhost.
+
 ## Troubleshooting
 
 ### Emails still redirecting to localhost
 
-- Check that `VITE_SITE_URL` is set in production
-- Verify the `signUp` function is using `getSiteUrl()` (already fixed in code)
-- Check Supabase project settings → Authentication → URL Configuration
+- **Check Supabase Site URL**: Go to Authentication → URL Configuration and verify Site URL is set to `https://shellycli.tech`
+- **Check Redirect URLs**: Ensure `https://shellycli.tech/auth*` is in the allowlist
+- **Check Environment Variables**: Verify `VITE_SITE_URL` is set in production (though Site URL in Supabase Dashboard is more important)
+- **Verify the `signUp` function**: Ensure it's using `getSiteUrl()` (already fixed in code)
+- **Wait for propagation**: Changes may take a few minutes to propagate
 
 ### Email template not updating
 
