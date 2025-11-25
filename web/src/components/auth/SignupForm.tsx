@@ -36,7 +36,18 @@ export function SignupForm({ onSuccess: _onSuccess, onSwitchToLogin }: SignupFor
     const { error } = await signUp(email, password)
 
     if (error) {
-      setError(error.message)
+      // Check if the error is about existing user
+      const errorMessage = error.message.toLowerCase()
+      if (
+        errorMessage.includes('already registered') ||
+        errorMessage.includes('user already exists') ||
+        errorMessage.includes('email already') ||
+        error.code === 'user_already_registered'
+      ) {
+        setError('An account with this email already exists. Please log in instead.')
+      } else {
+        setError(error.message)
+      }
       setLoading(false)
     } else {
       setSuccess(true)
@@ -116,7 +127,21 @@ export function SignupForm({ onSuccess: _onSuccess, onSwitchToLogin }: SignupFor
         />
       </div>
       {error && (
-        <div className="text-red-600 text-sm">{error}</div>
+        <div className="text-red-600 text-sm mb-2">
+          {error}
+          {(error.includes('already exists') || error.includes('log in')) && onSwitchToLogin && (
+            <div className="mt-2">
+              <button
+                type="button"
+                onClick={onSwitchToLogin}
+                className="text-sm underline font-semibold"
+                style={{ color: '#7F5539' }}
+              >
+                Go to login →
+              </button>
+            </div>
+          )}
+        </div>
       )}
       <button
         type="submit"
