@@ -1,11 +1,13 @@
-import { Link, useLocation } from 'react-router-dom'
-import { Layers, Search, Minus, Code2 } from 'lucide-react'
+import { ProtectedLink } from '@/components/auth/ProtectedLink'
+import { useLocation } from 'react-router-dom'
+import { Layers, Search, Minus, Code2, Lock } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { OrganicStep } from './OrganicStep'
 import { TurtleProgress } from './TurtleProgress'
 import { getChallengeProgress, calculateProgressPercentage } from '@/utils/challengeProgress'
 import { challengeData } from '@/data/challenges'
 import { apiClient, Module } from '@/lib/api'
+import { useAuth } from '@/auth/useAuth'
 
 // Icon mapping for different data structures
 const iconMap: Record<string, any> = {
@@ -23,14 +25,16 @@ interface ChallengesGridProps {
 export function ChallengesGrid({ modules }: ChallengesGridProps) {
   const [moduleProgress, setModuleProgress] = useState<Record<string, number>>({})
   const location = useLocation()
+  const { user } = useAuth()
 
   // Function to load and update progress from API and localStorage
-  const updateProgress = useCallback(async () => {
+  const updateProgress = useCallback(async (ignore?: () => boolean) => {
     const progress: Record<string, number> = {}
     
     try {
       // Fetch all user projects from API
       const projects = await apiClient.getProjects()
+      if (ignore?.()) return;
 
       // Build progress map from API projects (this is the source of truth)
       projects.forEach((project) => {
@@ -58,6 +62,7 @@ export function ChallengesGrid({ modules }: ChallengesGridProps) {
         }
       })
     } catch (error) {
+      if (ignore?.()) return;
       console.error('Failed to load progress from API, falling back to localStorage:', error)
       // Fallback to localStorage only if API fails
       modules.forEach((module) => {
@@ -77,34 +82,48 @@ export function ChallengesGrid({ modules }: ChallengesGridProps) {
       })
     }
     
-    setModuleProgress(progress)
+    if (!ignore?.()) {
+      setModuleProgress(progress)
+    }
   }, [modules])
 
   // Load progress for all modules
   useEffect(() => {
-    updateProgress()
+    let ignore = false;
+    updateProgress(() => ignore);
+    return () => {
+      ignore = true;
+    };
   }, [location.pathname, updateProgress]) // Reload when navigating to Challenges page
 
   // Also reload on window focus (when user switches back to the tab)
   useEffect(() => {
+    let ignore = false;
     const handleFocus = () => {
-      updateProgress()
+      updateProgress(() => ignore);
     }
 
     window.addEventListener('focus', handleFocus)
-    return () => window.removeEventListener('focus', handleFocus)
+    return () => {
+      ignore = true;
+      window.removeEventListener('focus', handleFocus);
+    };
   }, [updateProgress])
 
   // Listen for custom event to refresh progress when it changes in ChallengeDetail
   useEffect(() => {
+    let ignore = false;
     const handleProgressUpdate = () => {
       // Refresh progress when any challenge progress is updated
-      updateProgress()
+      updateProgress(() => ignore);
     }
 
     // Listen for custom event fired when progress is updated
     window.addEventListener('challenge-progress-updated', handleProgressUpdate)
-    return () => window.removeEventListener('challenge-progress-updated', handleProgressUpdate)
+    return () => {
+      ignore = true;
+      window.removeEventListener('challenge-progress-updated', handleProgressUpdate);
+    };
   }, [updateProgress])
 
   return (
@@ -119,11 +138,18 @@ export function ChallengesGrid({ modules }: ChallengesGridProps) {
             className="transition-none"
             style={{ transform: 'none' }}
           >
-            <Link
+            <ProtectedLink
               to={`/challenges/${module.id}`}
-              className="block"
+              className="block relative"
               style={{ transform: 'none' }}
             >
+              {/* Auth indicator badge */}
+              {!user && (
+                <div className="absolute top-3 right-3 z-10 flex items-center gap-1 px-2 py-1 rounded-full bg-warning/20 text-warning text-xs font-medium font-mono">
+                  <Lock className="h-3 w-3" />
+                  <span>Sign in</span>
+                </div>
+              )}
               <OrganicStep
                 isCurrent={false}
                 isCompleted={progress === 100}
@@ -157,7 +183,7 @@ export function ChallengesGrid({ modules }: ChallengesGridProps) {
                   <span>Start building →</span>
                 </div>
               </OrganicStep>
-            </Link>
+            </ProtectedLink>
           </div>
         )
       })}

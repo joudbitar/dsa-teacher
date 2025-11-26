@@ -1,6 +1,7 @@
 import { ReactNode } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../auth/useAuth'
+import { PageLoader } from '../ui/PageLoader'
 
 interface ProtectedRouteProps {
   children: ReactNode
@@ -8,17 +9,21 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading } = useAuth()
+  const location = useLocation()
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div>Loading...</div>
-      </div>
-    )
+    return <PageLoader message="Checking authentication..." />
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />
+    // Preserve intended destination in location.state
+    return (
+      <Navigate 
+        to="/login" 
+        replace 
+        state={{ from: location.pathname + location.search }}
+      />
+    )
   }
 
   return <>{children}</>

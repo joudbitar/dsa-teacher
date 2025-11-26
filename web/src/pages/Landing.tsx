@@ -5,6 +5,7 @@ import { ArrowRight, GitBranch, Terminal, Code2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/theme/ThemeContext";
+import { PageTransition } from "@/components/routing/PageTransition";
 
 const codeExamples = {
   stack: {
@@ -217,8 +218,9 @@ export function Landing() {
   const darkBrownText = "#3A281D";
 
   return (
-    <div className="min-h-screen flex flex-col" style={themeStyle}>
-      <Navbar />
+    <PageTransition>
+      <div className="min-h-screen flex flex-col" style={themeStyle}>
+        <Navbar />
       <main className="flex-1">
         {/* Hero Section */}
         <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
@@ -588,6 +590,7 @@ export function Landing() {
         </section>
       </main>
       <Footer />
-    </div>
+      </div>
+    </PageTransition>
   );
 }

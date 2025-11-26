@@ -17,6 +17,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { useTheme } from "@/theme/ThemeContext";
 import { colors } from "@/theme/colors";
+import { PageTransition } from "@/components/routing/PageTransition";
 
 type DocSection = {
   id: string;
@@ -686,11 +687,12 @@ export function Docs() {
   }, []);
 
   return (
-    <div
-      className="min-h-screen flex flex-col"
-      style={{ ...themeStyle, backgroundColor: colors.background.base }}
-    >
-      <Navbar />
+    <PageTransition>
+      <div
+        className="min-h-screen flex flex-col"
+        style={{ ...themeStyle, backgroundColor: colors.background.base }}
+      >
+        <Navbar />
       <main className="flex-1">
         <div
           style={{
@@ -821,6 +823,7 @@ export function Docs() {
         </div>
       </main>
       <Footer />
-    </div>
+      </div>
+    </PageTransition>
   );
 }

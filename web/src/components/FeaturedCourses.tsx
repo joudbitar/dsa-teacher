@@ -1,6 +1,7 @@
-import { Link } from 'react-router-dom'
-import { ArrowRight, Code2, Layers, Search, Minus } from 'lucide-react'
+import { ProtectedLink } from '@/components/auth/ProtectedLink'
+import { ArrowRight, Code2, Layers, Search, Minus, Lock } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/auth/useAuth'
 
 const courseIcons = {
   stack: Layers,
@@ -45,6 +46,8 @@ const courses = [
 ]
 
 export function FeaturedCourses() {
+  const { user } = useAuth()
+  
   return (
     <section className="py-20 sm:py-32">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -63,7 +66,7 @@ export function FeaturedCourses() {
             const isIntermediate = course.level === 'Intermediate'
             
             return (
-              <Link
+              <ProtectedLink
                 key={course.id}
                 to={`/challenges/${course.id}`}
                 className={cn(
@@ -71,6 +74,13 @@ export function FeaturedCourses() {
                   "hover:shadow-lg hover:border-primary/50 hover:-translate-y-1"
                 )}
               >
+                {/* Auth indicator badge */}
+                {!user && (
+                  <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-full bg-warning/20 text-warning text-xs font-medium z-10">
+                    <Lock className="h-3 w-3" />
+                    <span>Sign in</span>
+                  </div>
+                )}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
                     <Icon className="h-6 w-6 text-primary" />
@@ -98,13 +108,13 @@ export function FeaturedCourses() {
                 </div>
 
                 <ArrowRight className="absolute bottom-6 right-6 h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-              </Link>
+              </ProtectedLink>
             )
           })}
         </div>
 
         <div className="mt-12 text-center">
-          <Link
+          <ProtectedLink
             to="/challenges"
             className={cn(
               "inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground px-6 py-3",
@@ -113,7 +123,7 @@ export function FeaturedCourses() {
           >
             View All Challenges
             <ArrowRight className="ml-2 h-5 w-5" />
-          </Link>
+          </ProtectedLink>
         </div>
       </div>
     </section>

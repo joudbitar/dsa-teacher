@@ -11,6 +11,8 @@ import { useTheme } from "@/theme/ThemeContext";
 import { apiClient, Project, Module } from "@/lib/api";
 import { useAuth } from "@/auth/useAuth";
 import { toGitCloneUrl } from "@/lib/utils";
+import { PageTransition } from "@/components/routing/PageTransition";
+import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
 import {
   saveChallengeProgress,
   getChallengeProgress,
@@ -131,6 +133,8 @@ export function ChallengeDetail() {
 
   // Check for existing project and fetch module data on mount
   useEffect(() => {
+    let ignore = false;
+
     async function loadData() {
       if (!id) return;
 
@@ -139,6 +143,8 @@ export function ChallengeDetail() {
 
         // Fetch module data from API to get subchallenges
         const modules = await apiClient.getModules();
+        if (ignore) return;
+
         const module = modules.find((m) => m.id === id);
         if (module) {
           setModuleData(module);
@@ -146,6 +152,7 @@ export function ChallengeDetail() {
 
         // Check for existing project
         const projects = await apiClient.getProjects(id);
+        if (ignore) return;
 
         if (projects.length > 0) {
           // Get the most recent project (or filter by selected language if available)
@@ -186,6 +193,7 @@ export function ChallengeDetail() {
           setCompletedSteps([]);
         }
       } catch (error) {
+        if (ignore) return;
         console.error("Failed to check existing project:", error);
         // Fallback to localStorage
         const savedProgress = getChallengeProgress(id);
@@ -195,11 +203,17 @@ export function ChallengeDetail() {
           setCompletedSteps(savedProgress.completedSteps || []);
         }
       } finally {
-        setLoadingProject(false);
+        if (!ignore) {
+          setLoadingProject(false);
+        }
       }
     }
 
     loadData();
+
+    return () => {
+      ignore = true;
+    };
   }, [id]);
 
   // Listen for module restart events
@@ -232,10 +246,14 @@ export function ChallengeDetail() {
 
     // Track if we've shown initial state to avoid false notifications
     let hasShownInitialState = false;
+    let ignore = false;
 
     const pollInterval = setInterval(async () => {
+      if (ignore) return;
+
       try {
         const projects = await apiClient.getProjects(id!);
+        if (ignore) return;
 
         if (projects.length > 0) {
           const updatedProject = projects[0];
@@ -254,51 +272,53 @@ export function ChallengeDetail() {
               updatedProject.currentChallengeIndex >
                 existingProject.currentChallengeIndex;
 
-            setExistingProject(updatedProject);
+            if (!ignore) {
+              setExistingProject(updatedProject);
 
-            // Update steps - challenge was completed, advance to next
-            const newIndex = updatedProject.currentChallengeIndex + 1; // +1 for "Choose Language"
-            setCurrentStepIndex(newIndex);
+              // Update steps - challenge was completed, advance to next
+              const newIndex = updatedProject.currentChallengeIndex + 1; // +1 for "Choose Language"
+              setCurrentStepIndex(newIndex);
 
-            // Mark completed steps
-            const completed = Array.from({ length: newIndex }, (_, i) => i);
-            setCompletedSteps(completed);
+              // Mark completed steps
+              const completed = Array.from({ length: newIndex }, (_, i) => i);
+              setCompletedSteps(completed);
 
-            // Save to localStorage
-            if (id) {
-              saveChallengeProgress(id, {
-                completedSteps: completed,
-                currentStepIndex: newIndex,
-                selectedLanguage,
-                lastUpdated: Date.now(),
-              });
+              // Save to localStorage
+              if (id) {
+                saveChallengeProgress(id, {
+                  completedSteps: completed,
+                  currentStepIndex: newIndex,
+                  selectedLanguage,
+                  lastUpdated: Date.now(),
+                });
 
-              // Fire custom event to update ChallengesGrid
-              window.dispatchEvent(new Event("challenge-progress-updated"));
-            }
+                // Fire custom event to update ChallengesGrid
+                window.dispatchEvent(new Event("challenge-progress-updated"));
+              }
 
-            // Scroll to top of main content to show new step
-            window.scrollTo({ top: 0, behavior: "smooth" });
+              // Scroll to top of main content to show new step
+              window.scrollTo({ top: 0, behavior: "smooth" });
 
-            // Show success notification ONLY for real progress (not initial load)
-            if (isRealProgress) {
-              const nextStepName =
-                moduleData?.subchallenges?.[
-                  updatedProject.currentChallengeIndex
-                ];
+              // Show success notification ONLY for real progress (not initial load)
+              if (isRealProgress) {
+                const nextStepName =
+                  moduleData?.subchallenges?.[
+                    updatedProject.currentChallengeIndex
+                  ];
 
-              // Check if this is the last step
-              const isLastStep =
-                updatedProject.currentChallengeIndex >=
-                (moduleData?.subchallenges?.length || 0);
+                // Check if this is the last step
+                const isLastStep =
+                  updatedProject.currentChallengeIndex >=
+                  (moduleData?.subchallenges?.length || 0);
 
-              setProgressModal({
-                isLastStep,
-                nextStepName: nextStepName || "Next step",
-                previousStepIndex: Math.max(newIndex - 1, 0),
-                nextStepIndex: newIndex,
-                completedStepsSnapshot: completed,
-              });
+                setProgressModal({
+                  isLastStep,
+                  nextStepName: nextStepName || "Next step",
+                  previousStepIndex: Math.max(newIndex - 1, 0),
+                  nextStepIndex: newIndex,
+                  completedStepsSnapshot: completed,
+                });
+              }
             }
 
             hasShownInitialState = true;
@@ -308,11 +328,16 @@ export function ChallengeDetail() {
           }
         }
       } catch (error) {
-        console.error("Failed to poll project status:", error);
+        if (!ignore) {
+          console.error("Failed to poll project status:", error);
+        }
       }
     }, 3000); // Poll every 3 seconds for faster feedback
 
-    return () => clearInterval(pollInterval);
+    return () => {
+      ignore = true;
+      clearInterval(pollInterval);
+    };
   }, [existingProject, id, selectedLanguage, moduleData]);
 
   // Check if "Choose Language" step is completed (language selected AND project created)
@@ -490,7 +515,8 @@ export function ChallengeDetail() {
   // Copy CLI install command to clipboard
   const handleCopyCLI = async () => {
     try {
-      const installCommand = "curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash";
+      const installCommand =
+        "curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash";
       await navigator.clipboard.writeText(installCommand);
       setCliCopied(true);
       setTimeout(() => setCliCopied(false), 2000);
@@ -610,24 +636,28 @@ export function ChallengeDetail() {
   // Show loading state while checking for existing project
   if (loadingProject) {
     return (
-      <div className="min-h-screen flex flex-col" style={{ backgroundColor }}>
-        <Navbar className="relative z-10" />
-        <main className="flex-1 relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-20 flex items-center justify-center">
-          <div className="relative flex h-16 w-16 items-center justify-center">
-            <span className="absolute inset-0 rounded-full border-2 border-border/50" />
-            <span className="absolute inset-0 rounded-full border-t-2 border-primary animate-spin" />
-          </div>
-        </main>
-        <Footer className="relative z-10 mt-auto" />
-      </div>
+      <PageTransition>
+        <div className="min-h-screen flex flex-col" style={{ backgroundColor }}>
+          <Navbar className="relative z-10" />
+          <main className="flex-1 relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-20">
+            <div className="space-y-4">
+              <LoadingSkeleton height="3rem" />
+              <LoadingSkeleton height="20rem" />
+              <LoadingSkeleton height="10rem" />
+            </div>
+          </main>
+          <Footer className="relative z-10 mt-auto" />
+        </div>
+      </PageTransition>
     );
   }
 
   return (
-    <div
-      className="min-h-screen flex flex-col text-foreground"
-      style={{ backgroundColor }}
-    >
+    <PageTransition>
+      <div
+        className="min-h-screen flex flex-col text-foreground"
+        style={{ backgroundColor }}
+      >
       <Navbar />
 
       {/* Repository Command Modal */}
@@ -641,7 +671,9 @@ export function ChallengeDetail() {
 
             <div className="bg-muted rounded-lg p-4 mb-6 font-mono text-sm">
               <div className="flex items-center justify-between">
-                <code className="flex-1">git clone {savedRepoUrl ? toGitCloneUrl(savedRepoUrl) : ''}</code>
+                <code className="flex-1">
+                  git clone {savedRepoUrl ? toGitCloneUrl(savedRepoUrl) : ""}
+                </code>
                 <button
                   onClick={handleCopy}
                   className="ml-4 px-3 py-1 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors flex items-center gap-2"
@@ -670,7 +702,9 @@ export function ChallengeDetail() {
                 <div className="bg-background rounded-lg p-3 font-mono text-xs">
                   <div className="flex items-center justify-between gap-2">
                     <code className="flex-1 break-all">
-                      curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash
+                      curl -fsSL
+                      https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh
+                      | bash
                     </code>
                     <button
                       onClick={handleCopyCLI}
@@ -885,6 +919,7 @@ export function ChallengeDetail() {
       </div>
 
       <Footer />
-    </div>
+      </div>
+    </PageTransition>
   );
 }

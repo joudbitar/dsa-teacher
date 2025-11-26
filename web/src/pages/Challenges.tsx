@@ -9,6 +9,8 @@ import { useAuth } from "@/auth/useAuth";
 import { Link, useLocation } from "react-router-dom";
 import { challengeData } from "@/data/challenges";
 import { clearChallengeProgress } from "@/utils/challengeProgress";
+import { PageTransition } from "@/components/routing/PageTransition";
+import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
 import {
   Layers,
   Search,
@@ -56,46 +58,68 @@ export function Challenges() {
 
   // Load modules for ChallengesGrid
   useEffect(() => {
+    let ignore = false;
+
     async function loadModules() {
       try {
         setModulesLoading(true);
         const data = await apiClient.getModules();
-        setModules(data.filter((module) => ALLOWED_MODULE_IDS.includes(module.id)));
+        if (!ignore) {
+          setModules(data.filter((module) => ALLOWED_MODULE_IDS.includes(module.id)));
+        }
       } catch (err) {
-        console.error("Failed to load modules:", err);
-        setModulesError(
-          err instanceof Error ? err.message : "Failed to load modules"
-        );
+        if (!ignore) {
+          console.error("Failed to load modules:", err);
+          setModulesError(
+            err instanceof Error ? err.message : "Failed to load modules"
+          );
+        }
       } finally {
-        setModulesLoading(false);
+        if (!ignore) {
+          setModulesLoading(false);
+        }
       }
     }
 
     loadModules();
+
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   // Fetch projects from API for Your Library section
   useEffect(() => {
+    let ignore = false;
+
     const loadProjects = async (isInitial: boolean) => {
+      if (ignore) return;
+
       if (!user) {
-        setProjects([])
-        setProjectsLoading(false)
+        if (!ignore) {
+          setProjects([])
+          setProjectsLoading(false)
+        }
         return
       }
 
       // Only show loading state on initial load, not on background polling
-      if (isInitial) {
+      if (isInitial && !ignore) {
         setProjectsLoading(true)
       }
 
       try {
         const fetchedProjects = await fetchUserProjects()
-        setProjects(fetchedProjects)
+        if (!ignore) {
+          setProjects(fetchedProjects)
+        }
       } catch (error) {
-        console.error('Error loading projects:', error)
-        setProjects([])
+        if (!ignore) {
+          console.error('Error loading projects:', error)
+          setProjects([])
+        }
       } finally {
-        if (isInitial) {
+        if (isInitial && !ignore) {
           setProjectsLoading(false)
         }
       }
@@ -109,7 +133,10 @@ export function Challenges() {
       loadProjects(false)
     }, 10000)
 
-    return () => clearInterval(interval)
+    return () => {
+      ignore = true;
+      clearInterval(interval);
+    };
   }, [user, location.pathname])
 
   // Handle restart module
@@ -273,41 +300,48 @@ export function Challenges() {
 
   if (modulesLoading) {
     return (
-      <div className="min-h-screen flex flex-col relative" style={{ backgroundColor }}>
-        <Navbar className="relative z-10" />
-        <main className="flex-1 relative z-10">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="text-center">
-              <p className="text-lg">Loading challenges...</p>
+      <PageTransition>
+        <div className="min-h-screen flex flex-col relative" style={{ backgroundColor }}>
+          <Navbar className="relative z-10" />
+          <main className="flex-1 relative z-10">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+              <div className="space-y-4">
+                <LoadingSkeleton height="2rem" width="200px" />
+                <LoadingSkeleton height="1rem" />
+                <LoadingSkeleton height="1rem" width="80%" />
+              </div>
             </div>
-          </div>
-        </main>
-        <Footer className="relative z-10" />
-      </div>
+          </main>
+          <Footer className="relative z-10" />
+        </div>
+      </PageTransition>
     )
   }
 
   if (modulesError) {
     return (
-      <div className="min-h-screen flex flex-col relative" style={{ backgroundColor }}>
-        <Navbar className="relative z-10" />
-        <main className="flex-1 relative z-10">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="text-center">
-              <p className="text-lg text-destructive">Error: {modulesError}</p>
+      <PageTransition>
+        <div className="min-h-screen flex flex-col relative" style={{ backgroundColor }}>
+          <Navbar className="relative z-10" />
+          <main className="flex-1 relative z-10">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+              <div className="text-center">
+                <p className="text-lg text-destructive">Error: {modulesError}</p>
+              </div>
             </div>
-          </div>
-        </main>
-        <Footer className="relative z-10" />
-      </div>
+          </main>
+          <Footer className="relative z-10" />
+        </div>
+      </PageTransition>
     )
   }
   
   return (
-    <div
-      className="min-h-screen flex flex-col relative"
-      style={{ backgroundColor }}
-    >
+    <PageTransition>
+      <div
+        className="min-h-screen flex flex-col relative"
+        style={{ backgroundColor }}
+      >
       <Navbar className="relative z-10" />
       <main className="flex-1 relative z-10 pb-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 min-h-[calc(100vh-12rem)]">
@@ -577,6 +611,7 @@ export function Challenges() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </PageTransition>
   );
 }

@@ -24,6 +24,7 @@ export function Auth() {
 
   // Check for email verification callback in URL hash
   useEffect(() => {
+    let ignore = false;
     const hash = window.location.hash;
     if (
       hash &&
@@ -39,40 +40,61 @@ export function Auth() {
         try {
           // Wait a bit for Supabase to process the hash
           await new Promise((resolve) => setTimeout(resolve, 500));
+          if (ignore) return;
 
           const {
             data: { session },
             error,
           } = await supabase.auth.getSession();
+          if (ignore) return;
 
           if (error) {
-            setVerificationState("error");
-            setErrorMessage(
-              error.message ||
-                "Failed to verify email. The link may have expired."
-            );
-            // Clean up URL
-            window.history.replaceState(
-              {},
-              document.title,
-              window.location.pathname + window.location.search
-            );
+            if (!ignore) {
+              setVerificationState("error");
+              setErrorMessage(
+                error.message ||
+                  "Failed to verify email. The link may have expired."
+              );
+              // Clean up URL
+              window.history.replaceState(
+                {},
+                document.title,
+                window.location.pathname + window.location.search
+              );
+            }
             return;
           }
 
           if (session) {
-            setVerificationState("success");
-            // Clean up URL
-            window.history.replaceState(
-              {},
-              document.title,
-              window.location.pathname + window.location.search
-            );
-            // Redirect will happen automatically via the user effect below
+            if (!ignore) {
+              setVerificationState("success");
+              // Clean up URL
+              window.history.replaceState(
+                {},
+                document.title,
+                window.location.pathname + window.location.search
+              );
+              // Redirect will happen automatically via the user effect below
+            }
           } else {
+            if (!ignore) {
+              setVerificationState("error");
+              setErrorMessage(
+                "Email verification failed. Please try signing up again."
+              );
+              // Clean up URL
+              window.history.replaceState(
+                {},
+                document.title,
+                window.location.pathname + window.location.search
+              );
+            }
+          }
+        } catch (err) {
+          if (!ignore) {
             setVerificationState("error");
             setErrorMessage(
-              "Email verification failed. Please try signing up again."
+              "An error occurred during verification. Please try again."
             );
             // Clean up URL
             window.history.replaceState(
@@ -81,22 +103,15 @@ export function Auth() {
               window.location.pathname + window.location.search
             );
           }
-        } catch (err) {
-          setVerificationState("error");
-          setErrorMessage(
-            "An error occurred during verification. Please try again."
-          );
-          // Clean up URL
-          window.history.replaceState(
-            {},
-            document.title,
-            window.location.pathname + window.location.search
-          );
         }
       };
 
       checkSession();
     }
+
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   useEffect(() => {

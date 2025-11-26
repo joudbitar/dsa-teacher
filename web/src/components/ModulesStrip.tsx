@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion'
-import { Link } from 'react-router-dom'
-import { ArrowRight, Layers, Minus } from 'lucide-react'
+import { ProtectedLink } from '@/components/auth/ProtectedLink'
+import { ArrowRight, Layers, Minus, Lock } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/auth/useAuth'
 
 const modules = [
   {
@@ -33,19 +34,15 @@ const modules = [
 
 export function ModulesStrip() {
   const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const { user } = useAuth()
 
   return (
     <section className="py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-8"
-        >
+        <div className="mb-8">
           <h2 className="text-3xl font-bold mb-2">Pick Your First Build</h2>
           <p className="text-muted-foreground">Small, finishable chunks → huge psychological win</p>
-        </motion.div>
+        </div>
 
         <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
           {modules.map((module, index) => {
@@ -55,10 +52,6 @@ export function ModulesStrip() {
             return (
               <motion.div
                 key={module.id}
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
                 onHoverStart={() => setHoveredId(module.id)}
                 onHoverEnd={() => setHoveredId(null)}
                 whileHover={{ 
@@ -68,13 +61,20 @@ export function ModulesStrip() {
                 }}
                 className="min-w-[320px] flex-shrink-0"
               >
-                <Link
+                <ProtectedLink
                   to={`/challenges/${module.id}`}
                   className={cn(
-                    "block rounded-xl border border-border bg-card p-6 transition-all",
+                    "block rounded-xl border border-border bg-card p-6 transition-all relative",
                     "hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20"
                   )}
                 >
+                  {/* Auth indicator badge */}
+                  {!user && (
+                    <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-full bg-warning/20 text-warning text-xs font-medium">
+                      <Lock className="h-3 w-3" />
+                      <span>Sign in</span>
+                    </div>
+                  )}
                   {/* Icon and Title */}
                   <div className="flex items-center gap-4 mb-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
@@ -142,7 +142,7 @@ export function ModulesStrip() {
                   </motion.div>
 
                   <ArrowRight className="mt-4 h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                </Link>
+                </ProtectedLink>
               </motion.div>
             )
           })}

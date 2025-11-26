@@ -2,6 +2,7 @@ import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { Target, Heart } from 'lucide-react'
 import { useTheme } from '@/theme/ThemeContext'
+import { PageTransition } from '@/components/routing/PageTransition'
 
 export function About() {
   const { backgroundColor, textColor, secondaryTextColor, accentBlue } = useTheme()
@@ -12,8 +13,9 @@ export function About() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={themeStyle}>
-      <Navbar />
+    <PageTransition>
+      <div className="min-h-screen flex flex-col" style={themeStyle}>
+        <Navbar />
       <main className="flex-1">
         {/* Hero Section */}
         <section className="py-16 sm:py-24" style={themeStyle}>
@@ -76,7 +78,8 @@ export function About() {
         </section>
       </main>
       <Footer />
-    </div>
+      </div>
+    </PageTransition>
   )
 }
 
