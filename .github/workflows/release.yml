@@ -31,15 +31,21 @@ jobs:
       - name: Get release notes from commit message
         id: release_notes
         run: |
-          # Get the commit message from the tag
+          # Get the commit message from the tag (tag message or commit message)
           TAG_NAME="${{ steps.tag_version.outputs.tag }}"
+          
+          # Try to get tag message first, then fall back to commit message
+          TAG_MSG=$(git tag -l --format='%(contents)' "$TAG_NAME" 2>/dev/null || echo "")
           COMMIT_MSG=$(git log -1 --pretty=%B "$TAG_NAME" 2>/dev/null || echo "")
           
-          # Extract description (everything after first line, skip empty lines)
-          NOTES=$(echo "$COMMIT_MSG" | tail -n +2 | sed '/^$/d' | head -20)
+          # Use tag message if available, otherwise use commit message
+          MSG="${TAG_MSG:-$COMMIT_MSG}"
           
-          # If no notes in commit, create default
-          if [ -z "$NOTES" ]; then
+          # Extract description (everything after first line, skip empty lines)
+          NOTES=$(echo "$MSG" | tail -n +2 | sed '/^$/d' | head -20)
+          
+          # If no notes, create default
+          if [ -z "$NOTES" ] || [ "$NOTES" = "" ]; then
             NOTES="CLI v${{ steps.tag_version.outputs.version }} release"
           fi
           
