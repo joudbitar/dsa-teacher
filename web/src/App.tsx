@@ -1,12 +1,12 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Suspense, lazy } from 'react'
-import { Analytics } from '@vercel/analytics/react'
 import { AuthProvider } from './auth/AuthProvider'
 import { ThemeProvider } from './theme/ThemeContext'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { PageLoader } from './components/ui/PageLoader'
 import { NavigationProgress } from './components/routing/NavigationProgress'
 import { OrganicClipPaths } from './components/OrganicShapes'
+import { AnalyticsWrapper } from './components/AnalyticsWrapper'
 
 // Code splitting with lazy loading
 const Landing = lazy(() => import('./pages/Landing').then(m => ({ default: m.Landing })))
@@ -44,7 +44,7 @@ function App() {
               <Route path="/docs" element={<Docs />} />
             </Routes>
           </Suspense>
-          <Analytics />
+          <AnalyticsWrapper />
         </BrowserRouter>
       </AuthProvider>
     </ThemeProvider>
