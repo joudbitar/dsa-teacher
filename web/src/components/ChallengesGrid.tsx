@@ -1,12 +1,9 @@
 import { ProtectedLink } from '@/components/auth/ProtectedLink'
-import { useLocation } from 'react-router-dom'
 import { Layers, Search, Minus, Code2, Lock } from 'lucide-react'
-import { useState, useEffect, useCallback } from 'react'
+import { useMemo } from 'react'
 import { OrganicStep } from './OrganicStep'
 import { TurtleProgress } from './TurtleProgress'
-import { getChallengeProgress, calculateProgressPercentage } from '@/utils/challengeProgress'
-import { challengeData } from '@/data/challenges'
-import { apiClient, Module } from '@/lib/api'
+import { Module, Project } from '@/lib/api'
 import { useAuth } from '@/auth/useAuth'
 
 // Icon mapping for different data structures
@@ -20,111 +17,34 @@ const iconMap: Record<string, any> = {
 
 interface ChallengesGridProps {
   modules: Module[]
+  projects: Project[]
 }
 
-export function ChallengesGrid({ modules }: ChallengesGridProps) {
-  const [moduleProgress, setModuleProgress] = useState<Record<string, number>>({})
-  const location = useLocation()
+export function ChallengesGrid({ modules, projects }: ChallengesGridProps) {
   const { user } = useAuth()
 
-  // Function to load and update progress from API and localStorage
-  const updateProgress = useCallback(async (ignore?: () => boolean) => {
+  // Calculate progress for each module based on projects prop
+  // Only show progress from projects that exist in the projects array
+  // Default to 0% if no project exists for a module
+  const moduleProgress = useMemo(() => {
     const progress: Record<string, number> = {}
     
-    try {
-      // Fetch all user projects from API
-      const projects = await apiClient.getProjects()
-      if (ignore?.()) return;
-
-      // Build progress map from API projects (this is the source of truth)
-      projects.forEach((project) => {
-        progress[project.moduleId] = project.progress
-      })
-
-      // Also check localStorage for any modules not in API
-      modules.forEach((module) => {
-        if (!(module.id in progress)) {
-          const savedProgress = getChallengeProgress(module.id)
-          const challenge = challengeData[module.id]
-          
-          if (savedProgress && challenge) {
-            // Total steps = challenge steps + 1 (for "Choose Language" step)
-            const totalSteps = challenge.steps.length + 1
-            // Ensure completedSteps is an array and calculate progress
-            const completedStepsArray = Array.isArray(savedProgress.completedSteps) 
-              ? savedProgress.completedSteps 
-              : []
-            const calculatedProgress = calculateProgressPercentage(completedStepsArray, totalSteps)
-            progress[module.id] = calculatedProgress
-          } else {
-            progress[module.id] = 0
-          }
-        }
-      })
-    } catch (error) {
-      if (ignore?.()) return;
-      console.error('Failed to load progress from API, falling back to localStorage:', error)
-      // Fallback to localStorage only if API fails
-      modules.forEach((module) => {
-        const savedProgress = getChallengeProgress(module.id)
-        const challenge = challengeData[module.id]
-        
-        if (savedProgress && challenge) {
-          const totalSteps = challenge.steps.length + 1
-          const completedStepsArray = Array.isArray(savedProgress.completedSteps) 
-            ? savedProgress.completedSteps 
-            : []
-          const calculatedProgress = calculateProgressPercentage(completedStepsArray, totalSteps)
-          progress[module.id] = calculatedProgress
-        } else {
-          progress[module.id] = 0
-        }
-      })
-    }
+    // Initialize all modules to 0%
+    modules.forEach((module) => {
+      progress[module.id] = 0
+    })
     
-    if (!ignore?.()) {
-      setModuleProgress(progress)
-    }
-  }, [modules])
-
-  // Load progress for all modules
-  useEffect(() => {
-    let ignore = false;
-    updateProgress(() => ignore);
-    return () => {
-      ignore = true;
-    };
-  }, [location.pathname, updateProgress]) // Reload when navigating to Challenges page
-
-  // Also reload on window focus (when user switches back to the tab)
-  useEffect(() => {
-    let ignore = false;
-    const handleFocus = () => {
-      updateProgress(() => ignore);
-    }
-
-    window.addEventListener('focus', handleFocus)
-    return () => {
-      ignore = true;
-      window.removeEventListener('focus', handleFocus);
-    };
-  }, [updateProgress])
-
-  // Listen for custom event to refresh progress when it changes in ChallengeDetail
-  useEffect(() => {
-    let ignore = false;
-    const handleProgressUpdate = () => {
-      // Refresh progress when any challenge progress is updated
-      updateProgress(() => ignore);
-    }
-
-    // Listen for custom event fired when progress is updated
-    window.addEventListener('challenge-progress-updated', handleProgressUpdate)
-    return () => {
-      ignore = true;
-      window.removeEventListener('challenge-progress-updated', handleProgressUpdate);
-    };
-  }, [updateProgress])
+    // Update progress for modules that have projects
+    projects.forEach((project) => {
+      if (project.moduleId in progress) {
+        // Only show progress for in-progress or completed projects
+        // If project exists, use its progress value
+        progress[project.moduleId] = project.progress
+      }
+    })
+    
+    return progress
+  }, [modules, projects])
 
   return (
     <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-2 challenges-page">

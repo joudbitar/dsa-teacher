@@ -559,7 +559,7 @@ export function Challenges() {
             </p>
           </div>
 
-          <ChallengesGrid modules={modules} />
+          <ChallengesGrid modules={modules} projects={projects} />
         </div>
       </main>
       <Footer className="relative z-10 mt-auto" />
