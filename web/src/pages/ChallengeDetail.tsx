@@ -1,14 +1,15 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { ArrowLeft, Copy, Check } from "lucide-react";
+import { ArrowLeft, Copy, Check, AlertTriangle } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ChallengeSidebar } from "@/components/ChallengeSidebar";
 import { ChallengeInfo } from "@/components/ChallengeInfo";
 import { LanguagePicker } from "@/components/LanguagePicker";
+import { TestLogsPanel } from "@/components/TestLogsPanel";
 import { challengeData } from "@/data/challenges";
 import { useTheme } from "@/theme/ThemeContext";
-import { apiClient, Project, Module } from "@/lib/api";
+import { apiClient, Project, Module, TestLogs, TestLogsResponse } from "@/lib/api";
 import { useAuth } from "@/auth/useAuth";
 import { toGitCloneUrl } from "@/lib/utils";
 import { PageTransition } from "@/components/routing/PageTransition";
@@ -52,6 +53,12 @@ export function ChallengeDetail() {
   const [progressModal, setProgressModal] = useState<ProgressModalState | null>(
     null
   );
+  const [showInaccessibleModal, setShowInaccessibleModal] = useState(false);
+  const [inaccessibleStepIndex, setInaccessibleStepIndex] = useState<number | null>(null);
+  const [testLogs, setTestLogs] = useState<TestLogs | null>(null);
+  const [testLogsResult, setTestLogsResult] = useState<string | undefined>(undefined);
+  const [hasTestLogs, setHasTestLogs] = useState(false);
+  const [testLogsLoading, setTestLogsLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -340,6 +347,73 @@ export function ChallengeDetail() {
     };
   }, [existingProject, id, selectedLanguage, moduleData]);
 
+  // Poll for test logs when user has an existing project
+  useEffect(() => {
+    if (!existingProject) {
+      setTestLogs(null);
+      setHasTestLogs(false);
+      setTestLogsResult(undefined);
+      return;
+    }
+
+    let ignore = false;
+
+    const fetchTestLogs = async () => {
+      if (ignore) return;
+
+      try {
+        setTestLogsLoading(true);
+        const response = await apiClient.getTestLogs(existingProject.id);
+        if (ignore) return;
+
+        setTestLogs(response.testLogs || null);
+        setHasTestLogs(response.hasLogs === true); // Explicitly convert to boolean
+        setTestLogsResult(response.result || undefined);
+        
+        // Debug logging
+        console.log("Test logs API response:", {
+          hasLogs: response.hasLogs,
+          hasTestLogs: !!response.testLogs,
+          result: response.result,
+          lines: response.testLogs?.formattedLines?.length || 0,
+          testLogs: response.testLogs ? 'present' : 'null',
+          rawResponse: response,
+        });
+        
+        // Also log state updates
+        console.log("Updating test logs state:", {
+          testLogs: response.testLogs ? `${response.testLogs.formattedLines.length} lines` : 'null',
+          hasLogs: response.hasLogs === true,
+          result: response.result,
+        });
+      } catch (error) {
+        if (!ignore) {
+          console.error("Failed to fetch test logs:", error);
+          console.error("Error details:", {
+            message: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined,
+          });
+          // Don't show error to user, just silently fail
+        }
+      } finally {
+        if (!ignore) {
+          setTestLogsLoading(false);
+        }
+      }
+    };
+
+    // Fetch immediately
+    fetchTestLogs();
+
+    // Poll every 5 seconds for test logs updates
+    const pollInterval = setInterval(fetchTestLogs, 5000);
+
+    return () => {
+      ignore = true;
+      clearInterval(pollInterval);
+    };
+  }, [existingProject]);
+
   // Check if "Choose Language" step is completed (language selected AND project created)
   const isLanguageSelected = selectedLanguage !== undefined;
   const isLanguageStepCompleted = completedSteps.includes(0);
@@ -348,7 +422,7 @@ export function ChallengeDetail() {
   const timelineSteps = [
     {
       id: `${id}-0`,
-      name: "Choose Language",
+      name: "Introduction",
       completed: isLanguageStepCompleted,
     },
     ...(moduleData?.subchallenges || []).map((subchallenge, index) => ({
@@ -551,7 +625,12 @@ export function ChallengeDetail() {
   const handleStepClick = (stepIndex: number) => {
     if (stepIndex < 0 || stepIndex >= timelineSteps.length) return;
 
-    if (stepIndex > maxAccessibleStep) return;
+    // Show modal for inaccessible steps
+    if (stepIndex > maxAccessibleStep) {
+      setInaccessibleStepIndex(stepIndex);
+      setShowInaccessibleModal(true);
+      return;
+    }
 
     if (stepIndex === currentStepIndex) return;
 
@@ -619,6 +698,19 @@ export function ChallengeDetail() {
     setShowStepWarning(false);
   };
 
+  const handleInaccessibleModalClose = () => {
+    setShowInaccessibleModal(false);
+    setInaccessibleStepIndex(null);
+  };
+
+  const handleInaccessibleModalExplore = () => {
+    if (inaccessibleStepIndex !== null) {
+      setCurrentStepIndex(inaccessibleStepIndex);
+    }
+    setShowInaccessibleModal(false);
+    setInaccessibleStepIndex(null);
+  };
+
   const handleNewAttempt = () => {
     // Reset to language selection step to allow creating a new project
     setCurrentStepIndex(0);
@@ -655,7 +747,7 @@ export function ChallengeDetail() {
   return (
     <PageTransition>
       <div
-        className="min-h-screen flex flex-col text-foreground"
+        className="h-screen flex flex-col text-foreground overflow-hidden"
         style={{ backgroundColor }}
       >
       <Navbar />
@@ -756,13 +848,13 @@ export function ChallengeDetail() {
                 Review completed step
               </p>
               <h2 className="text-2xl font-bold font-mono">
-                Revisit “{timelineSteps[pendingStepIndex]?.name}”?
+                Revisit "{timelineSteps[pendingStepIndex]?.name}"?
               </h2>
             </div>
             <p className="text-muted-foreground leading-relaxed font-mono">
-              You’ve already finished this challenge. You can review your notes
+              You've already finished this challenge. You can review your notes
               or code without losing progress, but make sure to return to your
-              current step when you’re ready to continue.
+              current step when you're ready to continue.
             </p>
             <div className="flex gap-3 justify-end">
               <button
@@ -788,9 +880,56 @@ export function ChallengeDetail() {
         </div>
       )}
 
-      <div className="flex flex-1">
+      {/* Inaccessible step modal */}
+      {showInaccessibleModal && inaccessibleStepIndex !== null && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
+          onClick={handleInaccessibleModalClose}
+        >
+          <div
+            className="rounded-lg border shadow-xl max-w-md w-full p-6 space-y-6"
+            style={{ backgroundColor, borderColor }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-center">
+              <AlertTriangle className="h-8 w-8 text-warning" />
+            </div>
+            <div className="space-y-2 text-center">
+              <h2 className="text-2xl font-bold font-mono">
+                Previous steps incomplete!
+              </h2>
+              <p className="text-muted-foreground leading-relaxed font-mono">
+                This step depends on previous steps that you haven't completed yet.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleInaccessibleModalClose}
+                className="px-4 py-2 rounded border font-mono text-sm transition-opacity hover:opacity-80 flex items-center justify-center gap-2"
+                style={{
+                  backgroundColor: accentGreen,
+                  borderColor: accentGreen,
+                  color: backgroundColor,
+                }}
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to current stage
+              </button>
+              <button
+                onClick={handleInaccessibleModalExplore}
+                className="px-4 py-2 rounded font-mono text-sm transition-opacity hover:opacity-70 underline text-center"
+                style={{ borderColor: "transparent", color: textColor }}
+              >
+                I'm just exploring »
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-1 overflow-hidden">
         {/* Sidebar - Desktop only */}
-        <aside className="hidden lg:block w-96 border-r border-border bg-card p-8 overflow-y-auto">
+        <aside className="hidden lg:block w-64 border-r border-border bg-card p-6 overflow-y-auto h-full">
           <div className="mb-6">
             <Link
               to="/challenges"
@@ -970,7 +1109,14 @@ export function ChallengeDetail() {
         </main>
       </div>
 
-      <Footer />
+      {/* Test Logs Panel */}
+      {existingProject && (
+        <TestLogsPanel
+          testLogs={testLogs}
+          hasLogs={hasTestLogs}
+          result={testLogsResult}
+        />
+      )}
       </div>
     </PageTransition>
   );

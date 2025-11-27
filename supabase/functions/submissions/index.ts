@@ -83,12 +83,18 @@ Deno.serve(async (req) => {
       } else {
         console.log('Invalid testLogs structure:', { 
           hasRawOutput: typeof testLogs.rawOutput,
-          hasFormattedLines: Array.isArray(testLogs.formattedLines)
+          hasFormattedLines: Array.isArray(testLogs.formattedLines),
+          testLogsKeys: Object.keys(testLogs || {}),
         });
       }
     } else {
-      console.log('No testLogs provided in submission');
+      console.log('No testLogs provided in submission body');
     }
+    
+    console.log('About to insert submission with testLogs:', {
+      hasTestLogs: !!sanitizedTestLogs,
+      testLogsSize: sanitizedTestLogs ? JSON.stringify(sanitizedTestLogs).length : 0,
+    });
 
     // Insert submission
     const { data: submission, error: submissionError } = await supabase
@@ -106,8 +112,17 @@ Deno.serve(async (req) => {
 
     if (submissionError) {
       console.error('Submission error:', submissionError);
+      console.error('Submission error details:', JSON.stringify(submissionError, null, 2));
       return jsonResponse({ error: 'Failed to create submission' }, 500);
     }
+    
+    // Verify the submission was created with testLogs
+    console.log('Submission created successfully:', {
+      id: submission.id,
+      hasTestLogs: !!submission.testLogs,
+      testLogsType: typeof submission.testLogs,
+      testLogsKeys: submission.testLogs ? Object.keys(submission.testLogs) : null,
+    });
 
     // Handle progressive challenge unlocking
     const currentIndex = details.currentChallengeIndex ?? 0;

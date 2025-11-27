@@ -74,15 +74,17 @@ export async function submitCommand(cwd: string = process.cwd()): Promise<void> 
     process.exit(1);
   }
 
+  // Allow submission even if tests fail - this allows test logs to be stored for debugging
+  // Users can see their failed attempts and the logs in the web UI
   if (!currentChallenge.passed) {
     console.log('');
-    console.log(chalk.red('❌ Current challenge not passed. Fix the tests first.'));
+    console.log(chalk.yellow('⚠️  Current challenge not passed.'));
     console.log(chalk.cyan(`Challenge: ${currentChallenge.subchallengeId}`));
     if (currentChallenge.message) {
       console.log(chalk.gray(`  ${currentChallenge.message}`));
     }
+    console.log(chalk.gray('  Submitting results anyway to save test logs for debugging...'));
     console.log('');
-    process.exit(1);
   }
 
   // 5. POST results to API
@@ -104,8 +106,22 @@ export async function submitCommand(cwd: string = process.cwd()): Promise<void> 
     testLogs: report.testLogs, // Include test logs if available
   };
 
+  // Debug: Log if testLogs are being sent
+  if (report.testLogs) {
+    console.log(chalk.gray(`  📝 Including test logs: ${report.testLogs.formattedLines.length} lines, ${report.testLogs.rawOutput.length} bytes`));
+  } else {
+    console.log(chalk.yellow('  ⚠️  No test logs available in report'));
+  }
+
   console.log('');
   console.log(chalk.blue('Submitting results to API...'));
+  
+  // Debug: Log what we're sending
+  if (submissionBody.testLogs) {
+    console.log(chalk.gray(`  📤 Sending test logs: ${submissionBody.testLogs.formattedLines.length} lines`));
+  } else {
+    console.log(chalk.yellow('  ⚠️  No test logs to send'));
+  }
 
   const response = await post(submissionUrl, submissionBody, {
     Authorization: `Bearer ${config.projectToken}`,
@@ -115,37 +131,44 @@ export async function submitCommand(cwd: string = process.cwd()): Promise<void> 
   if (response.ok) {
     console.log('');
     console.log(chalk.green('✓ Submission recorded!'));
-    console.log(chalk.green(`✓ Challenge "${currentChallenge.subchallengeId}" completed!`));
     
-    // Check if there are more challenges
-    const nextIndex = currentIndex + 1;
-    
-    // Show completion progress AFTER successful submission
-    console.log('');
-    console.log(chalk.bold.cyan(`  ✨ Challenges completed: ${nextIndex} of ${report.cases.length}`));
-    
-    // 7. Update local config file with new challenge index
-    try {
-      const configPath = resolve(projectRoot, 'dsa.config.json');
-      const configContent = readFileSync(configPath, 'utf-8');
-      const configData = JSON.parse(configContent) as ProjectConfig;
+    if (currentChallenge.passed) {
+      console.log(chalk.green(`✓ Challenge "${currentChallenge.subchallengeId}" completed!`));
       
-      configData.currentChallengeIndex = nextIndex;
+      // Check if there are more challenges
+      const nextIndex = currentIndex + 1;
       
-      writeFileSync(configPath, JSON.stringify(configData, null, 2), 'utf-8');
-    } catch (error) {
-      console.error(chalk.yellow('⚠️  Warning: Failed to update local config file'));
-      console.error(chalk.gray(`   ${error instanceof Error ? error.message : 'Unknown error'}`));
-    }
-    
-    if (nextIndex < report.cases.length) {
-      const nextChallenge = report.cases[nextIndex];
+      // Show completion progress AFTER successful submission
       console.log('');
-      console.log(chalk.cyan(`🔓 Next challenge unlocked: ${nextChallenge.subchallengeId}`));
-      console.log(chalk.gray('   Run `dsa test` to start working on it.'));
+      console.log(chalk.bold.cyan(`  ✨ Challenges completed: ${nextIndex} of ${report.cases.length}`));
+      
+      // 7. Update local config file with new challenge index (only on pass)
+      try {
+        const configPath = resolve(projectRoot, 'dsa.config.json');
+        const configContent = readFileSync(configPath, 'utf-8');
+        const configData = JSON.parse(configContent) as ProjectConfig;
+        
+        configData.currentChallengeIndex = nextIndex;
+        
+        writeFileSync(configPath, JSON.stringify(configData, null, 2), 'utf-8');
+      } catch (error) {
+        console.error(chalk.yellow('⚠️  Warning: Failed to update local config file'));
+        console.error(chalk.gray(`   ${error instanceof Error ? error.message : 'Unknown error'}`));
+      }
+      
+      if (nextIndex < report.cases.length) {
+        const nextChallenge = report.cases[nextIndex];
+        console.log('');
+        console.log(chalk.cyan(`🔓 Next challenge unlocked: ${nextChallenge.subchallengeId}`));
+        console.log(chalk.gray('   Run `dsa test` to start working on it.'));
+      } else {
+        console.log('');
+        console.log(chalk.yellow('🎉 Congratulations! All challenges in this module completed!'));
+      }
     } else {
-      console.log('');
-      console.log(chalk.yellow('🎉 Congratulations! All challenges in this module completed!'));
+      console.log(chalk.yellow(`⚠️  Challenge "${currentChallenge.subchallengeId}" failed.`));
+      console.log(chalk.gray('   Test logs have been saved. Check the web UI to see detailed error output.'));
+      console.log(chalk.gray('   Fix the issues and run `dsa test` again, then `dsa submit` when tests pass.'));
     }
     
     console.log('');

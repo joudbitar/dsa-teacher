@@ -43,6 +43,23 @@ export interface CreateProjectResponse {
   progress: number
 }
 
+export interface FormattedLogLine {
+  type: 'compile' | 'test' | 'error' | 'warning' | 'info' | 'output' | 'default'
+  content: string
+}
+
+export interface TestLogs {
+  rawOutput: string
+  formattedLines: FormattedLogLine[]
+}
+
+export interface TestLogsResponse {
+  testLogs: TestLogs | null
+  hasLogs: boolean
+  createdAt?: string
+  result?: string
+}
+
 class ApiClient {
   private baseUrl: string
 
@@ -204,6 +221,31 @@ class ApiClient {
     }
 
     return response.json()
+  }
+
+  // GET /projects/:id/test-logs (fetch latest test logs for a project)
+  async getTestLogs(projectId: string): Promise<TestLogsResponse> {
+    const response = await fetch(`${this.baseUrl}/projects/${projectId}/test-logs`, {
+      method: 'GET',
+      headers: await this.getHeaders(),
+    })
+
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ error: response.statusText }))
+      throw new Error(error.error || 'Failed to fetch test logs')
+    }
+
+    const data = await response.json()
+    
+    // Ensure response has all required fields with defaults
+    return {
+      testLogs: data.testLogs || null,
+      hasLogs: data.hasLogs === true, // Explicitly convert to boolean
+      createdAt: data.createdAt || undefined,
+      result: data.result || undefined,
+    }
   }
 }
 
