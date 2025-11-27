@@ -1,6 +1,6 @@
 #!/bin/bash
 # update-templates-progressive.sh
-# Updates test runners in all 24 template repositories to support progressive unlocking
+# Updates test runners in all 12 template repositories (4 modules × 3 languages) to support progressive unlocking
 # This script is IDEMPOTENT and creates backups before any modifications
 
 set -e
@@ -53,14 +53,14 @@ for template in "${TEMPLATES[@]}"; do
   fi
   
   # Extract module name from template name
-  module=$(echo "$template" | sed 's/template-dsa-//' | sed 's/-ts$//' | sed 's/-js$//' | sed 's/-py$//' | sed 's/-java$//' | sed 's/-cpp$//' | sed 's/-go$//')
+  module=$(echo "$template" | sed 's/template-dsa-//' | sed 's/-js$//' | sed 's/-py$//' | sed 's/-java$//')
   lang=$(echo "$template" | sed 's/.*-//')
   
   cd "$template"
   
   # Update based on language
   case $lang in
-    ts|js)
+    js)
       if [ -f "tests/run.js" ]; then
         echo "  Updating Node.js runner for $module..."
         cp "tests/run.js" "$BACKUP_DIR/${template}_run.js.backup" 2>/dev/null || true
@@ -115,10 +115,6 @@ output += f'''async function runTests() {{
   const testsToRun = ALL_TESTS.slice(0, currentChallengeIndex + 1);
   const lockedTests = ALL_TESTS.slice(currentChallengeIndex + 1);
   
-  console.log('Running tests for: {module_id}');
-  console.log(\`Current challenge: \${{currentChallengeIndex + 1}}/\${{ALL_TESTS.length}}\`);
-  console.log('');
-  
   const results = [];
   let passedCount = 0;
 
@@ -134,7 +130,6 @@ output += f'''async function runTests() {{
     }}
     
     if (!testFile) {{
-      console.error(\`✗ \${{slug}} (test file not found)\`);
       results.push({{ subchallengeId: slug, passed: false, message: 'Test file not found' }});
       continue;
     }}
@@ -143,11 +138,9 @@ output += f'''async function runTests() {{
       await execPromise(\`npx vitest run \${{testFile}} --run\`);
       results.push({{ subchallengeId: slug, passed: true }});
       passedCount++;
-      console.log(\`✓ \${{slug}}\`);
     }} catch (error) {{
       const message = error.stderr || error.stdout || 'Test failed';
       results.push({{ subchallengeId: slug, passed: false, message: message.trim() }});
-      console.log(\`✗ \${{slug}}\`);
     }}
   }}
   
@@ -164,9 +157,6 @@ output += f'''async function runTests() {{
   }};
 
   writeFileSync('.dsa-report.json', JSON.stringify(report, null, 2));
-  
-  console.log('');
-  console.log(\`Summary: \${{report.summary}}\`);
   process.exit(report.pass ? 0 : 1);
 }}
 
@@ -244,10 +234,6 @@ def run_tests():
     tests_to_run = ALL_TESTS[:current_challenge_index + 1]
     locked_tests = ALL_TESTS[current_challenge_index + 1:]
     
-    print(f"Running tests for: {module_id}")
-    print(f"Current challenge: {{current_challenge_index + 1}}/{{len(ALL_TESTS)}}")
-    print()
-    
     results = []
     passed_count = 0
     
@@ -257,7 +243,6 @@ def run_tests():
     
     for test in tests_to_run:
         if not os.path.exists(test['file']):
-            print(f"✗ {{test['slug']}} (file not found)")
             results.append({{
                 'subchallengeId': test['slug'],
                 'passed': False,
@@ -275,7 +260,6 @@ def run_tests():
             )
             results.append({{'subchallengeId': test['slug'], 'passed': True}})
             passed_count += 1
-            print(f"✓ {{test['slug']}}")
         except subprocess.CalledProcessError as e:
             message = e.stderr or e.stdout or 'Test failed'
             results.append({{
@@ -283,7 +267,6 @@ def run_tests():
                 'passed': False,
                 'message': message.strip()
             }})
-            print(f"✗ {{test['slug']}}")
     
     for test in locked_tests:
         results.append({{
@@ -303,8 +286,6 @@ def run_tests():
     with open('.dsa-report.json', 'w') as f:
         json.dump(report, f, indent=2)
     
-    print()
-    print(f"Summary: {{report['summary']}}")
     sys.exit(0 if report['pass'] else 1)
 
 if __name__ == '__main__':

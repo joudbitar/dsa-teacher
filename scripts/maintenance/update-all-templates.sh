@@ -11,7 +11,7 @@ BACKUP_DIR="${TEMPLATES_DIR}/.backups-$(date +%Y%m%d-%H%M%S)"
 echo "🔧 DSA Templates Progressive Unlocking Update"
 echo "=============================================="
 echo ""
-echo "This script will update all 24 template test runners to:"
+echo "This script will update all 12 template test runners (4 modules × 3 languages) to:"
 echo "  - Read currentChallengeIndex from dsa.config.json"
 echo "  - Only run tests up to current challenge"
 echo "  - Add locked challenges to report"
@@ -135,10 +135,6 @@ async function runTests() {
   const testsToRun = ALL_TESTS.slice(0, currentChallengeIndex + 1);
   const lockedTests = ALL_TESTS.slice(currentChallengeIndex + 1);
   
-  console.log(\`Running tests for: \${MODULE_ID}\`);
-  console.log(\`Current challenge: \${currentChallengeIndex + 1}/\${ALL_TESTS.length}\`);
-  console.log('');
-  
   const results = [];
   let passedCount = 0;
 
@@ -155,7 +151,6 @@ async function runTests() {
     }
     
     if (!testFile) {
-      console.error(\`✗ \${slug} (test file not found)\`);
       results.push({ subchallengeId: slug, passed: false, message: 'Test file not found' });
       continue;
     }
@@ -164,11 +159,9 @@ async function runTests() {
       await execPromise(\`npx vitest run \${testFile} --run\`);
       results.push({ subchallengeId: slug, passed: true });
       passedCount++;
-      console.log(\`✓ \${slug}\`);
     } catch (error) {
       const message = error.stderr || error.stdout || 'Test failed';
       results.push({ subchallengeId: slug, passed: false, message: message.trim() });
-      console.log(\`✗ \${slug}\`);
     }
   }
   
@@ -186,9 +179,6 @@ async function runTests() {
   };
 
   writeFileSync('.dsa-report.json', JSON.stringify(report, null, 2));
-  
-  console.log('');
-  console.log(\`Summary: \${report.summary}\`);
   process.exit(report.pass ? 0 : 1);
 }
 
@@ -284,10 +274,6 @@ def run_tests():
     tests_to_run = ALL_TESTS[:current_challenge_index + 1]
     locked_tests = ALL_TESTS[current_challenge_index + 1:]
     
-    print(f"Running tests for: {MODULE_ID}")
-    print(f"Current challenge: {current_challenge_index + 1}/{len(ALL_TESTS)}")
-    print()
-    
     results = []
     passed_count = 0
     
@@ -298,7 +284,6 @@ def run_tests():
     
     for test in tests_to_run:
         if not os.path.exists(test['file']):
-            print(f"✗ {test['slug']} (file not found)")
             results.append({
                 'subchallengeId': test['slug'],
                 'passed': False,
@@ -316,7 +301,6 @@ def run_tests():
             )
             results.append({'subchallengeId': test['slug'], 'passed': True})
             passed_count += 1
-            print(f"✓ {test['slug']}")
         except subprocess.CalledProcessError as e:
             message = e.stderr or e.stdout or 'Test failed'
             results.append({
@@ -324,7 +308,6 @@ def run_tests():
                 'passed': False,
                 'message': message.strip()
             })
-            print(f"✗ {test['slug']}")
     
     # Add locked challenges to report
     for test in locked_tests:
@@ -345,8 +328,6 @@ def run_tests():
     with open('.dsa-report.json', 'w') as f:
         json.dump(report, f, indent=2)
     
-    print()
-    print(f"Summary: {report['summary']}")
     sys.exit(0 if report['pass'] else 1)
 
 if __name__ == '__main__':
@@ -662,10 +643,6 @@ TEST_MAPPING_PLACEHOLDER
         List<Map.Entry<String, String>> testsToRun = testsList.subList(0, Math.min(currentIndex + 1, testsList.size()));
         int lockedCount = testsList.size() - testsToRun.size();
         
-        System.out.println("Running tests for: MODULE_PLACEHOLDER");
-        System.out.println("Current challenge: " + (currentIndex + 1) + "/" + testsList.size());
-        System.out.println();
-        
         List<TestCase> results = new ArrayList<>();
         int passedCount = 0;
         
@@ -685,17 +662,14 @@ TEST_MAPPING_PLACEHOLDER
                 
                 boolean passed = listener.getSummary().getFailures().isEmpty();
                 if (passed) {
-                    System.out.println("✓ " + slug);
                     results.add(new TestCase(slug, true));
                     passedCount++;
                 } else {
-                    System.out.println("✗ " + slug);
                     String message = listener.getSummary().getFailures().get(0)
                         .getException().getMessage();
                     results.add(new TestCase(slug, false, message));
                 }
             } catch (Exception e) {
-                System.out.println("✗ " + slug);
                 results.add(new TestCase(slug, false, e.getMessage()));
             }
         }
@@ -714,10 +688,9 @@ TEST_MAPPING_PLACEHOLDER
         try (FileWriter writer = new FileWriter(".dsa-report.json")) {
             gson.toJson(report, writer);
         } catch (IOException e) {
-            e.printStackTrace();
+            // Silent failure
         }
         
-        System.out.println("\nSummary: " + summary);
         System.exit(pass ? 0 : 1);
     }
 }
@@ -972,7 +945,7 @@ for template in "${TEMPLATES[@]}"; do
   
   # Update based on language
   case $lang in
-    ts|js)
+    js)
       if [ -f "tests/run.js" ]; then
         update_nodejs_runner "$template" "$module"
         ((SUCCESS_COUNT++))
@@ -990,27 +963,9 @@ for template in "${TEMPLATES[@]}"; do
         ((SKIP_COUNT++))
       fi
       ;;
-    go)
-      if [ -f "tests/run.go" ]; then
-        update_go_runner "$template" "$module"
-        ((SUCCESS_COUNT++))
-      else
-        echo "  ⚠️  tests/run.go not found, skipping..."
-        ((SKIP_COUNT++))
-      fi
-      ;;
     java)
-      if [ -f "src/test/java/TestRunner.java" ]; then
-        update_java_runner "$template" "$module"
-        ((SUCCESS_COUNT++))
-      else
-        echo "  ⚠️  src/test/java/TestRunner.java not found, skipping..."
-        ((SKIP_COUNT++))
-      fi
-      ;;
-    cpp)
       if [ -f "tests/run.sh" ]; then
-        update_cpp_runner "$template" "$module"
+        update_java_runner "$template" "$module"
         ((SUCCESS_COUNT++))
       else
         echo "  ⚠️  tests/run.sh not found, skipping..."
@@ -1018,7 +973,7 @@ for template in "${TEMPLATES[@]}"; do
       fi
       ;;
     *)
-      echo "  ⚠️  Unknown language: $lang"
+      echo "  ⚠️  Unsupported language: $lang (skipping)"
       ((SKIP_COUNT++))
       ;;
   esac

@@ -8,7 +8,7 @@ const modules = [
     "summary": "Implement push, pop, peek, size.",
     "subchallenges": ["Create class", "push()", "pop()", "peek()", "size()"],
     "template": "template-dsa-stack",
-    "languages": ["TypeScript", "JavaScript", "Python", "Java", "C++", "Go"]
+    "languages": ["JavaScript", "Python", "Java"]
   },
   {
     "id": "queue",
@@ -17,7 +17,7 @@ const modules = [
     "summary": "Circular buffer with enqueue/dequeue.",
     "subchallenges": ["Create class", "enqueue()", "dequeue()", "front()", "size()"],
     "template": "template-dsa-queue",
-    "languages": ["TypeScript", "JavaScript", "Python", "Java", "C++", "Go"]
+    "languages": ["JavaScript", "Python", "Java"]
   },
   {
     "id": "binary-search",
@@ -26,7 +26,7 @@ const modules = [
     "summary": "Find index in a sorted array.",
     "subchallenges": ["Empty array", "Found index", "Not found = -1", "Bounds"],
     "template": "template-dsa-binary-search",
-    "languages": ["TypeScript", "JavaScript", "Python", "Java", "C++", "Go"]
+    "languages": ["JavaScript", "Python", "Java"]
   },
   {
     "id": "min-heap",
@@ -35,7 +35,7 @@ const modules = [
     "summary": "Insert, peekMin, extractMin, heapify.",
     "subchallenges": ["Insert", "Heapify up", "Peek", "Extract", "Heapify down", "Size"],
     "template": "template-dsa-min-heap",
-    "languages": ["TypeScript", "JavaScript", "Python", "Java", "C++", "Go"]
+    "languages": ["JavaScript", "Python", "Java"]
   }
 ];
 

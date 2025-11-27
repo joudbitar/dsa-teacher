@@ -70,15 +70,11 @@ export async function handlePost(req: Request): Promise<Response> {
     }, 400);
   }
 
-  // Normalize language to proper case (e.g., "go" -> "Go", "python" -> "Python")
+  // Normalize language to proper case (e.g., "python" -> "Python")
   const languageMap: Record<string, string> = {
-    'typescript': 'TypeScript',
     'javascript': 'JavaScript',
     'python': 'Python',
-    'go': 'Go',
     'java': 'Java',
-    'c++': 'C++',
-    'cpp': 'C++',
   };
   
   const normalizedLanguage = languageMap[language.toLowerCase()] || language;

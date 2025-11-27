@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # DSA Lab - Complete Multi-Language Template Generator
-# Generates 24 templates: 4 modules × 6 languages
+# Generates 12 templates: 4 modules × 3 languages
 
 set -e
 
 TEMPLATES_DIR="../dsa-templates"
 ORG_NAME="${1:-YOUR_ORG_NAME}"
 
-echo "🚀 Creating DSA Lab templates for ALL languages..."
+echo "🚀 Creating DSA Lab templates for supported languages..."
 echo "Organization: $ORG_NAME"
 echo "Location: $TEMPLATES_DIR"
 echo ""
@@ -18,9 +18,9 @@ mkdir -p "$TEMPLATES_DIR"
 cd "$TEMPLATES_DIR"
 
 MODULES=("stack" "queue" "binary-search" "min-heap")
-LANGUAGES=("ts" "js" "py" "java" "cpp" "go")
+LANGUAGES=("js" "py" "java")
 
-echo "📊 Will generate: 4 modules × 6 languages = 24 templates"
+echo "📊 Will generate: 4 modules × 3 languages = 12 templates"
 echo ""
 
 # ==============================================================================
@@ -30,7 +30,7 @@ echo ""
 create_gitignore() {
   local lang=$1
   case $lang in
-    ts|js)
+    js)
       cat > .gitignore << 'EOF'
 node_modules/
 dist/
@@ -60,26 +60,6 @@ target/
 .DS_Store
 .idea/
 *.iml
-EOF
-      ;;
-    cpp)
-      cat > .gitignore << 'EOF'
-*.o
-*.out
-*.exe
-a.out
-.dsa-report.json
-*.log
-.DS_Store
-build/
-EOF
-      ;;
-    go)
-      cat > .gitignore << 'EOF'
-*.exe
-.dsa-report.json
-*.log
-.DS_Store
 EOF
       ;;
   esac

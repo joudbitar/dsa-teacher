@@ -1,29 +1,23 @@
 export const languageToSuffix: Record<string, string> = {
-  "TypeScript": "ts",
   "JavaScript": "js",
   "Python": "py",
-  "Go": "go",
-  "Java": "java",
-  "C++": "cpp"
+  "Java": "java"
 };
 
 export const supportedCombos: Record<string, string[]> = {
-  "stack": ["TypeScript", "JavaScript", "Python", "Go", "Java", "C++"],
-  "queue": ["TypeScript", "JavaScript", "Python", "Go", "Java", "C++"],
-  "binary-search": ["TypeScript", "JavaScript", "Python", "Go", "Java", "C++"],
-  "min-heap": ["TypeScript", "JavaScript", "Python", "Go", "Java", "C++"]
+  "stack": ["JavaScript", "Python", "Java"],
+  "queue": ["JavaScript", "Python", "Java"],
+  "binary-search": ["JavaScript", "Python", "Java"],
+  "min-heap": ["JavaScript", "Python", "Java"]
 };
 
 export function getTestCommand(language: string): string {
   const commands: Record<string, string> = {
-    "TypeScript": "npm test",
-    "JavaScript": "npm test",
+    "JavaScript": "node tests/run.js",
     "Python": "python3 tests/run.py",
-    "Go": "go run tests/run.go",
-    "Java": "bash tests/run.sh",
-    "C++": "bash tests/run.sh"
+    "Java": "bash tests/run.sh"
   };
-  return commands[language] || "npm test";
+  return commands[language] || "node tests/run.js";
 }
 
 export function generateToken(): string {
