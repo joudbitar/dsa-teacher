@@ -1,8 +1,5 @@
 import React from "react";
-import {
-  Check,
-  Copy,
-} from "lucide-react";
+import { Check, Copy } from "lucide-react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { ChallengeSteps } from "./ChallengeSteps";
 import { ChallengeData } from "@/data/challenges/types";
@@ -793,7 +790,8 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
   // Copy CLI install command to clipboard
   const handleCopyCLI = async () => {
     try {
-      const installCommand = "curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash";
+      const installCommand =
+        "curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash";
       await navigator.clipboard.writeText(installCommand);
       setCliCopied(true);
       setTimeout(() => setCliCopied(false), 2000);
@@ -815,7 +813,7 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
           <div className="bg-muted rounded-lg p-4 font-mono text-sm">
             <div className="flex items-center justify-between">
               <code className="flex-1 text-foreground">
-                git clone {githubRepoUrl ? toGitCloneUrl(githubRepoUrl) : ''}
+                git clone {githubRepoUrl ? toGitCloneUrl(githubRepoUrl) : ""}
               </code>
               <button
                 onClick={handleCopy}
@@ -1082,7 +1080,7 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
             </div>
           )}
 
-          <div className="space-y-4">
+          <div className="rounded-lg border border-border/50 bg-muted/30 p-4 space-y-4">
             <h2 className="text-2xl font-bold">Install the DSA CLI</h2>
             <p className="text-foreground/90">
               Get the command-line helper locally with a single command so you
@@ -1096,10 +1094,12 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
               </code>
               .
             </p>
-            <div className="bg-background p-4 font-mono text-sm text-foreground">
+            <div className="bg-background p-4 font-mono text-sm text-foreground rounded">
               <div className="flex items-start justify-between gap-4">
                 <code className="block whitespace-pre-wrap break-words flex-1">
-                  curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash
+                  curl -fsSL
+                  https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh
+                  | bash
                 </code>
                 <button
                   onClick={handleCopyCLI}
