@@ -27,13 +27,16 @@ export async function updateCommand(): Promise<void> {
   console.log(chalk.cyan('  Updating CLI...'));
   console.log('');
 
-  // Run the install script to update
+  // Get the latest release tag (e.g., "v0.1.3")
+  const latestTag = `v${updateInfo.latestVersion}`;
+  
+  // Run the install script to update, passing the release tag
   const installScript = 'https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh';
   
   try {
-    // Use the install script directly via curl | bash
-    // This is safer and matches the user's original installation method
-    const { exitCode } = await execa('bash', ['-c', `curl -fsSL ${installScript} | bash`], {
+    // Use the install script with DSA_CLI_REF set to the latest release tag
+    // This ensures we install from the release tag, not the main branch
+    const { exitCode } = await execa('bash', ['-c', `curl -fsSL ${installScript} | DSA_CLI_REF=${latestTag} bash`], {
       stdout: 'inherit',
       stderr: 'inherit',
     });
