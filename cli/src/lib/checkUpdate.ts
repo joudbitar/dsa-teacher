@@ -37,6 +37,8 @@ export function getCurrentVersion(): string {
  */
 export async function getLatestVersion(): Promise<string | null> {
   try {
+    let releaseVersion: string | null = null;
+    
     // Check GitHub releases API
     const response = await fetch(
       `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`,
@@ -48,21 +50,29 @@ export async function getLatestVersion(): Promise<string | null> {
       }
     );
 
-    if (!response.ok) {
-      // Fallback: check package.json from main branch
-      const packageResponse = await fetch(
-        `https://raw.githubusercontent.com/${GITHUB_REPO}/main/cli/package.json`
-      );
-      if (packageResponse.ok) {
-        const packageJson = await packageResponse.json();
-        return packageJson.version || null;
-      }
-      return null;
+    if (response.ok) {
+      const release = await response.json();
+      // Extract version from tag (e.g., "v0.1.0" -> "0.1.0")
+      releaseVersion = release.tag_name?.replace(/^v/, '') || null;
     }
 
-    const release = await response.json();
-    // Extract version from tag (e.g., "v0.1.0" -> "0.1.0")
-    return release.tag_name?.replace(/^v/, '') || null;
+    // Also check package.json from main branch to get the latest version
+    const packageResponse = await fetch(
+      `https://raw.githubusercontent.com/${GITHUB_REPO}/main/cli/package.json`
+    );
+    
+    let packageVersion: string | null = null;
+    if (packageResponse.ok) {
+      const packageJson = await packageResponse.json();
+      packageVersion = packageJson.version || null;
+    }
+
+    // Return the newer version, or whichever is available
+    if (releaseVersion && packageVersion) {
+      return compareVersions(releaseVersion, packageVersion) > 0 ? releaseVersion : packageVersion;
+    }
+    
+    return releaseVersion || packageVersion || null;
   } catch (error) {
     // Network error or other issue - fail silently
     return null;
