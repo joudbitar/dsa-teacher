@@ -1,13 +1,7 @@
 import React from "react";
 import {
-  Code2,
-  Lightbulb,
-  Target,
-  CheckCircle2,
-  AlertCircle,
   Check,
   Copy,
-  Terminal,
 } from "lucide-react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { ChallengeSteps } from "./ChallengeSteps";
@@ -906,33 +900,18 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
           </div>
 
           {/* Concept Explanation */}
-          <div className="rounded-xl border border-border bg-muted p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
-                <Lightbulb className="h-5 w-5 text-accent" />
-              </div>
-              <h2 className="text-2xl font-bold">Understanding the Concept</h2>
-            </div>
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold">Understanding the Concept</h2>
             <p className="text-foreground/90 leading-relaxed">{concept}</p>
           </div>
 
           {/* How This Helps You */}
-          <div className="rounded-xl border border-border bg-muted p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10 border border-success/20">
-                <Target className="h-5 w-5 text-success" />
-              </div>
-              <h2 className="text-2xl font-bold">How This Helps You</h2>
-            </div>
-            <ul className="space-y-3">
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold">How This Helps You</h2>
+            <ul className="space-y-2 list-disc list-inside">
               {benefits.map((benefit, index) => (
-                <li key={index} className="flex items-start gap-3">
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/10 mt-0.5">
-                    <span className="text-xs font-bold text-accent">
-                      {index + 1}
-                    </span>
-                  </div>
-                  <p className="text-foreground/90">{benefit}</p>
+                <li key={index} className="text-foreground/90">
+                  {benefit}
                 </li>
               ))}
             </ul>
@@ -940,20 +919,15 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
 
           {/* Code Example - Stack Usage */}
           {moduleId === "stack" && (
-            <div className="rounded-xl border border-border bg-muted p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
-                  <Code2 className="h-5 w-5 text-accent" />
-                </div>
-                <h2 className="text-2xl font-bold">Example: Using a Stack</h2>
-              </div>
-              <p className="text-foreground/90 mb-4">
+            <div className="space-y-4">
+              <h2 className="text-2xl font-bold">Example: Using a Stack</h2>
+              <p className="text-foreground/90">
                 Here's how to use a stack to reverse a string. Select a language
                 to see the example:
               </p>
               {selectedLanguage ? (
                 <div className="space-y-4">
-                  <div className="rounded-lg border border-border overflow-hidden">
+                  <div className="overflow-hidden">
                     <SyntaxHighlighter
                       language={getSyntaxLanguage(selectedLanguage)}
                       style={customLightTheme}
@@ -975,31 +949,26 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
                   </p>
                 </div>
               ) : (
-                <div className="bg-background rounded-lg border border-border p-4 text-center text-muted-foreground">
-                  <p>Select a language above to see a code example</p>
-                </div>
+                <p className="text-muted-foreground">
+                  Select a language above to see a code example
+                </p>
               )}
             </div>
           )}
 
           {/* Code Example - Queue Usage */}
           {moduleId === "queue" && (
-            <div className="rounded-xl border border-border bg-muted p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
-                  <Code2 className="h-5 w-5 text-accent" />
-                </div>
-                <h2 className="text-2xl font-bold">
-                  Example: Simulating a Ticket Counter
-                </h2>
-              </div>
-              <p className="text-foreground/90 mb-4">
+            <div className="space-y-4">
+              <h2 className="text-2xl font-bold">
+                Example: Simulating a Ticket Counter
+              </h2>
+              <p className="text-foreground/90">
                 Here's how to use a queue to simulate a ticket counter. Select a
                 language to see the example:
               </p>
               {selectedLanguage ? (
                 <div className="space-y-4">
-                  <div className="rounded-lg border border-border overflow-hidden">
+                  <div className="overflow-hidden">
                     <SyntaxHighlighter
                       language={getSyntaxLanguage(selectedLanguage)}
                       style={customLightTheme}
@@ -1021,31 +990,26 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
                   </p>
                 </div>
               ) : (
-                <div className="bg-background rounded-lg border border-border p-4 text-center text-muted-foreground">
-                  <p>Select a language above to see a code example</p>
-                </div>
+                <p className="text-muted-foreground">
+                  Select a language above to see a code example
+                </p>
               )}
             </div>
           )}
 
           {/* Code Example - Binary Search Usage */}
           {moduleId === "binary-search" && (
-            <div className="rounded-xl border border-border bg-muted p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
-                  <Code2 className="h-5 w-5 text-accent" />
-                </div>
-                <h2 className="text-2xl font-bold">
-                  Example: Binary Search Implementation
-                </h2>
-              </div>
-              <p className="text-foreground/90 mb-4">
+            <div className="space-y-4">
+              <h2 className="text-2xl font-bold">
+                Example: Binary Search Implementation
+              </h2>
+              <p className="text-foreground/90">
                 Here's an iterative binary search implementation. Select a
                 language to see the example:
               </p>
               {selectedLanguage ? (
                 <div className="space-y-4">
-                  <div className="rounded-lg border border-border overflow-hidden">
+                  <div className="overflow-hidden">
                     <SyntaxHighlighter
                       language={getSyntaxLanguage(selectedLanguage)}
                       style={customLightTheme}
@@ -1068,31 +1032,26 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
                   </p>
                 </div>
               ) : (
-                <div className="bg-background rounded-lg border border-border p-4 text-center text-muted-foreground">
-                  <p>Select a language above to see a code example</p>
-                </div>
+                <p className="text-muted-foreground">
+                  Select a language above to see a code example
+                </p>
               )}
             </div>
           )}
 
           {/* Code Example - Min Heap Usage */}
           {moduleId === "min-heap" && (
-            <div className="rounded-xl border border-border bg-muted p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
-                  <Code2 className="h-5 w-5 text-accent" />
-                </div>
-                <h2 className="text-2xl font-bold">
-                  Example: Min Heap Implementation
-                </h2>
-              </div>
-              <p className="text-foreground/90 mb-4">
+            <div className="space-y-4">
+              <h2 className="text-2xl font-bold">
+                Example: Min Heap Implementation
+              </h2>
+              <p className="text-foreground/90">
                 Here's a complete Min Heap implementation using an array. Select
                 a language to see the example:
               </p>
               {selectedLanguage ? (
                 <div className="space-y-4">
-                  <div className="rounded-lg border border-border overflow-hidden">
+                  <div className="overflow-hidden">
                     <SyntaxHighlighter
                       language={getSyntaxLanguage(selectedLanguage)}
                       style={customLightTheme}
@@ -1116,21 +1075,16 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
                   </p>
                 </div>
               ) : (
-                <div className="bg-background rounded-lg border border-border p-4 text-center text-muted-foreground">
-                  <p>Select a language above to see a code example</p>
-                </div>
+                <p className="text-muted-foreground">
+                  Select a language above to see a code example
+                </p>
               )}
             </div>
           )}
 
-          <div className="rounded-xl border border-border bg-muted p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
-                <Terminal className="h-5 w-5 text-accent" />
-              </div>
-              <h2 className="text-2xl font-bold">Install the DSA CLI</h2>
-            </div>
-            <p className="text-foreground/90 mb-4">
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold">Install the DSA CLI</h2>
+            <p className="text-foreground/90">
               Get the command-line helper locally with a single command so you
               can run{" "}
               <code className="px-1 py-0.5 rounded bg-background">
@@ -1142,7 +1096,7 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
               </code>
               .
             </p>
-            <div className="rounded-lg border border-border bg-background p-4 font-mono text-sm text-foreground">
+            <div className="bg-background p-4 font-mono text-sm text-foreground">
               <div className="flex items-start justify-between gap-4">
                 <code className="block whitespace-pre-wrap break-words flex-1">
                   curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash
@@ -1166,7 +1120,7 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
                 </button>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground mt-3">
+            <p className="text-sm text-muted-foreground">
               After installation, verify with{" "}
               <code className="px-1 py-0.5 rounded bg-background">
                 dsa --version
@@ -1231,13 +1185,8 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
       {!isLanguageStep && instruction && (
         <div className="space-y-6">
           {/* Objective */}
-          <div className="rounded-xl border border-border bg-muted p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
-                <Target className="h-5 w-5 text-accent" />
-              </div>
-              <h2 className="text-2xl font-bold">{instruction.title}</h2>
-            </div>
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold">{instruction.title}</h2>
             <p className="text-lg text-foreground/90">
               {instruction.objective}
             </p>
@@ -1246,12 +1195,9 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
           {/* Method Signature */}
           {selectedLanguage &&
             instruction.methodSignature[selectedLanguage.toLowerCase()] && (
-              <div className="rounded-xl border border-border bg-muted p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <Code2 className="h-5 w-5 text-accent" />
-                  <h3 className="text-xl font-bold">Method Signature</h3>
-                </div>
-                <div className="rounded-lg border border-border bg-background p-4 font-mono text-sm overflow-x-auto">
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold">Method Signature</h3>
+                <div className="bg-background p-4 font-mono text-sm overflow-x-auto">
                   <code className="text-accent">
                     {
                       instruction.methodSignature[
@@ -1264,46 +1210,54 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
             )}
 
           {/* Requirements */}
-          <div className="rounded-xl border border-border bg-muted p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <CheckCircle2 className="h-5 w-5 text-success" />
-              <h3 className="text-xl font-bold">Requirements</h3>
-            </div>
-            <ul className="space-y-2">
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold">Requirements</h3>
+            <ul className="space-y-2 list-disc list-inside">
               {instruction.requirements.map((req, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-success mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground/90">{req}</span>
+                <li key={i} className="text-foreground/90">
+                  {req}
                 </li>
               ))}
             </ul>
           </div>
 
           {/* Examples */}
-          <div className="rounded-xl border border-border bg-muted p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <Lightbulb className="h-5 w-5 text-accent" />
-              <h3 className="text-xl font-bold">Examples</h3>
-            </div>
-            <div className="space-y-4">
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold">Examples</h3>
+            <div className="space-y-6">
               {instruction.examples.map((example, i) => (
-                <div
-                  key={i}
-                  className="rounded-lg border border-border bg-background p-4 space-y-3"
-                >
+                <div key={i} className="space-y-3">
                   <div>
                     <div className="text-sm font-semibold text-muted-foreground mb-2">
                       Input:
                     </div>
-                    <pre className="font-mono text-sm text-foreground/90 whitespace-pre-wrap">
-                      {example.input}
-                    </pre>
+                    {selectedLanguage ? (
+                      <div className="overflow-hidden">
+                        <SyntaxHighlighter
+                          language={getSyntaxLanguage(selectedLanguage)}
+                          style={customLightTheme}
+                          customStyle={{
+                            margin: 0,
+                            borderRadius: "0.5rem",
+                            fontSize: "0.875rem",
+                            lineHeight: "1.5",
+                          }}
+                          showLineNumbers={false}
+                        >
+                          {example.input}
+                        </SyntaxHighlighter>
+                      </div>
+                    ) : (
+                      <pre className="font-mono text-sm text-foreground/90 whitespace-pre-wrap bg-muted/50 p-3 rounded">
+                        {example.input}
+                      </pre>
+                    )}
                   </div>
                   <div>
                     <div className="text-sm font-semibold text-muted-foreground mb-2">
                       Output:
                     </div>
-                    <pre className="font-mono text-sm text-success whitespace-pre-wrap">
+                    <pre className="font-mono text-sm text-success whitespace-pre-wrap bg-muted/50 p-3 rounded">
                       {example.output}
                     </pre>
                   </div>
@@ -1321,34 +1275,27 @@ console.log(heap.extractMin());   // Output: 1, heap becomes [3, 5, 8, 6]`,
           </div>
 
           {/* Hints */}
-          <div className="rounded-xl border border-border bg-muted p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <Lightbulb className="h-5 w-5 text-warning" />
-              <h3 className="text-xl font-bold">Hints</h3>
-            </div>
-            <ul className="space-y-2">
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold">Hints</h3>
+            <ul className="space-y-2 list-disc list-inside">
               {instruction.hints.map((hint, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span className="text-foreground/90">{hint}</span>
+                <li key={i} className="text-foreground/90">
+                  {hint}
                 </li>
               ))}
             </ul>
           </div>
 
           {/* Edge Cases */}
-          <div className="rounded-xl border border-border bg-muted p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <AlertCircle className="h-5 w-5 text-destructive" />
-              <h3 className="text-xl font-bold">Edge Cases to Test!</h3>
-            </div>
-            <div className="space-y-2">
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold">Edge Cases to Test!</h3>
+            <ul className="space-y-2 list-disc list-inside">
               {instruction.edgeCases.map((edge, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <AlertCircle className="h-5 w-5 text-destructive mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground/90">{edge}</span>
-                </div>
+                <li key={i} className="text-foreground/90">
+                  {edge}
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         </div>
       )}

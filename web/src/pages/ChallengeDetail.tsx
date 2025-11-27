@@ -816,23 +816,75 @@ export function ChallengeDetail() {
         {/* Main Content Area */}
         <main className="relative flex-1 p-8 overflow-y-auto">
           <div
-            className={`relative max-w-4xl mx-auto ${
+            className={`relative ${
               progressModal ? "pointer-events-none" : ""
             }`}
             style={{
               filter: progressModal ? "blur(4px)" : "none",
             }}
           >
-            {/* Back Button - Top of Page */}
-            {existingProject && displayStepIndex > 0 && (
-              <button
-                onClick={() => handleStepClick(0)}
-                className="inline-flex items-center gap-2 text-sm font-mono text-muted-foreground hover:text-foreground transition-colors mb-6"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Back to Setup
-              </button>
-            )}
+            {/* Back Button and Difficulty Chip - Top of Page */}
+            <div className="flex items-center justify-between mb-6">
+              {existingProject && displayStepIndex > 0 && (
+                <button
+                  onClick={() => handleStepClick(0)}
+                  className="inline-flex items-center gap-2 text-sm font-mono text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Setup
+                </button>
+              )}
+              {displayStepIndex > 0 && (
+                <div className="ml-auto flex items-baseline gap-2">
+                  <span
+                    className={`text-sm font-semibold font-mono ${
+                      challenge.level === "Beginner"
+                        ? "text-green-600"
+                        : challenge.level === "Intermediate"
+                        ? "text-yellow-600"
+                        : challenge.level === "Advanced"
+                        ? "text-red-600"
+                        : "text-foreground/80"
+                    }`}
+                  >
+                    {challenge.level}
+                  </span>
+                  <div className="flex items-end gap-0.5 h-4">
+                    {[1, 2, 3].map((bar) => {
+                      const filledBars =
+                        challenge.level === "Beginner"
+                          ? 1
+                          : challenge.level === "Intermediate"
+                          ? 2
+                          : challenge.level === "Advanced"
+                          ? 3
+                          : 0;
+                      const isFilled = bar <= filledBars;
+                      const barColor =
+                        challenge.level === "Beginner"
+                          ? "bg-green-600"
+                          : challenge.level === "Intermediate"
+                          ? "bg-yellow-600"
+                          : challenge.level === "Advanced"
+                          ? "bg-red-600"
+                          : "bg-foreground/80";
+                      return (
+                        <div
+                          key={bar}
+                          className={`w-1 rounded-t ${
+                            isFilled ? barColor : "bg-foreground/30"
+                          }`}
+                          style={{
+                            height: `${bar * 4}px`,
+                            minHeight: "4px",
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
             {/* Main Content */}
             <div className="space-y-6">
               {/* Language Picker - Show on step 0 only, or always allow changing */}
