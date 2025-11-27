@@ -1,4 +1,5 @@
 // CLI Entry Point
+// Version 0.1.5 - Update test marker
 
 import { Command } from 'commander';
 import { testCommand } from './commands/test.js';
