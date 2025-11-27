@@ -20,7 +20,6 @@ import { colors } from "@/theme/colors";
 import { PageTransition } from "@/components/routing/PageTransition";
 import { SEO } from "@/components/SEO";
 import { injectStructuredData, getOrganizationSchema, getSoftwareApplicationSchema } from "@/lib/structuredData";
-import { useEffect } from "react";
 
 type DocSection = {
   id: string;
