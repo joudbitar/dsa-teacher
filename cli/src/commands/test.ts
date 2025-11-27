@@ -4,6 +4,7 @@ import chalk from 'chalk';
 import { loadConfig } from '../lib/loadConfig.js';
 import { runCommand } from '../lib/runCommand.js';
 import { parseReport } from '../lib/parseReport.js';
+import { getCurrentVersion } from '../lib/checkUpdate.js';
 import type { DSAReport, TestCase } from '../../types/report.js';
 
 /**
@@ -119,6 +120,7 @@ export async function testCommand(cwd: string = process.cwd()): Promise<DSARepor
   console.log(chalk.bold.cyan('                                       \\______/                                   '));
   console.log('');
   console.log(chalk.gray(`  Module: ${config.moduleId} | Language: ${config.language}`));
+  console.log(chalk.gray(`  Version: ${getCurrentVersion()}`));
   console.log('');
 
   // Animated loading while tests run
