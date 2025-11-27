@@ -26,7 +26,7 @@ export function ChallengeSidebar({
   subchallenges,
   progress,
   time: _time,
-  level,
+  level: _level,
   selectedLanguage,
   currentStepIndex = 0,
   onStepClick,
