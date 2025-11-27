@@ -20,6 +20,14 @@ export interface WebsiteSchema {
     '@type': string
     name: string
   }
+  potentialAction?: {
+    '@type': string
+    target: {
+      '@type': string
+      urlTemplate: string
+    }
+    'query-input': string
+  }
 }
 
 export interface SoftwareApplicationSchema {
@@ -90,6 +98,14 @@ export function getWebsiteSchema(): WebsiteSchema {
       '@type': 'Organization',
       name: 'Shelly',
     },
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${SITE_URL}/challenges?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
   }
 }
 
@@ -145,6 +161,27 @@ export function getCourseSchema(
     },
     courseCode,
     educationalLevel: 'Beginner to Intermediate',
+  }
+}
+
+/**
+ * Generate SiteLinksSearchBox schema to help Google understand site structure
+ * Note: Google generates sitelinks automatically, but this helps provide context
+ */
+export function getSiteLinksSearchBoxSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Shelly',
+    url: SITE_URL,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${SITE_URL}/challenges?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
   }
 }
 

@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { useTheme } from "@/theme/ThemeContext";
 import { PageTransition } from "@/components/routing/PageTransition";
 import { SEO } from "@/components/SEO";
-import { injectStructuredData, getOrganizationSchema, getWebsiteSchema } from "@/lib/structuredData";
+import { injectStructuredData, getOrganizationSchema, getWebsiteSchema, getSiteLinksSearchBoxSchema } from "@/lib/structuredData";
 
 const codeExamples = {
   stack: {
@@ -214,13 +214,16 @@ export function Landing() {
   useEffect(() => {
     injectStructuredData(getOrganizationSchema(), 'organization-schema');
     injectStructuredData(getWebsiteSchema(), 'website-schema');
+    injectStructuredData(getSiteLinksSearchBoxSchema(), 'sitelinks-searchbox-schema');
     
     return () => {
       // Cleanup on unmount
       const orgScript = document.getElementById('organization-schema');
       const websiteScript = document.getElementById('website-schema');
+      const sitelinksScript = document.getElementById('sitelinks-searchbox-schema');
       if (orgScript) orgScript.remove();
       if (websiteScript) websiteScript.remove();
+      if (sitelinksScript) sitelinksScript.remove();
     };
   }, []);
 
@@ -236,8 +239,8 @@ export function Landing() {
   return (
     <PageTransition>
       <SEO
-        title="Shelly - Master Data Structures & Algorithms | Learn by Building"
-        description="Learn data structures and algorithms by building them from scratch. Shelly provides hands-on coding challenges with real GitHub repos and CLI tools. Master DSA fundamentals through practical projects."
+        title="Shelly | Master Data Structures & Algorithms"
+        description="Learn data structures & algorithms by building them from scratch."
         keywords="shelly, shelly cli, learn DSA, data structures, algorithms, coding challenges, learn programming, learn data structures, computer science, coding practice, technical interview prep"
         canonical="/"
       />
@@ -264,7 +267,7 @@ export function Landing() {
                   fontFamily: themeStyle.fontFamily,
                 }}
               >
-                Learn data structures and algorithms by building them from scratch. Use Shelly CLI to test your code and master DSA fundamentals through hands-on coding challenges.
+                Master data structures and algorithms by building them from scratch. Get real GitHub repositories, use CLI tools, and work with structured projects that include tests. Learn DSA fundamentals through practical, production-ready code.
               </p>
               <Link
                 to="/auth?mode=signup"
