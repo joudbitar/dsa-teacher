@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const CURRENT_VERSION = '0.1.1';
+const CURRENT_VERSION = '0.1.2';
 const GITHUB_REPO = 'joudbitar/dsa-teacher';
 const CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
