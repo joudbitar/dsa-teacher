@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Suspense, lazy } from 'react'
+import { Analytics } from '@vercel/analytics/react'
 import { AuthProvider } from './auth/AuthProvider'
 import { ThemeProvider } from './theme/ThemeContext'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
@@ -43,6 +44,7 @@ function App() {
               <Route path="/docs" element={<Docs />} />
             </Routes>
           </Suspense>
+          <Analytics />
         </BrowserRouter>
       </AuthProvider>
     </ThemeProvider>
