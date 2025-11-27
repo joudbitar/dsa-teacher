@@ -45,7 +45,7 @@ export function ModulesStrip() {
         </div>
 
         <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-          {modules.map((module, index) => {
+          {modules.map((module) => {
             const Icon = module.icon
             const isHovered = hoveredId === module.id
             
@@ -68,13 +68,6 @@ export function ModulesStrip() {
                     "hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20"
                   )}
                 >
-                  {/* Auth indicator badge */}
-                  {!user && (
-                    <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-full bg-warning/20 text-warning text-xs font-medium">
-                      <Lock className="h-3 w-3" />
-                      <span>Sign in</span>
-                    </div>
-                  )}
                   {/* Icon and Title */}
                   <div className="flex items-center gap-4 mb-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
@@ -141,7 +134,15 @@ export function ModulesStrip() {
                     Time to mastery: ~{module.time}
                   </motion.div>
 
-                  <ArrowRight className="mt-4 h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                  {/* Sign in badge or Arrow icon */}
+                  {!user ? (
+                    <div className="mt-4 flex items-center gap-1 px-3 py-1.5 rounded-full bg-warning/20 text-warning text-sm font-medium">
+                      <Lock className="h-4 w-4" />
+                      <span>Sign in</span>
+                    </div>
+                  ) : (
+                    <ArrowRight className="mt-4 h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                  )}
                 </ProtectedLink>
               </motion.div>
             )

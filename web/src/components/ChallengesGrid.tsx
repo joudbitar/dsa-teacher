@@ -143,13 +143,6 @@ export function ChallengesGrid({ modules }: ChallengesGridProps) {
               className="block relative"
               style={{ transform: 'none' }}
             >
-              {/* Auth indicator badge */}
-              {!user && (
-                <div className="absolute top-3 right-3 z-10 flex items-center gap-1 px-2 py-1 rounded-full bg-warning/20 text-warning text-xs font-medium font-mono">
-                  <Lock className="h-3 w-3" />
-                  <span>Sign in</span>
-                </div>
-              )}
               <OrganicStep
                 isCurrent={false}
                 isCompleted={progress === 100}
@@ -178,9 +171,16 @@ export function ChallengesGrid({ modules }: ChallengesGridProps) {
                   <TurtleProgress progress={progress} />
                 </div>
 
-                {/* Start Building - Bottom right */}
-                <div className="absolute bottom-6 right-6 text-sm text-primary font-medium font-mono">
-                  <span>Start building →</span>
+                {/* Start Building / Sign in - Bottom right */}
+                <div className="absolute bottom-6 right-6">
+                  {!user ? (
+                    <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-warning/20 text-warning text-sm font-medium font-mono">
+                      <Lock className="h-4 w-4" />
+                      <span>Sign in</span>
+                    </div>
+                  ) : (
+                    <span className="text-sm text-primary font-medium font-mono">Start building →</span>
+                  )}
                 </div>
               </OrganicStep>
             </ProtectedLink>

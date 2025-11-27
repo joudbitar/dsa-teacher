@@ -14,7 +14,7 @@ export function LoadingSkeleton({
   width,
   height 
 }: LoadingSkeletonProps) {
-  const { sectionBackgroundColor, backgroundColor } = useTheme()
+  const { sectionBackgroundColor } = useTheme()
 
   const baseClasses = 'animate-pulse'
   

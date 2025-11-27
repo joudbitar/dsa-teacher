@@ -6,8 +6,10 @@ import { OrganicStep } from "@/components/OrganicStep";
 import { useTheme } from "@/theme/ThemeContext";
 import { fetchUserProjects, apiClient, type Project } from "@/lib/api";
 import { useAuth } from "@/auth/useAuth";
-import { Link, useLocation } from "react-router-dom";
+import { ProtectedLink } from "@/components/auth/ProtectedLink";
+import { useLocation } from "react-router-dom";
 import { challengeData } from "@/data/challenges";
+import type { Module } from "@/lib/api";
 import { clearChallengeProgress } from "@/utils/challengeProgress";
 import { PageTransition } from "@/components/routing/PageTransition";
 import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
@@ -69,10 +71,25 @@ export function Challenges() {
         }
       } catch (err) {
         if (!ignore) {
-          console.error("Failed to load modules:", err);
-          setModulesError(
-            err instanceof Error ? err.message : "Failed to load modules"
-          );
+          console.error("Failed to load modules from API, using fallback data:", err);
+          // Fallback to hardcoded challenge data when API fails (e.g., not logged in)
+          const fallbackModules: Module[] = ALLOWED_MODULE_IDS.map((id) => {
+            const challenge = challengeData[id];
+            if (!challenge) return null;
+            return {
+              id,
+              title: challenge.title,
+              level: challenge.level,
+              summary: challenge.summary || challenge.description || "",
+              subchallenges: challenge.subchallenges || [],
+              template: `template-dsa-${id}`,
+              languages: ["TypeScript", "JavaScript", "Python", "Java", "C++", "Go"],
+              time: challenge.time,
+            };
+          }).filter((m): m is Module => m !== null);
+          
+          setModules(fallbackModules);
+          setModulesError(null); // Clear error since we have fallback
         }
       } finally {
         if (!ignore) {
@@ -361,40 +378,53 @@ export function Challenges() {
                 >
                   Your Library
                 </h2>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="text-sm font-mono"
-                      style={{ color: secondaryTextColor }}
-                    >
-                      In Progress:
-                    </span>
-                    <span
-                      className="text-base font-bold font-mono"
-                      style={{ color: textColor }}
-                    >
-                      {inProgressCount}
-                    </span>
+                {user && (
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="text-sm font-mono"
+                        style={{ color: secondaryTextColor }}
+                      >
+                        In Progress:
+                      </span>
+                      <span
+                        className="text-base font-bold font-mono"
+                        style={{ color: textColor }}
+                      >
+                        {inProgressCount}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="text-sm font-mono"
+                        style={{ color: secondaryTextColor }}
+                      >
+                        Completed:
+                      </span>
+                      <span
+                        className="text-base font-bold font-mono"
+                        style={{ color: textColor }}
+                      >
+                        {completedCount}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="text-sm font-mono"
-                      style={{ color: secondaryTextColor }}
-                    >
-                      Completed:
-                    </span>
-                    <span
-                      className="text-base font-bold font-mono"
-                      style={{ color: textColor }}
-                    >
-                      {completedCount}
-                    </span>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
 
-            {projectsLoading ? (
+            {!user ? (
+              <div className="py-6">
+                <div className="text-center">
+                  <p
+                    className="text-lg font-mono"
+                    style={{ color: secondaryTextColor }}
+                  >
+                    Sign in to track your progress and see your library.
+                  </p>
+                </div>
+              </div>
+            ) : projectsLoading ? (
               <div className="py-6">
                 <p
                   className="text-lg font-mono"
@@ -408,7 +438,7 @@ export function Challenges() {
                 {libraryChallenges.map((challenge, index) => {
                   const Icon = iconMap[challenge.id] || Code2;
                   return (
-                    <Link
+                    <ProtectedLink
                       key={challenge.id}
                       to={`/challenges/${challenge.id}`}
                       className="block shrink-0 sticky"
@@ -494,7 +524,7 @@ export function Challenges() {
                           </button>
                         </div>
                       </OrganicStep>
-                    </Link>
+                    </ProtectedLink>
                   );
                 })}
               </div>

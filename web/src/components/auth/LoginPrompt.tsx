@@ -63,7 +63,6 @@ export function LoginPrompt({ isOpen, onClose, intendedPath }: LoginPromptProps)
             <div
               className="relative w-full max-w-md rounded-lg border-2 p-8 shadow-xl"
               style={{ 
-                backgroundColor, 
                 borderColor,
                 ...themeStyle 
               }}

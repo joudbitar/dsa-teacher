@@ -65,18 +65,36 @@ class ApiClient {
     }
   }
 
-  // GET /modules
+  // GET /modules (public endpoint, doesn't require auth)
   async getModules(): Promise<Module[]> {
-    const response = await fetch(`${this.baseUrl}/modules`, {
-      method: 'GET',
-      headers: await this.getHeaders(),
-    })
+    try {
+      // Try with auth first if available
+      const headers = await this.getHeaders()
+      const response = await fetch(`${this.baseUrl}/modules`, {
+        method: 'GET',
+        headers,
+      })
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch modules: ${response.statusText}`)
+      if (!response.ok) {
+        throw new Error(`Failed to fetch modules: ${response.statusText}`)
+      }
+
+      return response.json()
+    } catch (error) {
+      // If auth fails, try without auth (modules are public)
+      const response = await fetch(`${this.baseUrl}/modules`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch modules: ${response.statusText}`)
+      }
+
+      return response.json()
     }
-
-    return response.json()
   }
 
   // GET /projects (optionally filtered by moduleId)

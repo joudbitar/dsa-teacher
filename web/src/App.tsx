@@ -31,14 +31,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/auth" element={<Auth />} />
-              <Route
-                path="/challenges"
-                element={
-                  <ProtectedRoute>
-                    <Challenges />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/challenges" element={<Challenges />} />
               <Route
                 path="/challenges/:id"
                 element={
