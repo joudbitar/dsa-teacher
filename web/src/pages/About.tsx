@@ -3,6 +3,9 @@ import { Footer } from '@/components/Footer'
 import { Target, Heart } from 'lucide-react'
 import { useTheme } from '@/theme/ThemeContext'
 import { PageTransition } from '@/components/routing/PageTransition'
+import { SEO } from '@/components/SEO'
+import { injectStructuredData, getOrganizationSchema } from '@/lib/structuredData'
+import { useEffect } from 'react'
 
 export function About() {
   const { backgroundColor, textColor, secondaryTextColor, accentBlue } = useTheme()
@@ -12,8 +15,24 @@ export function About() {
     fontFamily: 'JetBrains Mono, monospace',
   }
 
+  // Inject structured data
+  useEffect(() => {
+    injectStructuredData(getOrganizationSchema(), 'organization-schema');
+    
+    return () => {
+      const orgScript = document.getElementById('organization-schema');
+      if (orgScript) orgScript.remove();
+    };
+  }, []);
+
   return (
     <PageTransition>
+      <SEO
+        title="About Shelly - Learn DSA Through Hands-On Projects"
+        description="Learn about Shelly's mission to help developers master data structures and algorithms through hands-on coding challenges. Build real projects with real tests."
+        keywords="about shelly, learn DSA, data structures, algorithms, coding education, programming fundamentals"
+        canonical="/about"
+      />
       <div className="min-h-screen flex flex-col" style={themeStyle}>
         <Navbar />
       <main className="flex-1">

@@ -1,6 +1,6 @@
-# DSA Lab Platform Documentation
+# Shelly Platform Documentation
 
-Welcome to the DSA Lab knowledge base. This manual explains every component of the platform—from provisioning the dashboard to installing, operating, and troubleshooting the CLI. Whether you are an instructor, learner, or platform maintainer, you will find authoritative guidance here.
+Welcome to the Shelly knowledge base. This manual explains every component of the platform—from provisioning the dashboard to installing, operating, and troubleshooting the CLI. Whether you are an instructor, learner, or platform maintainer, you will find authoritative guidance here.
 
 ---
 
@@ -45,7 +45,7 @@ For troubleshooting and more details, continue with [Installing the CLI](#instal
 
 ## Platform Overview
 
-DSA Lab is a full-stack learning environment for data structures and algorithms. It unifies three primary subsystems:
+Shelly is a full-stack learning environment for data structures and algorithms. It unifies three primary subsystems:
 
 - **Dashboard (`web/`)** – A Vite + React SPA that provisions learner repositories, unlocks subchallenges, and exposes progress analytics.
 - **CLI (`cli/`)** – A Node.js `commander`-based tool (`dsa`) that runs challenge tests locally, surfaces hints, and posts submissions to the backend.

@@ -1,6 +1,6 @@
-# DSA Lab
+# Shelly
 
-DSA Lab is a toolkit for learning data structures with hands-on projects.  
+Shelly is a toolkit for learning data structures with hands-on projects.  
 The monorepo bundles a React dashboard, Node.js CLI, and Supabase Edge Functions that
 work together to provision challenge repositories, run local tests, and report progress.
 
@@ -15,8 +15,8 @@ work together to provision challenge repositories, run local tests, and report p
 
 ```bash
 # Clone (replace <org> with your GitHub org or account)
-git clone https://github.com/<org>/dsa-lab.git
-cd dsa-lab
+git clone https://github.com/<org>/shelly.git
+cd shelly
 
 # Install workspace dependencies
 pnpm install
@@ -81,7 +81,7 @@ running `supabase functions serve` or deploying to production.
 
 ## Documentation
 
-This section is the canonical reference for onboarding to the DSA Lab platform and its CLI. Share it with learners, instructors, and administrators to ensure everyone follows the same workflow.
+This section is the canonical reference for onboarding to the Shelly platform and its CLI. Share it with learners, instructors, and administrators to ensure everyone follows the same workflow.
 
 ### Platform Overview
 

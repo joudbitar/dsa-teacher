@@ -1,6 +1,6 @@
-# DSA Lab API
+# Shelly API
 
-Supabase Edge Functions (Deno runtime) for DSA Lab backend.
+Supabase Edge Functions (Deno runtime) for Shelly backend.
 
 ## Base URL
 

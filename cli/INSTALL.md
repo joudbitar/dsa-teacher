@@ -1,6 +1,6 @@
 # DSA CLI Installation Guide
 
-Complete guide for installing the DSA Lab CLI tool.
+Complete guide for installing the Shelly CLI tool.
 
 ## Prerequisites
 

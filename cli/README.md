@@ -1,6 +1,6 @@
 # @dsa/cli
 
-DSA Lab command-line tool for testing and submitting solutions locally.
+Shelly command-line tool for testing and submitting solutions locally.
 
 ## Installation
 
@@ -107,7 +107,7 @@ dsa test
 
 ### `dsa submit`
 
-Submits test results to the DSA Lab API and updates dashboard.
+Submits test results to the Shelly API and updates dashboard.
 
 ```bash
 dsa submit

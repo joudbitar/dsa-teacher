@@ -1,6 +1,6 @@
-# DSA Lab CLI Reference
+# Shelly CLI Reference
 
-The `dsa` command-line interface helps you run challenge tests locally and submit results to the DSA Lab platform. This document covers installation, configuration, commands, flags, and troubleshooting.
+The `dsa` command-line interface helps you run challenge tests locally and submit results to the Shelly platform. This document covers installation, configuration, commands, flags, and troubleshooting.
 
 ---
 

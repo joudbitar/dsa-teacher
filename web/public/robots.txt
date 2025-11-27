@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Disallow auth and admin routes
+Disallow: /auth
+Disallow: /login
+Disallow: /signup
+
+# Sitemap location
+Sitemap: https://shellycli.tech/sitemap.xml
+

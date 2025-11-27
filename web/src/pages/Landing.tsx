@@ -6,6 +6,8 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/theme/ThemeContext";
 import { PageTransition } from "@/components/routing/PageTransition";
+import { SEO } from "@/components/SEO";
+import { injectStructuredData, getOrganizationSchema, getWebsiteSchema } from "@/lib/structuredData";
 
 const codeExamples = {
   stack: {
@@ -208,6 +210,20 @@ export function Landing() {
     return () => clearInterval(interval);
   }, []);
 
+  // Inject structured data
+  useEffect(() => {
+    injectStructuredData(getOrganizationSchema(), 'organization-schema');
+    injectStructuredData(getWebsiteSchema(), 'website-schema');
+    
+    return () => {
+      // Cleanup on unmount
+      const orgScript = document.getElementById('organization-schema');
+      const websiteScript = document.getElementById('website-schema');
+      if (orgScript) orgScript.remove();
+      if (websiteScript) websiteScript.remove();
+    };
+  }, []);
+
   const themeStyle = {
     backgroundColor,
     color: textColor,
@@ -219,6 +235,12 @@ export function Landing() {
 
   return (
     <PageTransition>
+      <SEO
+        title="Shelly - Master Data Structures & Algorithms | Learn by Building"
+        description="Learn data structures and algorithms by building them from scratch. Shelly provides hands-on coding challenges with real GitHub repos and CLI tools. Master DSA fundamentals through practical projects."
+        keywords="shelly, shelly cli, learn DSA, data structures, algorithms, coding challenges, learn programming, learn data structures, computer science, coding practice, technical interview prep"
+        canonical="/"
+      />
       <div className="min-h-screen flex flex-col" style={themeStyle}>
         <Navbar />
       <main className="flex-1">
@@ -242,8 +264,7 @@ export function Landing() {
                   fontFamily: themeStyle.fontFamily,
                 }}
               >
-                Learn data structures and algorithms by building them from
-                scratch.
+                Learn data structures and algorithms by building them from scratch. Use Shelly CLI to test your code and master DSA fundamentals through hands-on coding challenges.
               </p>
               <Link
                 to="/auth?mode=signup"

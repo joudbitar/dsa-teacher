@@ -1,4 +1,4 @@
-# How to Run the DSA Lab App
+# How to Run the Shelly App
 
 Complete guide for running all parts of the application locally.
 

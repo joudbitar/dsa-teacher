@@ -13,6 +13,8 @@ import type { Module } from "@/lib/api";
 import { clearChallengeProgress } from "@/utils/challengeProgress";
 import { PageTransition } from "@/components/routing/PageTransition";
 import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
+import { SEO } from "@/components/SEO";
+import { injectStructuredData, getOrganizationSchema } from "@/lib/structuredData";
 import {
   Layers,
   Search,
@@ -158,6 +160,16 @@ export function Challenges() {
       clearInterval(interval);
     };
   }, [user, location.pathname])
+
+  // Inject structured data
+  useEffect(() => {
+    injectStructuredData(getOrganizationSchema(), 'organization-schema');
+    
+    return () => {
+      const orgScript = document.getElementById('organization-schema');
+      if (orgScript) orgScript.remove();
+    };
+  }, []);
 
   // Handle restart module
   const handleRestartClick = (projectId: string, moduleTitle: string) => {
@@ -358,6 +370,12 @@ export function Challenges() {
   
   return (
     <PageTransition>
+      <SEO
+        title="Coding Challenges - Stack, Queue, Binary Search | Shelly"
+        description="Browse Shelly's collection of data structure and algorithm challenges. Build stacks, queues, binary search trees, and more through hands-on coding projects."
+        keywords="coding challenges, data structures challenges, algorithm challenges, stack, queue, binary search, min heap, learn DSA"
+        canonical="/challenges"
+      />
       <div
         className="min-h-screen flex flex-col relative"
         style={{ backgroundColor }}

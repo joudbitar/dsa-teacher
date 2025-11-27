@@ -18,6 +18,9 @@ import { Footer } from "@/components/Footer";
 import { useTheme } from "@/theme/ThemeContext";
 import { colors } from "@/theme/colors";
 import { PageTransition } from "@/components/routing/PageTransition";
+import { SEO } from "@/components/SEO";
+import { injectStructuredData, getOrganizationSchema, getSoftwareApplicationSchema } from "@/lib/structuredData";
+import { useEffect } from "react";
 
 type DocSection = {
   id: string;
@@ -80,7 +83,7 @@ const createDocSections = (handleCopyInstall: () => void, copiedInstall: boolean
     content: (
       <>
         <p>
-          Get started with DSA Lab in just a few steps. You'll be coding your first data structure in minutes.
+          Get started with Shelly CLI in just a few steps. You'll be coding your first data structure in minutes. Learn DSA fundamentals through hands-on coding challenges with real GitHub repositories.
         </p>
         <ol className="list-decimal space-y-4 pl-5 marker:text-emerald-400">
           <li>
@@ -96,7 +99,7 @@ const createDocSections = (handleCopyInstall: () => void, copiedInstall: boolean
             <strong>Get your repository</strong> – The dashboard creates a private GitHub repository with starter code and tests.
           </li>
           <li>
-            <strong>Install the CLI</strong> – Use the one-liner command to install the <code>dsa</code> tool.
+            <strong>Install Shelly CLI</strong> – Use the one-liner command to install the <code>dsa</code> tool. The Shelly CLI helps you test your code locally and submit your progress.
           </li>
           <li>
             <strong>Clone and code</strong> – Clone your repo, implement the solution, and test locally.
@@ -115,7 +118,7 @@ const createDocSections = (handleCopyInstall: () => void, copiedInstall: boolean
     id: "how-it-works",
     title: "How It Works",
     summary:
-      "Understand the technology behind DSA Lab and how the dashboard, CLI, and backend work together.",
+      "Understand the technology behind Shelly and how the dashboard, CLI, and backend work together.",
     icon: <Network className="h-6 w-6 text-blue-300" />,
     link: {
       href: "#",
@@ -124,7 +127,7 @@ const createDocSections = (handleCopyInstall: () => void, copiedInstall: boolean
     content: (
       <>
         <p>
-          DSA Lab is built with modern web technologies to give you a seamless learning experience. 
+          Shelly is built with modern web technologies to give you a seamless learning experience. 
           Here's how everything connects:
         </p>
         <div className="space-y-4">
@@ -139,11 +142,11 @@ const createDocSections = (handleCopyInstall: () => void, copiedInstall: boolean
           </div>
           <div className="rounded-lg p-4" style={{ backgroundColor: colors.background.surface, border: `1px solid ${colors.border.divider}` }}>
             <h4 className="font-semibold mb-2" style={{ color: colors.text.primary }}>
-              💻 CLI Tool (Node.js + TypeScript)
+              💻 Shelly CLI Tool (Node.js + TypeScript)
             </h4>
             <p className="text-sm" style={{ color: colors.text.secondary }}>
-              The <code>dsa</code> command-line tool runs tests locally, shows hints, and submits your progress. 
-              It works entirely offline for testing, then syncs results when you submit.
+              The Shelly CLI (<code>dsa</code> command) runs tests locally, shows hints, and submits your progress. 
+              It works entirely offline for testing, then syncs results when you submit. Master data structures and algorithms with the Shelly CLI.
             </p>
           </div>
           <div className="rounded-lg p-4" style={{ backgroundColor: colors.background.surface, border: `1px solid ${colors.border.divider}` }}>
@@ -328,7 +331,7 @@ echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc`}
     id: "best-practices",
     title: "Best Practices",
     summary:
-      "Tips and strategies for learning effectively and making the most of your DSA Lab experience.",
+      "Tips and strategies for learning effectively and making the most of your Shelly experience.",
     icon: <Shield className="h-6 w-6 text-purple-300" />,
     link: {
       href: "#",
@@ -686,8 +689,27 @@ export function Docs() {
     };
   }, []);
 
+  // Inject structured data
+  useEffect(() => {
+    injectStructuredData(getOrganizationSchema(), 'organization-schema');
+    injectStructuredData(getSoftwareApplicationSchema(), 'software-application-schema');
+    
+    return () => {
+      const orgScript = document.getElementById('organization-schema');
+      const appScript = document.getElementById('software-application-schema');
+      if (orgScript) orgScript.remove();
+      if (appScript) appScript.remove();
+    };
+  }, []);
+
   return (
     <PageTransition>
+      <SEO
+        title="Shelly CLI Documentation - Installation & Usage Guide"
+        description="Complete documentation for Shelly CLI. Learn how to install, use commands, and master data structures and algorithms through hands-on coding challenges."
+        keywords="shelly cli, shelly documentation, install shelly cli, dsa commands, learn data structures, coding challenges"
+        canonical="/docs"
+      />
       <div
         className="min-h-screen flex flex-col"
         style={{ ...themeStyle, backgroundColor: colors.background.base }}
@@ -711,13 +733,13 @@ export function Docs() {
               className="text-4xl font-bold leading-tight md:text-5xl"
               style={{ color: colors.text.primary }}
             >
-              DSA Lab Documentation
+              Shelly Documentation
             </h1>
             <p
               className="mt-4 max-w-3xl text-lg leading-relaxed"
               style={{ color: colors.text.secondary }}
             >
-              Everything you need to know to use DSA Lab effectively. Learn how to get started, 
+              Everything you need to know to use Shelly effectively. Learn how to get started, 
               use the platform, master the CLI commands, and follow best practices for learning data structures and algorithms.
             </p>
             <div className="mt-8 max-w-3xl">

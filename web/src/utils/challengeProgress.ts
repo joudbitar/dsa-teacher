@@ -7,7 +7,7 @@ export interface ChallengeProgress {
   lastUpdated: number // Timestamp
 }
 
-const STORAGE_KEY_PREFIX = 'dsa-lab-challenge-progress-'
+const STORAGE_KEY_PREFIX = 'shelly-challenge-progress-'
 
 /**
  * Get progress for a specific challenge from localStorage

@@ -1,0 +1,13 @@
+OG Image Requirements:
+- Size: 1200x630px (recommended for Open Graph)
+- Format: PNG or JPG
+- Content: Should include "Shelly" branding, tagline, and visual elements
+- File name: og-image.png
+- Location: web/public/og-image.png
+
+For now, the meta tags reference /og-image.png. You can:
+1. Create a custom 1200x630px image with Shelly branding
+2. Or temporarily use turtle_logo.png by updating meta tags
+
+The image should represent Shelly's brand and purpose: learning data structures and algorithms through hands-on coding challenges.
+
