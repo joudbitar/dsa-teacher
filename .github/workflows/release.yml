@@ -1,0 +1,80 @@
+name: Auto Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Triggers on tags like v0.1.0, v1.0.0, etc.
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Required to create releases
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for tags
+
+      - name: Extract version from tag
+        id: tag_version
+        run: |
+          # Extract tag name (refs/tags/v0.1.1 -> v0.1.1)
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          # Remove 'v' prefix if present (v0.1.1 -> 0.1.1)
+          VERSION=${TAG_NAME#v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION from tag: $TAG_NAME"
+
+      - name: Get release notes from commit message
+        id: release_notes
+        run: |
+          # Get the commit message from the tag
+          TAG_NAME="${{ steps.tag_version.outputs.tag }}"
+          COMMIT_MSG=$(git log -1 --pretty=%B "$TAG_NAME" 2>/dev/null || echo "")
+          
+          # Extract description (everything after first line, skip empty lines)
+          NOTES=$(echo "$COMMIT_MSG" | tail -n +2 | sed '/^$/d' | head -20)
+          
+          # If no notes in commit, create default
+          if [ -z "$NOTES" ]; then
+            NOTES="CLI v${{ steps.tag_version.outputs.version }} release"
+          fi
+          
+          # Format as markdown
+          NOTES="## Changes
+
+$NOTES
+
+## Installation
+
+Update your CLI:
+
+\`\`\`bash
+dsa update
+\`\`\`
+
+Or reinstall:
+
+\`\`\`bash
+curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash
+\`\`\`"
+          
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.tag_version.outputs.tag }}
+          name: CLI v${{ steps.tag_version.outputs.version }}
+          body: ${{ steps.release_notes.outputs.notes }}
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
