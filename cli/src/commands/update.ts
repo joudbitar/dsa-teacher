@@ -35,8 +35,9 @@ export async function updateCommand(): Promise<void> {
   
   try {
     // Use the install script with DSA_CLI_REF set to the latest release tag
+    // Export the env var before piping to ensure it's available to the script
     // This ensures we install from the release tag, not the main branch
-    const { exitCode } = await execa('bash', ['-c', `curl -fsSL ${installScript} | DSA_CLI_REF=${latestTag} bash`], {
+    const { exitCode } = await execa('bash', ['-c', `export DSA_CLI_REF=${latestTag} && curl -fsSL ${installScript} | bash`], {
       stdout: 'inherit',
       stderr: 'inherit',
     });
