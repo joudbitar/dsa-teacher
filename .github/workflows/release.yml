@@ -54,27 +54,29 @@ jobs:
             NOTES="CLI v${{ steps.tag_version.outputs.version }} release"
           fi
           
-          # Format as markdown
-          NOTES="## Changes
-
-$NOTES
-
-## Installation
-
-Update your CLI:
-
-\`\`\`bash
-dsa update
-\`\`\`
-
-Or reinstall:
-
-\`\`\`bash
-curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash
-\`\`\`"
+          # Format as markdown using heredoc to avoid YAML parsing issues
+          {
+            echo "## Changes"
+            echo ""
+            echo "$NOTES"
+            echo ""
+            echo "## Installation"
+            echo ""
+            echo "Update your CLI:"
+            echo ""
+            echo "\`\`\`bash"
+            echo "dsa update"
+            echo "\`\`\`"
+            echo ""
+            echo "Or reinstall:"
+            echo ""
+            echo "\`\`\`bash"
+            echo "curl -fsSL https://raw.githubusercontent.com/joudbitar/dsa-teacher/main/scripts/install-cli.sh | bash"
+            echo "\`\`\`"
+          } > /tmp/release_notes.txt
           
           echo "notes<<EOF" >> $GITHUB_OUTPUT
-          echo "$NOTES" >> $GITHUB_OUTPUT
+          cat /tmp/release_notes.txt >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
