@@ -5,7 +5,60 @@ import { loadConfig } from '../lib/loadConfig.js';
 import { runCommand } from '../lib/runCommand.js';
 import { parseReport } from '../lib/parseReport.js';
 import { getCurrentVersion } from '../lib/checkUpdate.js';
-import type { DSAReport, TestCase } from '../../types/report.js';
+import type { DSAReport, TestCase, TestLogs, FormattedLogLine } from '../../types/report.js';
+
+/**
+ * Parse and format test output into structured log lines
+ */
+function parseTestLogs(stdout: string, stderr: string): TestLogs {
+  const rawOutput = `${stdout}\n${stderr}`.trim();
+  const lines: FormattedLogLine[] = [];
+  
+  // Combine stdout and stderr, split by lines
+  const allLines = rawOutput.split('\n');
+  
+  for (const line of allLines) {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      lines.push({ type: 'default', content: line });
+      continue;
+    }
+    
+    // Detect compilation warnings
+    if (trimmed.includes('[compile]') || trimmed.toLowerCase().includes('warning') || trimmed.toLowerCase().includes('deprecated')) {
+      lines.push({ type: 'warning', content: line });
+    }
+    // Detect compilation errors
+    else if (trimmed.includes('[compile]') && (trimmed.toLowerCase().includes('error') || trimmed.toLowerCase().includes('failed'))) {
+      lines.push({ type: 'error', content: line });
+    }
+    // Detect test execution markers
+    else if (trimmed.includes('[tester::') || trimmed.includes('[your-program]')) {
+      lines.push({ type: 'test', content: line });
+    }
+    // Detect test failures
+    else if (trimmed.includes('FAILED') || trimmed.includes('failed') || trimmed.includes('Assertion failed') || trimmed.includes('Test failed')) {
+      lines.push({ type: 'error', content: line });
+    }
+    // Detect test success
+    else if (trimmed.includes('PASSED') || trimmed.includes('passed') || trimmed.includes('✓') || trimmed.includes('PASS')) {
+      lines.push({ type: 'test', content: line });
+    }
+    // Detect expected/received patterns (common in test failures)
+    else if (trimmed.includes('Expected:') || trimmed.includes('Received:') || trimmed.includes('Expected:') || trimmed.includes('^')) {
+      lines.push({ type: 'error', content: line });
+    }
+    // Default to info/output
+    else {
+      lines.push({ type: 'output', content: line });
+    }
+  }
+  
+  return {
+    rawOutput,
+    formattedLines: lines,
+  };
+}
 
 /**
  * Clean up technical error messages to be more user-friendly
@@ -134,12 +187,20 @@ export async function testCommand(cwd: string = process.cwd()): Promise<DSARepor
     frameIndex = (frameIndex + 1) % frames.length;
   }, 80);
 
-  // Run tests silently - we'll show filtered results after parsing
+  // Run tests and capture output
   const result = await runCommand(config.testCommand, projectRoot);
   
   // Stop loading animation
   clearInterval(loadingInterval);
   process.stdout.write('\r' + ' '.repeat(50) + '\r'); // Clear the line
+
+  // Parse test logs from stdout/stderr
+  const testLogs = parseTestLogs(result.stdout, result.stderr);
+  
+  // Debug: Log if we captured any output
+  if (result.stdout || result.stderr) {
+    console.log(chalk.gray(`  📝 Captured ${result.stdout.length + result.stderr.length} bytes of test output`));
+  }
 
   // 3. Parse report file (always relative to project root)
   const reportPath = config.reportFile.startsWith('/')
@@ -286,6 +347,7 @@ export async function testCommand(cwd: string = process.cwd()): Promise<DSARepor
   console.log(chalk.blue('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
   console.log('');
 
-  // 5. Return report for use by submit command
+  // 5. Attach test logs to report and return for use by submit command
+  report.testLogs = testLogs;
   return report;
 }

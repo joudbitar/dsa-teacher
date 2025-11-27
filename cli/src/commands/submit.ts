@@ -101,6 +101,7 @@ export async function submitCommand(cwd: string = process.cwd()): Promise<void> 
       challengeResult: currentChallenge,
     },
     commitSha: gitStatus.commitSha !== 'unknown' ? gitStatus.commitSha : undefined,
+    testLogs: report.testLogs, // Include test logs if available
   };
 
   console.log('');

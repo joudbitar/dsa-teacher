@@ -19,6 +19,7 @@ export interface DSAReport {
   pass: boolean;           // Overall pass/fail
   cases: TestCase[];       // Per-sub-challenge results
   currentChallengeIndex?: number; // Current challenge index (0-based)
+  testLogs?: TestLogs;     // Test execution logs (optional)
 }
 
 /**
@@ -45,6 +46,22 @@ export interface APITestCase {
 }
 
 /**
+ * Formatted log line for test output
+ */
+export interface FormattedLogLine {
+  type: 'compile' | 'test' | 'error' | 'warning' | 'info' | 'output' | 'default';
+  content: string;
+}
+
+/**
+ * Test logs structure
+ */
+export interface TestLogs {
+  rawOutput: string;                    // Raw combined stdout + stderr
+  formattedLines: FormattedLogLine[];  // Parsed and formatted log lines
+}
+
+/**
  * Request payload for POST /api/submissions
  */
 export interface SubmissionRequest {
@@ -57,6 +74,7 @@ export interface SubmissionRequest {
     challengeResult?: TestCase;     // Result of the current challenge
   };
   commitSha?: string;        // Git commit SHA (optional)
+  testLogs?: TestLogs;       // Test execution logs
 }
 
 /**

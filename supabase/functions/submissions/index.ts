@@ -13,12 +13,21 @@ interface SubmissionDetails {
   challengeResult?: TestCase;
 }
 
+interface TestLogs {
+  rawOutput: string;
+  formattedLines: Array<{
+    type: 'compile' | 'test' | 'error' | 'warning' | 'info' | 'output' | 'default';
+    content: string;
+  }>;
+}
+
 interface SubmissionRequest {
   projectId: string;
   result: 'pass' | 'fail';
   summary: string;
   details: SubmissionDetails;
   commitSha?: string;
+  testLogs?: TestLogs;
 }
 
 Deno.serve(async (req) => {
@@ -50,11 +59,35 @@ Deno.serve(async (req) => {
 
     // Parse request body
     const body: SubmissionRequest = await req.json();
-    const { projectId, result, summary, details, commitSha } = body;
+    const { projectId, result, summary, details, commitSha, testLogs } = body;
 
     // Validate projectId matches token
     if (projectId !== project.id) {
       return jsonResponse({ error: 'Project ID mismatch' }, 403);
+    }
+
+    // Validate and sanitize test logs if provided
+    let sanitizedTestLogs: TestLogs | null = null;
+    if (testLogs) {
+      // Ensure testLogs structure is valid
+      if (typeof testLogs.rawOutput === 'string' && Array.isArray(testLogs.formattedLines)) {
+        // Limit raw output size to prevent database bloat (max 1MB)
+        const maxOutputSize = 1024 * 1024; // 1MB
+        sanitizedTestLogs = {
+          rawOutput: testLogs.rawOutput.length > maxOutputSize 
+            ? testLogs.rawOutput.substring(0, maxOutputSize) + '\n... (truncated)'
+            : testLogs.rawOutput,
+          formattedLines: testLogs.formattedLines.slice(0, 10000), // Limit to 10k lines
+        };
+        console.log(`Storing test logs: ${sanitizedTestLogs.rawOutput.length} bytes, ${sanitizedTestLogs.formattedLines.length} lines`);
+      } else {
+        console.log('Invalid testLogs structure:', { 
+          hasRawOutput: typeof testLogs.rawOutput,
+          hasFormattedLines: Array.isArray(testLogs.formattedLines)
+        });
+      }
+    } else {
+      console.log('No testLogs provided in submission');
     }
 
     // Insert submission
@@ -66,6 +99,7 @@ Deno.serve(async (req) => {
         summary,
         details,
         commitSha: commitSha || null,
+        testLogs: sanitizedTestLogs,
       })
       .select()
       .single();

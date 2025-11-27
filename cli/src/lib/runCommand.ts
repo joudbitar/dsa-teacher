@@ -25,8 +25,8 @@ export async function runCommand(
   try {
     const result = await execa(cmd, args, {
       cwd,
-      stdout: 'ignore', // Suppress stdout output
-      stderr: 'ignore', // Suppress stderr output
+      stdout: 'pipe', // Capture stdout output
+      stderr: 'pipe', // Capture stderr output
       reject: false, // Don't throw on non-zero exit
     });
 
