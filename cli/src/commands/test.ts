@@ -81,17 +81,42 @@ function cleanErrorMessage(testCase: TestCase): string {
  * @returns DSAReport object from the test runner
  */
 export async function testCommand(cwd: string = process.cwd()): Promise<DSAReport> {
+  // Check for updates in background (non-blocking)
+  import('../lib/checkUpdate.js').then(({ checkForUpdateIfNeeded }) => {
+    checkForUpdateIfNeeded().then(updateInfo => {
+      if (updateInfo?.updateAvailable) {
+        // Show notification after test results
+        setTimeout(() => {
+          console.log('');
+          console.log(chalk.yellow('  ⚠️  Update available!'));
+          console.log(chalk.gray(`  Current: ${updateInfo.currentVersion} → Latest: ${updateInfo.latestVersion}`));
+          console.log(chalk.cyan(`  Run: dsa update`));
+          console.log('');
+        }, 100);
+      }
+    }).catch(() => {
+      // Silently fail
+    });
+  }).catch(() => {
+    // Silently fail
+  });
+
   // 1. Load project config
   const { config, projectRoot } = loadConfig(cwd);
 
   // 2. Run test command (from config)
   console.log('');
-  console.log(chalk.bold.cyan('  ██████╗ ███████╗ █████╗     ████████╗███████╗███████╗████████╗'));
-  console.log(chalk.bold.cyan('  ██╔══██╗██╔════╝██╔══██╗    ╚══██╔══╝██╔════╝██╔════╝╚══██╔══╝'));
-  console.log(chalk.bold.cyan('  ██║  ██║███████╗███████║       ██║   █████╗  ███████╗   ██║   '));
-  console.log(chalk.bold.cyan('  ██║  ██║╚════██║██╔══██║       ██║   ██╔══╝  ╚════██║   ██║   '));
-  console.log(chalk.bold.cyan('  ██████╔╝███████║██║  ██║       ██║   ███████╗███████║   ██║   '));
-  console.log(chalk.bold.cyan('  ╚═════╝ ╚══════╝╚═╝  ╚═╝       ╚═╝   ╚══════╝╚══════╝   ╚═╝   '));
+  console.log(chalk.bold.cyan('  /$$$$$$  /$$                 /$$ /$$                  /$$$$$$  /$$       /$$$$$$'));
+  console.log(chalk.bold.cyan(' /$$__  $$| $$                | $$| $$                 /$$__  $$| $$      |_  $$_/'));
+  console.log(chalk.bold.cyan('| $$  \\__/| $$$$$$$   /$$$$$$ | $$| $$ /$$   /$$      | $$  \\__/| $$        | $$  '));
+  console.log(chalk.bold.cyan('|  $$$$$$ | $$__  $$ /$$__  $$| $$| $$| $$  | $$      | $$      | $$        | $$  '));
+  console.log(chalk.bold.cyan(' \\____  $$| $$  \\ $$| $$$$$$$$| $$| $$| $$  | $$      | $$      | $$        | $$  '));
+  console.log(chalk.bold.cyan(' /$$  \\ $$| $$  | $$| $$_____/| $$| $$| $$  | $$      | $$    $$| $$        | $$  '));
+  console.log(chalk.bold.cyan('|  $$$$$$/| $$  | $$|  $$$$$$$| $$| $$|  $$$$$$$      |  $$$$$$/| $$$$$$$$ /$$$$$$'));
+  console.log(chalk.bold.cyan(' \\______/ |__/  |__/ \\_______/|__/|__/ \\____  $$       \\______/ |________/|______/'));
+  console.log(chalk.bold.cyan('                                       /$$  | $$                                  '));
+  console.log(chalk.bold.cyan('                                      |  $$$$$$/                                  '));
+  console.log(chalk.bold.cyan('                                       \\______/                                   '));
   console.log('');
   console.log(chalk.gray(`  Module: ${config.moduleId} | Language: ${config.language}`));
   console.log('');

@@ -14,6 +14,26 @@ import type { SubmissionRequest, ProjectConfig } from '../../types/report.js';
  * @param cwd - Current working directory (defaults to process.cwd())
  */
 export async function submitCommand(cwd: string = process.cwd()): Promise<void> {
+  // Check for updates in background (non-blocking)
+  import('../lib/checkUpdate.js').then(({ checkForUpdateIfNeeded }) => {
+    checkForUpdateIfNeeded().then(updateInfo => {
+      if (updateInfo?.updateAvailable) {
+        // Show notification after submission
+        setTimeout(() => {
+          console.log('');
+          console.log(chalk.yellow('  ⚠️  Update available!'));
+          console.log(chalk.gray(`  Current: ${updateInfo.currentVersion} → Latest: ${updateInfo.latestVersion}`));
+          console.log(chalk.cyan(`  Run: dsa update`));
+          console.log('');
+        }, 100);
+      }
+    }).catch(() => {
+      // Silently fail
+    });
+  }).catch(() => {
+    // Silently fail
+  });
+
   // 1. Run test command internally to get latest results
   console.log(chalk.blue('Running tests before submission...'));
   console.log('');
