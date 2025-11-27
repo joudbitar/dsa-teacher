@@ -76,7 +76,7 @@ export function Challenges() {
           const fallbackModules: Module[] = ALLOWED_MODULE_IDS.map((id) => {
             const challenge = challengeData[id];
             if (!challenge) return null;
-            return {
+            const module: Module = {
               id,
               title: challenge.title,
               level: challenge.level,
@@ -84,8 +84,11 @@ export function Challenges() {
               subchallenges: challenge.subchallenges || [],
               template: `template-dsa-${id}`,
               languages: ["TypeScript", "JavaScript", "Python", "Java", "C++", "Go"],
-              time: challenge.time,
             };
+            if (challenge.time) {
+              module.time = challenge.time;
+            }
+            return module;
           }).filter((m): m is Module => m !== null);
           
           setModules(fallbackModules);
